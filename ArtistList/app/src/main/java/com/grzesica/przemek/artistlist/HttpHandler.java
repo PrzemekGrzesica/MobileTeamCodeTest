@@ -13,6 +13,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 /**
  * Created by przemek on 26.11.17.
+ * Methods for download json and jpg files.
  */
 
 public class HttpHandler {
@@ -22,7 +23,7 @@ public class HttpHandler {
     public HttpHandler() {
     }
 
-    public String makeServiceCall(String requestUrl) {
+    public String jsonServiceCall(String requestUrl) {
         String response = null;
         try {
             URL url = new URL(requestUrl);
@@ -63,5 +64,9 @@ public class HttpHandler {
             }
         }
         return strBuilder.toString();
+    }
+
+    public String jpgServiceCall(String requestUrl) {
+
     }
 }
