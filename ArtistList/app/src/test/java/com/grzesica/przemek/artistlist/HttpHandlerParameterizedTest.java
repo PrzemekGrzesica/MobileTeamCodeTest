@@ -1,23 +1,17 @@
 package com.grzesica.przemek.artistlist;
 
-import android.os.health.SystemHealthManager;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.junit.Assert.*;
 
 /**
  * Created by przemek on 11.12.17.
+ * Parametrized test is green when Android API is excluded from HttpHandler.java
  */
 
 @RunWith(Parameterized.class)
@@ -42,21 +36,10 @@ public class HttpHandlerParameterizedTest {
         });
     }
 
-    @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
     public void jsonServiceCallTest() throws Exception {
-        
         String parsedJson = new HttpHandler().jsonServiceCall(handlerUrl);
         assertEquals(expectedBoolean, nonNull(parsedJson));
     }
-
-    /*@Test
-    public void jpgServiceCallTest() throws Exception {
-    }*/
-
 
 }
