@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
@@ -40,10 +42,14 @@ public class HttpHandlerParameterizedTest {
         });
     }
 
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void jsonServiceCallTest() throws Exception {
-        String url = "http://i.img.co/data/data.json";
+        
         String parsedJson = new HttpHandler().jsonServiceCall(handlerUrl);
         assertEquals(expectedBoolean, nonNull(parsedJson));
     }
