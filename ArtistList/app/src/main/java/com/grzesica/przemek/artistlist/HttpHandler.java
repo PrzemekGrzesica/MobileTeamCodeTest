@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+//import javax.imageio.ImageIO;
 /**
  * Created by przemek on 26.11.17.
  * Methods for download json and jpg files.
@@ -41,6 +42,7 @@ public class HttpHandler {
         } catch (Exception e) {
             Log.e(TAG, "Exception: " + e.getMessage());
         }
+
         return response;
     }
 
@@ -66,7 +68,29 @@ public class HttpHandler {
         return strBuilder.toString();
     }
 
-    public String jpgServiceCall(String requestUrl) {
+    public void jpgServiceCall(String requestUrl) {
+        /*try {
+            URL url = new URL(requestUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            // read the response
+            BufferedImage img =  ImageIO.read(con.getInputStream());
+
+            // retrieve image
+//			    BufferedImage bi = getMyImage();
+            File outputfile = new File("szaved.jpg");
+            ImageIO.write(img, "jpg", outputfile);
+
+//			response = convertStreamToString(in);
+        } catch (MalformedURLException e) {
+             Log.e(TAG, "MalformedURLException: " + e.getMessage());
+        } catch (ProtocolException e) {
+             Log.e(TAG, "ProtocolException: " + e.getMessage());
+        } catch (IOException e) {
+             Log.e(TAG, "IOException: " + e.getMessage());
+        } catch (Exception e) {
+             Log.e(TAG, "Exception: " + e.getMessage());
+        }*/
 
     }
 }

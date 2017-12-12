@@ -12,6 +12,7 @@ import android.view.View;
 
 /**
  * TODO: document your custom view class.
+ * To jest ściąga do analizy.
  */
 public class MyView extends View {
     private String mExampleString; // TODO: use a default from R.string...

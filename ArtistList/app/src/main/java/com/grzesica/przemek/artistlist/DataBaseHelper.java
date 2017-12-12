@@ -23,11 +23,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 //        String albumListString = "CREATE TABLE ALBUM_LIST(_id INTEGER PRIMARY KEY AUTOINCREMENT ,"
 //                + "TITLE TEXT, ALBUM_IMAGE_ID INTEGER);";
         db.execSQL(authListString);
-        for (int i :
+        /*for (int i : i < 1
              ) {
             
         }
-        insertArtist.(db, strName, strDescr, strGenres, R.drawable.?);
+        insertArtist.(db, strName, strDescr, strGenres, R.drawable.?);*/
 
     }
 
