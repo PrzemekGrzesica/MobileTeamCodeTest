@@ -1,12 +1,15 @@
 package com.grzesica.przemek.artistlist;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.json.JSONObject;
+
 /**
  * Created by przemek on 22.11.17.
- * SQLHelper for creation two types of databases (author list and album list of author)
+ * SQLHelper for creation two types of tables (authors list table and albums list of an author table)
  */
 
 public class DataBaseHelper extends SQLiteOpenHelper {
@@ -71,5 +74,37 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         // Create new tables
         onCreate(db);
+    }
+
+    public void createArtistListRecords(String artistId, String genres, String artistPictureUrl,
+                                        String name, String description) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_ARTIST_ID, artistId);
+        values.put(KEY_GENRES, genres);
+        values.put(KEY_ARTIST_PICTURE_URL, artistPictureUrl);
+//        values.put(KEY_ARTIST_PICTURE, getPicture(artistPictureUrl);
+        values.put(KEY_NAME, name);
+        values.put(KEY_DESCRIPTION, description);
+
+        db.insert(TABLE_ARTIST_LIST, null, values);
+    }
+
+    public void createAlbumListRecords(String artistId, String albumId, String title,
+                                       String type, String albumPictureUrl) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_ARTIST_ID, artistId);
+        values.put(KEY_ALBUM_ID, albumId);
+        values.put(KEY_TITLE, title);
+        values.put(KEY_TYPE, type);
+        values.put(KEY_ALBUM_PICTURE_URL, albumPictureUrl);
+//        values.put(KEY_ALBUM_PICTURE, getPicture(albumPictureUrl);
+
+        db.insert(TABLE_ARTIST_LIST, null, values);
     }
 }
