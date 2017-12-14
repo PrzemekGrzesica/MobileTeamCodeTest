@@ -28,8 +28,11 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
     }*/
 
+    DataBaseHelper dbHelper;
+
     @Override
     protected Void doInBackground(Void... arg0) {
+
         HttpHandler httpHandler = new HttpHandler();
 
         // Making a request to url and getting response
@@ -44,27 +47,33 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
-                // looping through All Artist
+                // Looping through All Artist
                 for (int i = 0; i < artArray.length(); i++) {
                     JSONObject artObj = artArray.getJSONObject(i);
 
                     String artistId = artObj.getString("id");
                     String genres = artObj.getString("genres");
-                    String pictureUrl = artObj.getString("picture");
+                    String artistpictureUrl = artObj.getString("picture");
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
 
-                    // tmp hash map for single contact
-                    HashMap<String, String> contact = new HashMap<>();
+                    dbHelper.createArtistListRecords(artistId, genres, artistpictureUrl, name, description);
+                }
 
-                    // adding each child node to HashMap key => value
-                    contact.put("id", id);
-                    contact.put("name", name);
-                    contact.put("email", email);
-                    contact.put("mobile", mobile);
+                // Getting JSON Array node
+                JSONArray albArray = jsonObj.getJSONArray("albums");
 
-                    // adding contact to contact list
-                    contactList.add(contact);
+                // Looping through all Albums
+                for (int i = 0; i < albArray.length(); i++) {
+                    JSONObject albObj = artArray.getJSONObject(i);
+
+                    String albumId = albObj.getString("id");
+                    String artistId = albObj.getString("artistId");
+                    String title = albObj.getString("title");
+                    String type = albObj.getString("type");
+                    String albumPictureUrl = albObj.getString("picture");
+
+                    dbHelper.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
                 }
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
