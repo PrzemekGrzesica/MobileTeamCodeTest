@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Internal static class has been created to avoid an implicit reference to an external class.
  */
 
-public class DataBaseAdapter {
+public class DataBaseHandler {
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -58,7 +58,7 @@ public class DataBaseAdapter {
     private Context context;
     private DataBaseHelper dbHelper;
 
-    public DataBaseAdapter(Context context){
+    public DataBaseHandler(Context context){
         this.context = context;
     }
 
@@ -88,7 +88,7 @@ public class DataBaseAdapter {
         }
     }
 
-    public DataBaseAdapter open(){
+    public DataBaseHandler open(){
         dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
         try {
             db = dbHelper.getWritableDatabase();
@@ -98,7 +98,7 @@ public class DataBaseAdapter {
         return this;
     }
 
-    public DataBaseAdapter close(){
+    public DataBaseHandler close(){
         dbHelper.close();
     }
 

@@ -28,7 +28,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
     }*/
 
-    DataBaseHelper dbHelper;
+    DataBaseHandler dbHandler;
 
     @Override
     protected Void doInBackground(Void... arg0) {
@@ -57,7 +57,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
 
-                    dbHelper.createArtistListRecords(artistId, genres, artistpictureUrl, name, description);
+                    dbHandler.createArtistListRecords(artistId, genres, artistpictureUrl, name, description);
                 }
 
                 // Getting JSON Array node
@@ -73,7 +73,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
 
-                    dbHelper.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
+                    dbHandler.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
                 }
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());

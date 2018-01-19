@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">ArtistList</string>
+    <string name="app_name">Artist List</string>
+    <string name="name_text">Name</string>
+    <string name="genres_text">Genres</string>
 </resources>
