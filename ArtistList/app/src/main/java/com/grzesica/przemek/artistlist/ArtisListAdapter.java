@@ -11,30 +11,30 @@ import android.widget.TextView;
 public class ArtisListAdapter extends CursorAdapter{
 
 
-        public ArtisListAdapter(Context context, Cursor cursor, int flag){
+    public ArtisListAdapter(Context context, Cursor cursor, int flag){
 
-            super(context, cursor, 0);
-        }
-
-        public void bindView(View view, Context context, Cursor cursor){
-
-            TextView tvName = (TextView) view.findViewById(R.id.tvName);
-
-            TextView tvGenres = (TextView) view.findViewById(R.id.tvGenres);
-
-            String strName = cursor.getString(cursor.getColumnIndex("name"));
-
-            String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
-
-            tvName.setText(strName);
-
-            tvGenres.setText(strGenres);
-
-            //todo bind the image to the artistImageView
-
-        }
-
-        public View newView(Context context, Cursor cursor, ViewGroup parent){
-            return LayoutInflater.from(context).inflate(R.layout.artist_list_row, parent,false);
-        }
+        super(context, cursor, 0);
     }
+
+    public void bindView(View view, Context context, Cursor cursor){
+
+        TextView tvName = (TextView) view.findViewById(R.id.tvName);
+
+        TextView tvGenres = (TextView) view.findViewById(R.id.tvGenres);
+
+        String strName = cursor.getString(cursor.getColumnIndex("name"));
+
+        String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
+
+        tvName.setText(strName);
+
+        tvGenres.setText(strGenres);
+
+        //todo bind the image to the artistImageView
+
+    }
+
+    public View newView(Context context, Cursor cursor, ViewGroup parent){
+        return LayoutInflater.from(context).inflate(R.layout.artist_list_row, parent,false);
+    }
+}

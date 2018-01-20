@@ -134,8 +134,8 @@ public class DataBaseAdapter {
         return db.insert(TABLE_ARTIST_LIST, null, values);
     }
 
-    public Cursor getAllTodos() {
-        String[] columns = {KEY_ARTIST_ID, KEY_GENRES, KEY_ARTIST_PICTURE_PATH};
-        return db.query(DB_TODO_TABLE, columns, null, null, null, null, null);
+    public Cursor getArtistListItems() {
+        String[] columns = {KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_ARTIST_PICTURE_PATH};
+        return db.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
     }
 }
