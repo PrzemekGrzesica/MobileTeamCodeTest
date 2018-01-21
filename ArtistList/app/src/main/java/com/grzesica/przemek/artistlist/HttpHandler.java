@@ -1,7 +1,5 @@
 package com.grzesica.przemek.artistlist;
 
-import android.util.Log;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 //import javax.imageio.ImageIO;
+
 /**
  * Created by przemek on 26.11.17.
  * Methods for download json and jpg files.

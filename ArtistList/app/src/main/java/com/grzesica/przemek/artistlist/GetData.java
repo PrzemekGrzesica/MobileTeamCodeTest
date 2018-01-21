@@ -1,14 +1,11 @@
 package com.grzesica.przemek.artistlist;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
 
@@ -28,7 +25,8 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
     }*/
 
-    DataBaseHandler dbHandler;
+
+    DataBaseAdapter dbAdapter;
 
     @Override
     protected Void doInBackground(Void... arg0) {
@@ -36,6 +34,8 @@ public class GetData extends AsyncTask<Void, Void, Void> {
         HttpHandler httpHandler = new HttpHandler();
 
         // Making a request to url and getting response
+        // todo jsonUrl as argument
+        String jsonUrl = "http://i.img.co/data/data.json";
         String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
 
         Log.e(TAG, "Response from url: " + jsonStr);
@@ -53,11 +53,11 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
                     String artistId = artObj.getString("id");
                     String genres = artObj.getString("genres");
-                    String artistpictureUrl = artObj.getString("picture");
+                    String artistPictureUrl = artObj.getString("picture");
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
 
-                    dbHandler.createArtistListRecords(artistId, genres, artistpictureUrl, name, description);
+                    dbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, name, description);
                 }
 
                 // Getting JSON Array node
@@ -73,11 +73,11 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
 
-                    dbHandler.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
+                    dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
                 }
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
-                runOnUiThread(new Runnable() {
+                /*runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(getApplicationContext(),
@@ -85,12 +85,12 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                                 Toast.LENGTH_LONG)
                                 .show();
                     }
-                });
+                });*/
 
             }
         } else {
             Log.e(TAG, "Couldn't get json from server.");
-            runOnUiThread(new Runnable() {
+            /*runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(getApplicationContext(),
@@ -98,7 +98,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                             Toast.LENGTH_LONG)
                             .show();
                 }
-            });
+            });*/
 
         }
 
@@ -109,18 +109,18 @@ public class GetData extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
         // Dismiss the progress dialog
-        if (pDialog.isShowing())
+        /*if (pDialog.isShowing())
             pDialog.dismiss();
-        /**
+        *//**
          * Updating parsed JSON data into ListView
-         * */
+         * *//*
         ListAdapter adapter = new SimpleAdapter(
                 MainActivity.this, contactList,
                 R.layout.list_item, new String[]{"name", "email",
                 "mobile"}, new int[]{R.id.name,
                 R.id.email, R.id.mobile});
 
-        lv.setAdapter(adapter);
+        lv.setAdapter(adapter);*/
     }
 
 }

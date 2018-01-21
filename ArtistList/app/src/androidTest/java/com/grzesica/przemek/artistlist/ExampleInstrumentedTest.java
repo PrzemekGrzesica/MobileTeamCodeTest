@@ -2,10 +2,8 @@ package com.grzesica.przemek.artistlist;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,12 +14,8 @@ import static org.junit.Assert.*;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
-
-    @Rule
-    public ActivityTestRule<DataBaseHelper> dbHelperTestRule
-            = new ActivityTestRule<DataBaseHelper>(DataBaseHelper.class);
     @Test
     public void useAppContext() throws Exception {
         // Context of the app under test.

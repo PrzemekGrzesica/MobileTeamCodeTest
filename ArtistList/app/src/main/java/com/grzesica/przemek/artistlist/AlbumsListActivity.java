@@ -3,7 +3,7 @@ package com.grzesica.przemek.artistlist;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class AlbumsListActivity extends AppCompatActivity{
+public class AlbumsListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

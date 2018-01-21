@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-public class ArtisListAdapter extends CursorAdapter{
+public class ArtistListAdapter extends CursorAdapter{
 
 
-    public ArtisListAdapter(Context context, Cursor cursor, int flag){
+    public ArtistListAdapter(Context context, Cursor cursor, int flag){
 
         super(context, cursor, 0);
     }
