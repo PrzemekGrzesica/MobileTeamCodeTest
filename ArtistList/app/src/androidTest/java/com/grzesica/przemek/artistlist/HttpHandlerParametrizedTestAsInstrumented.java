@@ -41,5 +41,4 @@ public class HttpHandlerParametrizedTestAsInstrumented {
         String parsedJson = new HttpHandler().jsonServiceCall(handlerUrl);
         assertEquals(expectedBoolean, nonNull(parsedJson));
     }
-
 }
