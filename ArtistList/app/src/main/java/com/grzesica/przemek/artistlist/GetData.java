@@ -1,5 +1,6 @@
 package com.grzesica.przemek.artistlist;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -26,7 +27,12 @@ public class GetData extends AsyncTask<Void, Void, Void> {
     }*/
 
 
-    DataBaseAdapter dbAdapter;
+    private DataBaseAdapter dbAdapter;
+    Context context;
+
+    protected GetData(Context context){
+        this.context = context;
+    }
 
     @Override
     protected Void doInBackground(Void... arg0) {
@@ -47,6 +53,9 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
+                dbAdapter = new DataBaseAdapter(context);
+                dbAdapter.open();
+
                 // Looping through All Artist
                 for (int i = 0; i < artArray.length(); i++) {
                     JSONObject artObj = artArray.getJSONObject(i);
@@ -65,7 +74,8 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
                 // Looping through all Albums
                 for (int i = 0; i < albArray.length(); i++) {
-                    JSONObject albObj = artArray.getJSONObject(i);
+
+                    JSONObject albObj = albArray.getJSONObject(i);
 
                     String albumId = albObj.getString("id");
                     String artistId = albObj.getString("artistId");
@@ -75,6 +85,9 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
                     dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
                 }
+
+                dbAdapter.close();
+
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
                 /*runOnUiThread(new Runnable() {

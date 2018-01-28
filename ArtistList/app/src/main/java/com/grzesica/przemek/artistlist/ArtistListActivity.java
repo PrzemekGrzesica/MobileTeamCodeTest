@@ -20,11 +20,16 @@ public class ArtistListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_list);
 
-        initUiElements();
-//        initListView();
+        GetData getData = new GetData(getApplicationContext());
+        getData.execute();
 
-        GetData getData = new GetData();
-        getData.doInBackground();
+//        initUiElements();
+//        initListView();
+//        HttpHandler httpHandler = new HttpHandler();
+//        String jsonUrl = "http://i.img.co/data/data.json";
+//        String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
+
+
 
     }
 
@@ -41,7 +46,7 @@ public class ArtistListActivity extends AppCompatActivity {
         dbAdapter = new DataBaseAdapter(getApplicationContext());
         dbAdapter.open();
         dbCursor = getAllEntriesFromDb();
-        artistListAdapter = new ArtistListAdapter(this, dbCursor, 0);
+        artistListAdapter = new ArtistListAdapter(getApplicationContext(), dbCursor, 0);
         lvArtist.setAdapter(artistListAdapter);
     }
 

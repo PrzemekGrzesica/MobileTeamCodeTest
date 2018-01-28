@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by przemek on 22.11.17.
@@ -20,7 +21,7 @@ public class DataBaseAdapter {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "artistDatabase.db";
+    private static final String DATABASE_NAME = "artistDb.db";
 
     // Table Names
     private static final String TABLE_ARTIST_LIST = "artist";
@@ -37,6 +38,7 @@ public class DataBaseAdapter {
     private static final String KEY_ARTIST_PICTURE_PATH = "artistPicturePath";
 
     // TABLE_ALBUM_LIST - column names
+    private static final String KEY_ID = "keyId";
     private static final String KEY_ALBUM_ID = "albumId";
     private static final String KEY_TITLE = "title";
     private static final String KEY_TYPE = "type";
@@ -50,16 +52,16 @@ public class DataBaseAdapter {
             + KEY_ARTIST_PICTURE_URL + " TEXT," + KEY_ARTIST_PICTURE_PATH + " TEXT" + ")";
 
     // TABLE_ALBUM_LIST - table create statement
-    private static final String CREATE_TABLE_ALBUM_LIST = "CREATE TABLE "
-            + TABLE_ALBUM_LIST + "(" + KEY_ALBUM_ID + " INTEGER PRIMARY KEY," + KEY_ARTIST_ID
-            + " TEXT," + KEY_TITLE + " TEXT," + KEY_TYPE + " TEXT,"
-            + KEY_ALBUM_PICTURE_URL + "TEXT," + KEY_ALBUM_PICTURE_PATH + " TEXT" + ")";
+    private static final String CREATE_TABLE_ALBUM_LIST = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_ALBUM_LIST + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_ALBUM_ID
+            + " TEXT," + KEY_ARTIST_ID + " TEXT," + KEY_TITLE + " TEXT," + KEY_TYPE + " TEXT,"
+            + KEY_ALBUM_PICTURE_URL + " TEXT," + KEY_ALBUM_PICTURE_PATH + " TEXT" + ")";
 
     private SQLiteDatabase db;
     private Context context;
     private DataBaseHelper dbHelper;
 
-    public DataBaseAdapter(Context context){
+    protected DataBaseAdapter(Context context){
         this.context = context;
     }
 
@@ -93,7 +95,12 @@ public class DataBaseAdapter {
         dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
         try {
             db = dbHelper.getWritableDatabase();
+
+//            todo Remove lower line with "refreshing" db
+            dbHelper.onUpgrade(db, 0, 1);
+
         } catch (SQLException e) {
+            Log.e("MYAPP", "SqliteException: " + e);
             db = dbHelper.getReadableDatabase();
         }
         return this;
@@ -131,7 +138,7 @@ public class DataBaseAdapter {
 //       ToDo: Should be written a path to a file stored in internal memory
 //        values.put(KEY_ALBUM_PICTURE_PATH, getPicturePath(albumPictureUrl);
 
-        return db.insert(TABLE_ARTIST_LIST, null, values);
+        return db.insert(TABLE_ALBUM_LIST, null, values);
     }
 
     public Cursor getArtistListItems() {

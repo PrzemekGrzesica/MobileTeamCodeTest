@@ -1,5 +1,7 @@
 package com.grzesica.przemek.artistlist;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,9 +27,10 @@ public class HttpHandler {
 
     public String jsonServiceCall(String requestUrl) {
         String response = null;
+        HttpURLConnection con = null;
         try {
             URL url = new URL(requestUrl);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             // read the response
             InputStream in = new BufferedInputStream(con.getInputStream());
@@ -36,6 +39,9 @@ public class HttpHandler {
         } catch (ProtocolException e) {
         } catch (IOException e) {
         } catch (Exception e) {
+            Log.e("MYAPP", "exception: " + e);
+        } finally {
+            con.disconnect();
         }
 
         return response;
