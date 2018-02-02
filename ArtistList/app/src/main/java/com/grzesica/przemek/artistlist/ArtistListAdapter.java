@@ -12,7 +12,6 @@ public class ArtistListAdapter extends CursorAdapter{
 
 
     public ArtistListAdapter(Context context, Cursor cursor, int flag){
-
         super(context, cursor, 0);
     }
 

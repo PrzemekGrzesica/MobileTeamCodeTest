@@ -38,7 +38,7 @@ public class DataBaseAdapter {
     private static final String KEY_ARTIST_PICTURE_PATH = "artistPicturePath";
 
     // TABLE_ALBUM_LIST - column names
-    private static final String KEY_ID = "keyId";
+    private static final String _id = "_id";
     private static final String KEY_ALBUM_ID = "albumId";
     private static final String KEY_TITLE = "title";
     private static final String KEY_TYPE = "type";
@@ -47,13 +47,13 @@ public class DataBaseAdapter {
 
     // TABLE_ARTIST_LIST - table create statement
     private static final String CREATE_TABLE_ARTIST_LIST = "CREATE TABLE "
-            + TABLE_ARTIST_LIST + "(" + KEY_ARTIST_ID + " INTEGER PRIMARY KEY," + KEY_GENRES
-            + " TEXT," + KEY_NAME + " TEXT," + KEY_DESCRIPTION + " TEXT,"
+            + TABLE_ARTIST_LIST + "(" + _id + " INTEGER PRIMARY KEY," + KEY_ARTIST_ID + " TEXT,"
+            + KEY_GENRES + " TEXT," + KEY_NAME + " TEXT," + KEY_DESCRIPTION + " TEXT,"
             + KEY_ARTIST_PICTURE_URL + " TEXT," + KEY_ARTIST_PICTURE_PATH + " TEXT" + ")";
 
     // TABLE_ALBUM_LIST - table create statement
     private static final String CREATE_TABLE_ALBUM_LIST = "CREATE TABLE IF NOT EXISTS "
-            + TABLE_ALBUM_LIST + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_ALBUM_ID
+            + TABLE_ALBUM_LIST + "(" + _id + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_ALBUM_ID
             + " TEXT," + KEY_ARTIST_ID + " TEXT," + KEY_TITLE + " TEXT," + KEY_TYPE + " TEXT,"
             + KEY_ALBUM_PICTURE_URL + " TEXT," + KEY_ALBUM_PICTURE_PATH + " TEXT" + ")";
 
@@ -97,7 +97,7 @@ public class DataBaseAdapter {
             db = dbHelper.getWritableDatabase();
 
 //            todo Remove lower line with "refreshing" db
-            dbHelper.onUpgrade(db, 0, 1);
+//            dbHelper.onUpgrade(db, 0, 1);
 
         } catch (SQLException e) {
             Log.e("MYAPP", "SqliteException: " + e);
@@ -142,7 +142,7 @@ public class DataBaseAdapter {
     }
 
     public Cursor getArtistListItems() {
-        String[] columns = {KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_ARTIST_PICTURE_PATH};
+        String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_ARTIST_PICTURE_PATH};
         return db.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
     }
 }

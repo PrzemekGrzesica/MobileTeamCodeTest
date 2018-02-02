@@ -19,15 +19,12 @@ public class ArtistListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_list);
+//
+//        GetData getData = new GetData(getApplicationContext());
+//        getData.execute();
 
-        GetData getData = new GetData(getApplicationContext());
-        getData.execute();
-
-//        initUiElements();
-//        initListView();
-//        HttpHandler httpHandler = new HttpHandler();
-//        String jsonUrl = "http://i.img.co/data/data.json";
-//        String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
+        initUiElements();
+        initListView();
 
 
 
