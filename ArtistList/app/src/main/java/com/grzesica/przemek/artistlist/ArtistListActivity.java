@@ -19,7 +19,7 @@ public class ArtistListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
-//
+
 //        GetData getData = new GetData(getApplicationContext());
 //        getData.execute();
 
@@ -72,6 +72,7 @@ public class ArtistListActivity extends AppCompatActivity {
                         String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
                         String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
                         String strArray[] = {strArtistId, strGenres, strName ,strDescription};
+                        dbAdapter.close();
 
                         intent.putExtra(AlbumsListActivity.artistDataArray, strArray);
                         startActivity(intent);

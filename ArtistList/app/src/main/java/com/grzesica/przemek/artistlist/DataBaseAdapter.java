@@ -142,14 +142,14 @@ public class DataBaseAdapter {
     }
 
     public Cursor getArtistListItems() {
-        String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_DESCRIPTION, KEY_ARTIST_PICTURE_PATH};
+        String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_DESCRIPTION, KEY_ARTIST_PICTURE_URL, KEY_ARTIST_PICTURE_PATH};
         return db.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
     }
 
     public Cursor getAlbumsListItems(String artistId) {
-        String[] columns = {_id, KEY_ARTIST_ID, KEY_ALBUM_ID, KEY_ALBUM_TITLE, KEY_TYPE, KEY_ARTIST_PICTURE_PATH};
+        String[] columns = {_id, KEY_ARTIST_ID, KEY_ALBUM_ID, KEY_ALBUM_TITLE, KEY_TYPE, KEY_ALBUM_PICTURE_URL, KEY_ALBUM_PICTURE_PATH};
 //       Todo: Query of an selected artist rows of albums table.
-        return db.query(TABLE_ALBUM_LIST, columns, "artistId = ?", new String[] {artistId}, null, null, null);
+        return db.query(TABLE_ALBUM_LIST, columns, KEY_ARTIST_ID + " = " + artistId, null, null, null, null);
 
     }
 }
