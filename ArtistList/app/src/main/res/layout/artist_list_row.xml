@@ -30,16 +30,17 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvName"
+                android:id="@+id/tvArtistListName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/name_text" />
 
             <TextView
-                android:id="@+id/tvGenres"
+                android:id="@+id/tvArtistListGenres"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/genres_text" />
+
         </LinearLayout>
 
     </LinearLayout>

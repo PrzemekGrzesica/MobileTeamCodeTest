@@ -17,16 +17,13 @@ public class ArtistListAdapter extends CursorAdapter{
 
     public void bindView(View view, Context context, Cursor cursor){
 
-        TextView tvName = (TextView) view.findViewById(R.id.tvName);
-
-        TextView tvGenres = (TextView) view.findViewById(R.id.tvGenres);
+        TextView tvName = (TextView) view.findViewById(R.id.tvArtistListName);
+        TextView tvGenres = (TextView) view.findViewById(R.id.tvArtistListGenres);
 
         String strName = cursor.getString(cursor.getColumnIndex("name"));
-
         String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
 
         tvName.setText(strName);
-
         tvGenres.setText(strGenres);
 
         //todo bind the image to the artistImageView

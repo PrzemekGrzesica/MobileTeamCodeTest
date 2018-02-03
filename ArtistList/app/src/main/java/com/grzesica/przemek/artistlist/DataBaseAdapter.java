@@ -40,7 +40,7 @@ public class DataBaseAdapter {
     // TABLE_ALBUM_LIST - column names
     private static final String _id = "_id";
     private static final String KEY_ALBUM_ID = "albumId";
-    private static final String KEY_TITLE = "title";
+    private static final String KEY_ALBUM_TITLE = "albumTitle";
     private static final String KEY_TYPE = "type";
     private static final String KEY_ALBUM_PICTURE_PATH = "albumPicturePath";
     private static final String KEY_ALBUM_PICTURE_URL = "albumPictureUrl";
@@ -54,7 +54,7 @@ public class DataBaseAdapter {
     // TABLE_ALBUM_LIST - table create statement
     private static final String CREATE_TABLE_ALBUM_LIST = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ALBUM_LIST + "(" + _id + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_ALBUM_ID
-            + " TEXT," + KEY_ARTIST_ID + " TEXT," + KEY_TITLE + " TEXT," + KEY_TYPE + " TEXT,"
+            + " TEXT," + KEY_ARTIST_ID + " TEXT," + KEY_ALBUM_TITLE + " TEXT," + KEY_TYPE + " TEXT,"
             + KEY_ALBUM_PICTURE_URL + " TEXT," + KEY_ALBUM_PICTURE_PATH + " TEXT" + ")";
 
     private SQLiteDatabase db;
@@ -126,13 +126,13 @@ public class DataBaseAdapter {
         return db.insert(TABLE_ARTIST_LIST, null, values);
     }
 
-    public long createAlbumListRecords(String artistId, String albumId, String title,
+    public long createAlbumListRecords(String artistId, String albumId, String albumTitle,
                                        String type, String albumPictureUrl) {
 
         ContentValues values = new ContentValues();
         values.put(KEY_ARTIST_ID, artistId);
         values.put(KEY_ALBUM_ID, albumId);
-        values.put(KEY_TITLE, title);
+        values.put(KEY_ALBUM_TITLE, albumTitle);
         values.put(KEY_TYPE, type);
         values.put(KEY_ALBUM_PICTURE_URL, albumPictureUrl);
 //       ToDo: Should be written a path to a file stored in internal memory
@@ -142,7 +142,14 @@ public class DataBaseAdapter {
     }
 
     public Cursor getArtistListItems() {
-        String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_ARTIST_PICTURE_PATH};
+        String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_DESCRIPTION, KEY_ARTIST_PICTURE_PATH};
         return db.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
+    }
+
+    public Cursor getAlbumsListItems(String artistId) {
+        String[] columns = {_id, KEY_ARTIST_ID, KEY_ALBUM_ID, KEY_ALBUM_TITLE, KEY_TYPE, KEY_ARTIST_PICTURE_PATH};
+//       Todo: Query of an selected artist rows of albums table.
+        return db.query(TABLE_ALBUM_LIST, columns, "artistId = ?", new String[] {artistId}, null, null, null);
+
     }
 }

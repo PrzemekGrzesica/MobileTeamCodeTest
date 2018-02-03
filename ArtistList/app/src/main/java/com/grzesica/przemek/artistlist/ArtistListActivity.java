@@ -18,7 +18,7 @@ public class ArtistListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_artist_list);
+        setContentView(R.layout.artist_list_activity);
 //
 //        GetData getData = new GetData(getApplicationContext());
 //        getData.execute();
@@ -42,17 +42,17 @@ public class ArtistListActivity extends AppCompatActivity {
     private void fillListViewData() {
         dbAdapter = new DataBaseAdapter(getApplicationContext());
         dbAdapter.open();
-        dbCursor = getAllEntriesFromDb();
+        dbCursor = getAllEntriesFromDb(1);
         artistListAdapter = new ArtistListAdapter(getApplicationContext(), dbCursor, 0);
         lvArtist.setAdapter(artistListAdapter);
     }
 
 
-    private Cursor getAllEntriesFromDb() {
+    private Cursor getAllEntriesFromDb(int position) {
         dbCursor = dbAdapter.getArtistListItems();
         if (dbCursor != null) {
             startManagingCursor(dbCursor);
-            dbCursor.moveToFirst();
+            dbCursor.moveToPosition(--position);
         }
         return dbCursor;
     }
@@ -66,6 +66,14 @@ public class ArtistListActivity extends AppCompatActivity {
                                             long id) {
                         Intent intent = new Intent(ArtistListActivity.this,
                                 AlbumsListActivity.class);
+                        getAllEntriesFromDb((int) id);
+                        String strArtistId = dbCursor.getString(dbCursor.getColumnIndex("artistId"));
+                        String strName = dbCursor.getString(dbCursor.getColumnIndex("name"));
+                        String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
+                        String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
+                        String strArray[] = {strArtistId, strGenres, strName ,strDescription};
+
+                        intent.putExtra(AlbumsListActivity.artistDataArray, strArray);
                         startActivity(intent);
                     }
                 };
