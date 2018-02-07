@@ -1,5 +1,6 @@
 package com.grzesica.przemek.artistlist;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -7,6 +8,9 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+
+import java.sql.Blob;
 
 import static android.content.ContentValues.TAG;
 
@@ -34,6 +38,22 @@ public class GetData extends AsyncTask<Void, Void, Void> {
         this.context = context;
     }
 
+    ProgressDialog mProgressDialog;
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+////        /*//*/ Create a progressdialog
+//        mProgressDialog = new ProgressDialog(context);
+//        // Set progressdialog title
+//        mProgressDialog.setTitle("Download databse");
+//        // Set progressdialog message
+//        mProgressDialog.setMessage("Loading...");
+//        mProgressDialog.setIndeterminate(false);
+//        // Show progressdialog
+//        mProgressD*/ialog.show();
+    }
+
     @Override
     protected Void doInBackground(Void... arg0) {
 
@@ -43,6 +63,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
         // todo jsonUrl as argument
         String jsonUrl = "http://i.img.co/data/data.json";
         String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
+//        String jsonStr = new StubJson().json;
 
         Log.e(TAG, "Response from url: " + jsonStr);
 
@@ -63,10 +84,12 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                     String artistId = artObj.getString("id");
                     String genres = artObj.getString("genres");
                     String artistPictureUrl = artObj.getString("picture");
+                    byte[] artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
+
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
 
-                    dbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, name, description);
+                    dbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
                 }
 
                 // Getting JSON Array node
@@ -82,8 +105,10 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                     String title = albObj.getString("title");
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
+                    byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
 
-                    dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl);
+
+                    dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
 
                 dbAdapter.close();
@@ -126,15 +151,8 @@ public class GetData extends AsyncTask<Void, Void, Void> {
             pDialog.dismiss();
         *//**
          * Updating parsed JSON data into ListView
-         * *//*
-        ListAdapter adapter = new SimpleAdapter(
-                MainActivity.this, contactList,
-                R.layout.list_item, new String[]{"name", "email",
-                "mobile"}, new int[]{R.id.name,
-                R.id.email, R.id.mobile});
+         * */
 
-        lv.setAdapter(adapter);*/
     }
-
 }
 

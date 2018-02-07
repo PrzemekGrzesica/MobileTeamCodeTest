@@ -1,12 +1,18 @@
 package com.grzesica.przemek.artistlist;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import java.io.InputStream;
 
 public class ArtistListActivity extends AppCompatActivity {
 
@@ -24,17 +30,11 @@ public class ArtistListActivity extends AppCompatActivity {
 //        getData.execute();
 
         initUiElements();
-        initListView();
-
-
 
     }
 
-    private void initUiElements() {
+    protected void initUiElements() {
         lvArtist = (ListView) findViewById(R.id.artistListView);
-    }
-
-    private void initListView() {
         fillListViewData();
         initListViewOnItemClick();
     }
@@ -82,6 +82,4 @@ public class ArtistListActivity extends AppCompatActivity {
         lvArtist = (ListView) findViewById(R.id.artistListView);
         lvArtist.setOnItemClickListener(itemClickListener);
     }
-
-
 }
