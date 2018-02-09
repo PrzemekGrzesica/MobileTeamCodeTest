@@ -1,15 +1,20 @@
 package com.grzesica.przemek.artistlist;
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.ByteArrayInputStream;
+
 public class AlbumsListActivity extends AppCompatActivity {
 
-    public static final String artistDataArray = "artistData";
+    public static final String strArtistDataId = "artistDataId";
 
     private Cursor dbCursor;
     private DataBaseAdapter dbAdapter;
@@ -17,41 +22,66 @@ public class AlbumsListActivity extends AppCompatActivity {
     private TextView tvName;
     private TextView tvGenres;
     private TextView tvDescription;
+    private ImageView ivArtist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_list_activity);
 
-        String artistData[] = (String[]) getIntent().getExtras().get(artistDataArray);
+        long artistDataId = (long) getIntent().getExtras().get(strArtistDataId);
+        dbAdapter = new DataBaseAdapter(getApplicationContext());
+        dbAdapter.open();
+
+        getArtistTable((int) artistDataId);
+
+        String strName = dbCursor.getString(dbCursor.getColumnIndex("name"));
+        String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
+        String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
+        String strArtistId = dbCursor.getString(dbCursor.getColumnIndex("artistId"));
+        String artistDataArray[] = {strName, strGenres, strDescription};
+        byte[] imageByteArray = dbCursor.getBlob(dbCursor.getColumnIndex("artistPictureBlob"));
 
         initUiElements();
-        fillUiElements(artistData);
+        fillUiElements(artistDataArray, imageByteArray);
 
-        fillListView(artistData[0]);
+        fillListView(strArtistId);
+    }
+    private Cursor getArtistTable(int position) {
+        dbCursor = dbAdapter.getArtistListItems();
+        if (dbCursor != null) {
+            startManagingCursor(dbCursor);
+            dbCursor.moveToPosition(--position);
+        }
+        return dbCursor;
     }
     private void initUiElements() {
         lvAlbums = (ListView) findViewById(R.id.albumsListView);
         tvName = (TextView) findViewById(R.id.tvAlbumListName);
         tvGenres = (TextView) findViewById(R.id.tvAlbumListGenres);
         tvDescription = (TextView) findViewById(R.id.tvAlbumListDescription);
+        ivArtist = (ImageView) findViewById(R.id.albumListArtistImageView);
     }
-    private void fillUiElements(String... artistData){
-        tvName.setText(artistData[1]);
-        tvGenres.setText(artistData[2]);
-        tvDescription.setText(artistData[3]);
+    private void fillUiElements(String[] artistData, byte[] imageByteArray){
+        tvName.setText(artistData[0]);
+        tvGenres.setText(artistData[1]);
+        tvDescription.setText(artistData[2]);
+        if (imageByteArray!=null) {
+            ByteArrayInputStream imageStream = new ByteArrayInputStream(imageByteArray);
+            Bitmap artistImage = BitmapFactory.decodeStream(imageStream);
+            ivArtist.setImageBitmap(artistImage);
+        }
     }
 
     private void fillListView(String artistId) {
-        dbAdapter = new DataBaseAdapter(getApplicationContext());
-        dbAdapter.open();
-        dbCursor = getAllEntriesFromDb(artistId);
+
+        dbCursor = getAlbumTable(artistId);
         AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), dbCursor, 0);
         lvAlbums.setAdapter(albumsListAdapter);
     }
 
 
-    private Cursor getAllEntriesFromDb(String position) {
+    private Cursor getAlbumTable(String position) {
         dbCursor = dbAdapter.getAlbumsListItems(position);
         if (dbCursor != null) {
             startManagingCursor(dbCursor);

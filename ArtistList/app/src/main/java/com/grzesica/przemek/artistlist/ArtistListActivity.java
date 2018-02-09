@@ -67,19 +67,7 @@ public class ArtistListActivity extends AppCompatActivity {
                                             long id) {
                         Intent intent = new Intent(ArtistListActivity.this,
                                 AlbumsListActivity.class);
-                        getAllEntriesFromDb((int) id);
-                        String strArtistId = dbCursor.getString(dbCursor.getColumnIndex("artistId"));
-                        dbAdapter.close();
-                        //todo cursor must read artist table in second activity
-//                        String strName = dbCursor.getString(dbCursor.getColumnIndex("name"));
-//                        String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
-//                        String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
-//                        byte[] blArtistPicture = dbCursor.getBlob(dbCursor.getColumnIndex("artistPictureBlob"));
-//
-//
-                        String strArray[] = {strArtistId};
-
-                        intent.putExtra(AlbumsListActivity.artistDataArray, strArray);
+                        intent.putExtra(AlbumsListActivity.strArtistDataId, id);
                         startActivity(intent);
                     }
                 };
