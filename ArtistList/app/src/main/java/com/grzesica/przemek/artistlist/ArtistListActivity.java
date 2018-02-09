@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.io.InputStream;
+import java.sql.Blob;
 
 public class ArtistListActivity extends AppCompatActivity {
 
@@ -68,11 +69,15 @@ public class ArtistListActivity extends AppCompatActivity {
                                 AlbumsListActivity.class);
                         getAllEntriesFromDb((int) id);
                         String strArtistId = dbCursor.getString(dbCursor.getColumnIndex("artistId"));
-                        String strName = dbCursor.getString(dbCursor.getColumnIndex("name"));
-                        String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
-                        String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
-                        String strArray[] = {strArtistId, strGenres, strName ,strDescription};
                         dbAdapter.close();
+                        //todo cursor must read artist table in second activity
+//                        String strName = dbCursor.getString(dbCursor.getColumnIndex("name"));
+//                        String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
+//                        String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
+//                        byte[] blArtistPicture = dbCursor.getBlob(dbCursor.getColumnIndex("artistPictureBlob"));
+//
+//
+                        String strArray[] = {strArtistId};
 
                         intent.putExtra(AlbumsListActivity.artistDataArray, strArray);
                         startActivity(intent);

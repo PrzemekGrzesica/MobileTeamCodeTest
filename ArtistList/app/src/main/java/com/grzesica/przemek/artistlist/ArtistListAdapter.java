@@ -2,11 +2,16 @@ package com.grzesica.przemek.artistlist;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.ByteArrayInputStream;
 
 public class ArtistListAdapter extends CursorAdapter{
 
@@ -19,12 +24,21 @@ public class ArtistListAdapter extends CursorAdapter{
 
         TextView tvName = (TextView) view.findViewById(R.id.tvArtistListName);
         TextView tvGenres = (TextView) view.findViewById(R.id.tvArtistListGenres);
+        ImageView ivArtist = (ImageView) view.findViewById(R.id.ivArtistImage);
 
         String strName = cursor.getString(cursor.getColumnIndex("name"));
         String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
 
+        byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex("artistPictureBlob"));
+        if (imageByteArray!=null) {
+            ByteArrayInputStream imageStream = new ByteArrayInputStream(imageByteArray);
+            Bitmap artistImage = BitmapFactory.decodeStream(imageStream);
+            ivArtist.setImageBitmap(artistImage);
+        }
+
         tvName.setText(strName);
         tvGenres.setText(strGenres);
+
 
         //todo bind the image to the artistImageView
 
@@ -32,5 +46,9 @@ public class ArtistListAdapter extends CursorAdapter{
 
     public View newView(Context context, Cursor cursor, ViewGroup parent){
         return LayoutInflater.from(context).inflate(R.layout.artist_list_row, parent,false);
+    }
+
+    private void hmm(){
+
     }
 }

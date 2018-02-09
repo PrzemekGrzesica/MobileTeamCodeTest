@@ -97,7 +97,7 @@ public class DataBaseAdapter {
             db = dbHelper.getWritableDatabase();
 
 //            todo Remove lower line with "refreshing" db
-            dbHelper.onUpgrade(db, 0, 1);
+//            dbHelper.onUpgrade(db, 0, 1);
 
         } catch (SQLException e) {
             Log.e("MYAPP", "SqliteException: " + e);
