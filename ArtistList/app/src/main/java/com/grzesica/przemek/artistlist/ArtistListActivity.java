@@ -1,19 +1,12 @@
 package com.grzesica.przemek.artistlist;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-import java.io.InputStream;
-import java.sql.Blob;
 
 public class ArtistListActivity extends AppCompatActivity {
 
@@ -26,12 +19,7 @@ public class ArtistListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
-
-//        GetData getData = new GetData(getApplicationContext());
-//        getData.execute();
-
         initUiElements();
-
     }
 
     protected void initUiElements() {
@@ -44,10 +32,13 @@ public class ArtistListActivity extends AppCompatActivity {
         dbAdapter = new DataBaseAdapter(getApplicationContext());
         dbAdapter.open();
         dbCursor = getAllEntriesFromDb(1);
+        if (dbCursor.moveToFirst() == false) {
+            GetData getData = new GetData(getApplicationContext());
+            getData.execute();
+        }
         artistListAdapter = new ArtistListAdapter(getApplicationContext(), dbCursor, 0);
         lvArtist.setAdapter(artistListAdapter);
     }
-
 
     private Cursor getAllEntriesFromDb(int position) {
         dbCursor = dbAdapter.getArtistListItems();
@@ -71,7 +62,6 @@ public class ArtistListActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 };
-
         lvArtist = (ListView) findViewById(R.id.artistListView);
         lvArtist.setOnItemClickListener(itemClickListener);
     }

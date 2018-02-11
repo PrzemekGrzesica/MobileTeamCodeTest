@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.io.ByteArrayInputStream;
 
 public class ArtistListAdapter extends CursorAdapter{
@@ -35,20 +34,11 @@ public class ArtistListAdapter extends CursorAdapter{
             Bitmap artistImage = BitmapFactory.decodeStream(imageStream);
             ivArtist.setImageBitmap(artistImage);
         }
-
         tvName.setText(strName);
         tvGenres.setText(strGenres);
-
-
-        //todo bind the image to the artistImageView
-
     }
 
     public View newView(Context context, Cursor cursor, ViewGroup parent){
         return LayoutInflater.from(context).inflate(R.layout.artist_list_row, parent,false);
-    }
-
-    private void hmm(){
-
     }
 }

@@ -1,35 +1,19 @@
 package com.grzesica.przemek.artistlist;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
+import android.widget.ProgressBar;
+import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-
-import java.sql.Blob;
-
 import static android.content.ContentValues.TAG;
 
 /**
  * Created by przemek on 13.12.17. Getting data from json file.
  */
 public class GetData extends AsyncTask<Void, Void, Void> {
-
-    /*@Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        // Showing progress dialog
-        pDialog = new ProgressDialog(MainActivity.this);
-        pDialog.setMessage("Please wait...");
-        pDialog.setCancelable(false);
-        pDialog.show();
-
-    }*/
-
 
     private DataBaseAdapter dbAdapter;
     Context context;
@@ -38,20 +22,12 @@ public class GetData extends AsyncTask<Void, Void, Void> {
         this.context = context;
     }
 
-    ProgressDialog mProgressDialog;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onPreExecute() {
+        Toast.makeText(context, "Database creation...", Toast.LENGTH_LONG).show();
         super.onPreExecute();
-////        /*//*/ Create a progressdialog
-//        mProgressDialog = new ProgressDialog(context);
-//        // Set progressdialog title
-//        mProgressDialog.setTitle("Download databse");
-//        // Set progressdialog message
-//        mProgressDialog.setMessage("Loading...");
-//        mProgressDialog.setIndeterminate(false);
-//        // Show progressdialog
-//        mProgressD*/ialog.show();
     }
 
     @Override
@@ -70,49 +46,36 @@ public class GetData extends AsyncTask<Void, Void, Void> {
         if (jsonStr != null) {
             try {
                 JSONObject jsonObj = new JSONObject(jsonStr);
-
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
                 dbAdapter = new DataBaseAdapter(context);
                 dbAdapter.open();
-
                 // Looping through All Artist
                 for (int i = 0; i < artArray.length(); i++) {
                     JSONObject artObj = artArray.getJSONObject(i);
-
                     String artistId = artObj.getString("id");
                     String genres = artObj.getString("genres");
                     String artistPictureUrl = artObj.getString("picture");
                     byte[] artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
-
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
-
                     dbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
                 }
-
                 // Getting JSON Array node
                 JSONArray albArray = jsonObj.getJSONArray("albums");
-
                 // Looping through all Albums
                 for (int i = 0; i < albArray.length(); i++) {
-
                     JSONObject albObj = albArray.getJSONObject(i);
-
                     String albumId = albObj.getString("id");
                     String artistId = albObj.getString("artistId");
                     String title = albObj.getString("title");
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
                     byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
-
-
                     dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
-
                 dbAdapter.close();
-
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
                 /*runOnUiThread(new Runnable() {
@@ -139,20 +102,12 @@ public class GetData extends AsyncTask<Void, Void, Void> {
             });*/
 
         }
-
         return null;
     }
 
     @Override
     protected void onPostExecute(Void result) {
         super.onPostExecute(result);
-        // Dismiss the progress dialog
-        /*if (pDialog.isShowing())
-            pDialog.dismiss();
-        *//**
-         * Updating parsed JSON data into ListView
-         * */
-
     }
 }
 

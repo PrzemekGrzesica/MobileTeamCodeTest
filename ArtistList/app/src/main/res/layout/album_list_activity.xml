@@ -14,47 +14,66 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
-        <ImageView
-            android:id="@+id/albumListArtistImageView"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@mipmap/ic_launcher" />
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tvAlbumListName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:padding="5dp"
-            android:text="@string/name_text"
-            android:textSize="18sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/tvAlbumListGenres"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:padding="5dp"
-            android:text="@string/genres_text"
-            android:textSize="18sp" />
+                <ImageView
+                    android:id="@+id/albumListArtistImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    app:srcCompat="@mipmap/ic_launcher" />
 
-        <TextView
-            android:id="@+id/tvAlbumListDescription"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:elevation="0dp"
-            android:padding="5dp"
-            android:text="@string/description_text"
-            android:textAlignment="textStart"
-            android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/tvAlbumListName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="@string/name_text"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tvAlbumListGenres"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:padding="5dp"
+                    android:text="@string/genres_text"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tvAlbumListDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:allowUndo="false"
+                    android:elevation="0dp"
+                    android:enabled="true"
+                    android:fadingEdge="horizontal|vertical"
+                    android:padding="5dp"
+                    android:text="@string/description_text"
+                    android:textAlignment="textStart"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </ScrollView>
 
         <ListView
             android:id="@+id/albumsListView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:background="@android:color/holo_blue_bright"
+            android:fadingEdge="horizontal|vertical"
+            android:fastScrollAlwaysVisible="false"
+            android:fastScrollEnabled="false"
             android:padding="5dp"
             android:scrollbars="vertical" />
 

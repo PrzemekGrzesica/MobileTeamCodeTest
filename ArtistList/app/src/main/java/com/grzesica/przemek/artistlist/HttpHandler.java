@@ -3,7 +3,6 @@ package com.grzesica.przemek.artistlist;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -15,20 +14,16 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
-//import javax.imageio.ImageIO;
-
 /**
  * Created by przemek on 26.11.17.
  * Methods for download json and jpg files.
  */
-
 public class HttpHandler {
 
     private static final String TAG = HttpHandler.class.getSimpleName();
 
     public HttpHandler() {
     }
-
     public String jsonServiceCall(String requestUrl) {
         String response = null;
         HttpURLConnection con = null;
@@ -47,7 +42,6 @@ public class HttpHandler {
         } finally {
             con.disconnect();
         }
-
         return response;
     }
 
@@ -73,26 +67,30 @@ public class HttpHandler {
         return strBuilder.toString();
     }
 
-    public InputStream getHttpConnection(String urlString)  throws IOException {
+    public InputStream getHttpConnection(String strUrl)  throws IOException {
 
         InputStream stream = null;
-        URL url = new URL(urlString);
-        URLConnection connection = url.openConnection();
 
         try {
-            HttpURLConnection httpConnection = (HttpURLConnection) connection;
-            httpConnection.setRequestMethod("GET");
-            httpConnection.connect();
-
+            HttpURLConnection httpConnection = httpConn(strUrl);
             if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 stream = httpConnection.getInputStream();
+            }else if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM){
+                String newUrl = httpConnection.getHeaderField("Location");
+                stream = httpConn(newUrl).getInputStream();
             }
         }
         catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("downloadImage" + ex.toString());
         }
         return stream;
+    }
+    private HttpURLConnection httpConn(String strUrl) throws Exception{
+        URLConnection connection = new URL(strUrl).openConnection();
+        HttpURLConnection httpConnection = (HttpURLConnection) connection;
+        httpConnection.setRequestMethod("GET");
+        httpConnection.connect();
+        return httpConnection;
     }
     public Bitmap downloadImage(String url) {
         Bitmap bitmap = null;
@@ -107,7 +105,6 @@ public class HttpHandler {
         }
         catch (IOException e1) {
             e1.printStackTrace();
-            System.out.println("downloadImage"+ e1.toString());
         }
         return bitmap;
     }
