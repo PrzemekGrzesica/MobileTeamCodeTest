@@ -26,7 +26,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(context, "Database creation...", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Database is creating...", Toast.LENGTH_LONG).show();
         super.onPreExecute();
     }
 
@@ -35,11 +35,8 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
         HttpHandler httpHandler = new HttpHandler();
 
-        // Making a request to url and getting response
-        // todo jsonUrl as argument
         String jsonUrl = "http://i.img.co/data/data.json";
         String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
-//        String jsonStr = new StubJson().json;
 
         Log.e(TAG, "Response from url: " + jsonStr);
 

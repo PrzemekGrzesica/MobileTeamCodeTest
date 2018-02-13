@@ -2,94 +2,116 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context="com.grzesica.przemek.artistlist.AlbumsListActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/albumsToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:gravity="top|center_horizontal"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        tools:layout_editor_absoluteY="62dp">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <ImageView
-                    android:id="@+id/albumListArtistImageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
-                    app:srcCompat="@mipmap/ic_launcher" />
-
-                <TextView
-                    android:id="@+id/tvAlbumListName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:text="@string/name_text"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/tvAlbumListGenres"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:text="@string/genres_text"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/tvAlbumListDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="5dp"
-                    android:allowUndo="false"
-                    android:elevation="0dp"
-                    android:enabled="true"
-                    android:fadingEdge="horizontal|vertical"
-                    android:padding="5dp"
-                    android:text="@string/description_text"
-                    android:textAlignment="textStart"
-                    android:textSize="18sp" />
-            </LinearLayout>
-        </ScrollView>
-
-        <ListView
-            android:id="@+id/albumsListView"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="@android:color/holo_blue_bright"
-            android:fadingEdge="horizontal|vertical"
-            android:fastScrollAlwaysVisible="false"
-            android:fastScrollEnabled="false"
-            android:padding="5dp"
-            android:scrollbars="vertical" />
+            android:layout_marginBottom="6dp"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/albumsToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/albumListArtistImageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:padding="5dp"
+                        app:srcCompat="@mipmap/ic_launcher" />
+
+                    <TextView
+                        android:id="@+id/tvAlbumListName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:padding="5dp"
+                        android:text="@string/name_text"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvAlbumListGenres"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:padding="5dp"
+                        android:text="@string/genres_text"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvAlbumListDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:allowUndo="false"
+                        android:elevation="0dp"
+                        android:enabled="true"
+                        android:fadingEdge="horizontal|vertical"
+                        android:padding="5dp"
+                        android:text="@string/description_text"
+                        android:textAlignment="textStart"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+            </ScrollView>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="215dp">
+
+                <ListView
+                    android:id="@+id/albumsListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/holo_blue_bright"
+                    android:fadingEdge="horizontal|vertical"
+                    android:fastScrollAlwaysVisible="false"
+                    android:fastScrollEnabled="false"
+                    android:padding="5dp"
+                    android:scrollbars="vertical"
+                    tools:layout_editor_absoluteX="0dp"
+                    tools:layout_editor_absoluteY="56dp" />
+
+            </ScrollView>
+
+        </LinearLayout>
 
     </LinearLayout>
 
