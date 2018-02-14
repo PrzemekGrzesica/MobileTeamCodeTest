@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class ArtistListActivity extends AppCompatActivity {
 
@@ -79,9 +80,17 @@ public class ArtistListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = new Intent(ArtistListActivity.this,
-                SettingsActivity.class);
-        startActivity(intent);
+        UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
+        updatesCheck.execute();
+        if (updatesCheck.updatesAvailable){
+            Intent intent = new Intent(ArtistListActivity.this,
+                    SettingsActivity.class);
+            startActivity(intent);
+
+        }else{
+            Toast.makeText(getApplicationContext(), "Your application is up-to-date", Toast.LENGTH_LONG).show();
+        }
+        int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
 }

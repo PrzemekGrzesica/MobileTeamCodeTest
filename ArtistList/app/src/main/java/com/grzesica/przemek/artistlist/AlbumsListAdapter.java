@@ -37,12 +37,7 @@ public class AlbumsListAdapter extends CursorAdapter {
             Bitmap albumImage = BitmapFactory.decodeStream(imageStream);
             ivAlbum.setImageBitmap(albumImage);
         }
-
         tvTitle.setText(strTitle);
-
-
-        //todo bind the image to the artistImageView
-
     }
 
     public View newView(Context context, Cursor cursor, ViewGroup parent){

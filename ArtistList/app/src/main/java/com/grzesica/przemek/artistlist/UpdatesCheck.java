@@ -9,7 +9,9 @@ import android.os.AsyncTask;
 
 public class UpdatesCheck extends AsyncTask<Void, Void, Void> {
 
+    private DataBaseAdapter dbAdapter;
     Context context;
+    boolean updatesAvailable = true;
 
     protected UpdatesCheck(Context context){
         this.context = context;
@@ -17,6 +19,14 @@ public class UpdatesCheck extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
+        HttpHandler httpHandler = new HttpHandler();
+
+        String jsonUrl = "http://i.img.co/data/data.json";
+        String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
+        if (jsonStr!=null){
+            dbAdapter = new DataBaseAdapter(context);
+            dbAdapter.open();
+        }
         return null;
     }
 }

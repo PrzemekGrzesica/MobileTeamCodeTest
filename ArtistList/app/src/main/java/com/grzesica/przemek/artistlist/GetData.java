@@ -78,8 +78,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                 /*runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Json parsing error: " + e.getMessage(),
+                        Toast.makeText(context, "Json parsing error: " + e.getMessage(),
                                 Toast.LENGTH_LONG)
                                 .show();
                     }
@@ -91,7 +90,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
             /*runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(),
+                    Toast.makeText(context,
                             "Couldn't get json from server. Check LogCat for possible errors!",
                             Toast.LENGTH_LONG)
                             .show();

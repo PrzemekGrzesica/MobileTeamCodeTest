@@ -26,8 +26,10 @@ public class DataBaseAdapter {
     // Table Names
     private static final String TABLE_ARTIST_LIST = "artist";
     private static final String TABLE_ALBUM_LIST = "albums";
+    private static final String TABLE_MD5_KEYS = "md5Keys";
 
     // Common column names
+    private static final String _id = "_id";
     private static final String KEY_ARTIST_ID = "artistId";
 
     // TABLE_ARTIST_LIST - column names
@@ -38,12 +40,14 @@ public class DataBaseAdapter {
     private static final String KEY_ARTIST_PICTURE_BLOB = "artistPictureBlob";
 
     // TABLE_ALBUM_LIST - column names
-    private static final String _id = "_id";
     private static final String KEY_ALBUM_ID = "albumId";
     private static final String KEY_ALBUM_TITLE = "albumTitle";
     private static final String KEY_TYPE = "type";
     private static final String KEY_ALBUM_PICTURE_BLOB = "albumPictureBlob";
     private static final String KEY_ALBUM_PICTURE_URL = "albumPictureUrl";
+
+    // TABLE_MD5_KEYS - column names
+    private static final String KEY_MD5_KEYS = "md5Key";
 
     // TABLE_ARTIST_LIST - table create statement
     private static final String CREATE_TABLE_ARTIST_LIST = "CREATE TABLE "
@@ -118,7 +122,6 @@ public class DataBaseAdapter {
         values.put(KEY_ARTIST_ID, artistId);
         values.put(KEY_GENRES, genres);
         values.put(KEY_ARTIST_PICTURE_URL, artistPictureUrl);
-//       ToDo: Should be written a path to a file stored in internal memory
         values.put(KEY_ARTIST_PICTURE_BLOB, artistPicture);
         values.put(KEY_NAME, name);
         values.put(KEY_DESCRIPTION, description);
@@ -135,10 +138,15 @@ public class DataBaseAdapter {
         values.put(KEY_ALBUM_TITLE, albumTitle);
         values.put(KEY_TYPE, type);
         values.put(KEY_ALBUM_PICTURE_URL, albumPictureUrl);
-//       ToDo: Should be written a path to a file stored in internal memory
         values.put(KEY_ALBUM_PICTURE_BLOB, albumPicture);
 
         return db.insert(TABLE_ALBUM_LIST, null, values);
+    }
+
+    public long createMD5KeysRecords(String md5Key){
+        ContentValues values = new ContentValues();
+        values.put(KEY_MD5_KEYS, md5Key);
+        return db.insert(TABLE_MD5_KEYS, null, values);
     }
 
     public Cursor getArtistListItems() {
@@ -148,8 +156,12 @@ public class DataBaseAdapter {
 
     public Cursor getAlbumsListItems(String artistId) {
         String[] columns = {_id, KEY_ARTIST_ID, KEY_ALBUM_ID, KEY_ALBUM_TITLE, KEY_TYPE, KEY_ALBUM_PICTURE_URL, KEY_ALBUM_PICTURE_BLOB};
-//       Todo: Query of an selected artist rows of albums table.
         return db.query(TABLE_ALBUM_LIST, columns, KEY_ARTIST_ID + " = " + artistId, null, null, null, null);
 
+    }
+
+    public Cursor getMd5Key(){
+        String[] columns = {_id, KEY_MD5_KEYS};
+        return db.query(TABLE_MD5_KEYS, columns, null, null, null, null, null);
     }
 }

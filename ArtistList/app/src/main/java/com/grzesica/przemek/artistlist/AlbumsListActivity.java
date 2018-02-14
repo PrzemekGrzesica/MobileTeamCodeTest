@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 
@@ -68,8 +69,8 @@ public class AlbumsListActivity extends AppCompatActivity {
         ivArtist = (ImageView) findViewById(R.id.albumListArtistImageView);
     }
     private void fillUiElements(String[] artistData, byte[] imageByteArray){
-        tvName.setText(artistData[0]);
-        tvGenres.setText(artistData[1]);
+        tvName.setText("Names: " + artistData[0]);
+        tvGenres.setText("Genres: " + artistData[1]);
         tvDescription.setText(artistData[2]);
         if (imageByteArray!=null) {
             ByteArrayInputStream imageStream = new ByteArrayInputStream(imageByteArray);
@@ -102,9 +103,16 @@ public class AlbumsListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = new Intent(AlbumsListActivity.this,
-                SettingsActivity.class);
-        startActivity(intent);
+        UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
+        updatesCheck.execute();
+        if (updatesCheck.updatesAvailable){
+            Intent intent = new Intent(AlbumsListActivity.this,
+                    SettingsActivity.class);
+            startActivity(intent);
+
+        }else{
+            Toast.makeText(getApplicationContext(), "Your application is up-to-date", Toast.LENGTH_LONG).show();
+        }
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
