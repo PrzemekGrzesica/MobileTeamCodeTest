@@ -24,7 +24,8 @@
         <activity
             android:name=".AlbumsListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".SettingsActivity"></activity>
+        <activity
+            android:name=".SettingsActivity"/>
     </application>
 
 </manifest>

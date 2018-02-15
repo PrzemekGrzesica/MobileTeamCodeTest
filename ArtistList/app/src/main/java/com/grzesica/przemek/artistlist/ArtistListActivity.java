@@ -1,5 +1,6 @@
 package com.grzesica.przemek.artistlist;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -18,11 +19,13 @@ public class ArtistListActivity extends AppCompatActivity {
     private Cursor dbCursor;
     private DataBaseAdapter dbAdapter;
     private ListView lvArtist;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
+        context = this.getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.artistToolbar);
         setSupportActionBar(toolbar);
         initUiElements();
@@ -82,14 +85,6 @@ public class ArtistListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
         updatesCheck.execute();
-        if (updatesCheck.updatesAvailable){
-            Intent intent = new Intent(ArtistListActivity.this,
-                    SettingsActivity.class);
-            startActivity(intent);
-
-        }else{
-            Toast.makeText(getApplicationContext(), "Your application is up-to-date", Toast.LENGTH_LONG).show();
-        }
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }

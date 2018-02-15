@@ -11,7 +11,7 @@ import android.util.Log;
 
 /**
  * Created by przemek on 22.11.17.
- * SQLHelper for creation two types of tables (authors list table and albums list of an author table).
+ * SQLHelper for creation three types of tables (artist list table, albums list of an artist table, MD5 sum of json file table).
  * Internal static class has been created to avoid an implicit reference to an external class.
  */
 
@@ -61,6 +61,11 @@ public class DataBaseAdapter {
             + " TEXT," + KEY_ARTIST_ID + " TEXT," + KEY_ALBUM_TITLE + " TEXT," + KEY_TYPE + " TEXT,"
             + KEY_ALBUM_PICTURE_URL + " TEXT," + KEY_ALBUM_PICTURE_BLOB + " BLOB" + ")";
 
+    // TABLE_MD5_KEYS - table create statement
+    private static final String CREATE_TABLE_MD5_KEYS = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_MD5_KEYS + "(" + _id + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_MD5_KEYS
+            + " TEXT" + ")";
+
     private SQLiteDatabase db;
     private Context context;
     private DataBaseHelper dbHelper;
@@ -77,19 +82,18 @@ public class DataBaseAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-
             // Creating required tables
             db.execSQL(CREATE_TABLE_ARTIST_LIST);
             db.execSQL(CREATE_TABLE_ALBUM_LIST);
+            db.execSQL(CREATE_TABLE_MD5_KEYS);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
             // 0n upgrade drop older tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTIST_LIST);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALBUM_LIST);
-
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MD5_KEYS);
             // Create new tables
             onCreate(db);
         }
@@ -99,10 +103,6 @@ public class DataBaseAdapter {
         dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
         try {
             db = dbHelper.getWritableDatabase();
-
-//            todo Remove lower line with "refreshing" db
-//            dbHelper.onUpgrade(db, 0, 1);
-
         } catch (SQLException e) {
             Log.e("MYAPP", "SqliteException: " + e);
             db = dbHelper.getReadableDatabase();
@@ -157,7 +157,6 @@ public class DataBaseAdapter {
     public Cursor getAlbumsListItems(String artistId) {
         String[] columns = {_id, KEY_ARTIST_ID, KEY_ALBUM_ID, KEY_ALBUM_TITLE, KEY_TYPE, KEY_ALBUM_PICTURE_URL, KEY_ALBUM_PICTURE_BLOB};
         return db.query(TABLE_ALBUM_LIST, columns, KEY_ARTIST_ID + " = " + artistId, null, null, null, null);
-
     }
 
     public Cursor getMd5Key(){

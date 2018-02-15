@@ -105,14 +105,6 @@ public class AlbumsListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
         updatesCheck.execute();
-        if (updatesCheck.updatesAvailable){
-            Intent intent = new Intent(AlbumsListActivity.this,
-                    SettingsActivity.class);
-            startActivity(intent);
-
-        }else{
-            Toast.makeText(getApplicationContext(), "Your application is up-to-date", Toast.LENGTH_LONG).show();
-        }
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }

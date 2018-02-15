@@ -5,9 +5,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import static android.content.ContentValues.TAG;
 
 /**
@@ -15,14 +17,13 @@ import static android.content.ContentValues.TAG;
  */
 public class GetData extends AsyncTask<Void, Void, Void> {
 
-    private DataBaseAdapter dbAdapter;
+    public static final String JSON_URL = "http://i.img.co/data/data.json";
     Context context;
+    private DataBaseAdapter dbAdapter;
 
     protected GetData(Context context){
         this.context = context;
     }
-
-    private ProgressBar mProgressBar;
 
     @Override
     protected void onPreExecute() {
@@ -34,9 +35,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
     protected Void doInBackground(Void... arg0) {
 
         HttpHandler httpHandler = new HttpHandler();
-
-        String jsonUrl = "http://i.img.co/data/data.json";
-        String jsonStr = httpHandler.jsonServiceCall(jsonUrl);
+        String jsonStr = httpHandler.jsonServiceCall(JSON_URL);
 
         Log.e(TAG, "Response from url: " + jsonStr);
 
@@ -48,6 +47,8 @@ public class GetData extends AsyncTask<Void, Void, Void> {
 
                 dbAdapter = new DataBaseAdapter(context);
                 dbAdapter.open();
+                //
+                dbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
                 for (int i = 0; i < artArray.length(); i++) {
                     JSONObject artObj = artArray.getJSONObject(i);
@@ -72,6 +73,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                     byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
                     dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
+                //
                 dbAdapter.close();
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
