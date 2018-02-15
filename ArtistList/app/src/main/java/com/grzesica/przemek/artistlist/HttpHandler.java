@@ -20,10 +20,6 @@ import java.net.URLConnection;
  */
 public class HttpHandler {
 
-    private static final String TAG = HttpHandler.class.getSimpleName();
-
-    public HttpHandler() {
-    }
     public String jsonServiceCall(String requestUrl) {
         String response = null;
         HttpURLConnection con = null;
@@ -49,7 +45,6 @@ public class HttpHandler {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder strBuilder = new StringBuilder();
-
         String line;
         try {
             while ((line = reader.readLine()) != null) {
@@ -68,9 +63,7 @@ public class HttpHandler {
     }
 
     public InputStream getHttpConnection(String strUrl)  throws IOException {
-
         InputStream stream = null;
-
         try {
             HttpURLConnection httpConnection = httpConn(strUrl);
             if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -85,6 +78,7 @@ public class HttpHandler {
         }
         return stream;
     }
+
     private HttpURLConnection httpConn(String strUrl) throws Exception{
         URLConnection connection = new URL(strUrl).openConnection();
         HttpURLConnection httpConnection = (HttpURLConnection) connection;
@@ -92,16 +86,16 @@ public class HttpHandler {
         httpConnection.connect();
         return httpConnection;
     }
+
     public Bitmap downloadImage(String url) {
         Bitmap bitmap = null;
         InputStream stream;
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inSampleSize = 1;
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = 1;
 
         try {
             stream = getHttpConnection(url);
-            bitmap = BitmapFactory.decodeStream(stream, null, bmOptions);
-//            stream.close();
+            bitmap = BitmapFactory.decodeStream(stream, null, bitmapOptions);
         }
         catch (IOException e1) {
             e1.printStackTrace();

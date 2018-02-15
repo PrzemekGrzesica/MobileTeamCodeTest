@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.File;
+
 /**
  * Created by przemek on 22.11.17.
  * SQLHelper for creation three types of tables (artist list table, albums list of an artist table, MD5 sum of json file table).
@@ -97,6 +99,24 @@ public class DataBaseAdapter {
             // Create new tables
             onCreate(db);
         }
+    }
+
+    public DataBaseAdapter open(int dbVersionFlag){
+        String strDbPath = context.getDatabasePath(DATABASE_NAME).toString();
+        int dbVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
+        dbVersion = dbVersionFlag + dbVersion;
+        dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, dbVersion);
+        if (dbVersionFlag == 0) {
+            try {
+                db = dbHelper.getWritableDatabase();
+            } catch (SQLException e) {
+                Log.e("MYAPP", "SqliteException: " + e);
+                db = dbHelper.getReadableDatabase();
+            }
+        }else{
+            db = dbHelper.getReadableDatabase();
+        }
+        return this;
     }
 
     public DataBaseAdapter open(){

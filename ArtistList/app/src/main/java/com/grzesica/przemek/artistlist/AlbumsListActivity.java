@@ -1,6 +1,5 @@
 package com.grzesica.przemek.artistlist;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,7 +11,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 
@@ -37,7 +35,8 @@ public class AlbumsListActivity extends AppCompatActivity {
 
         long artistDataId = (long) getIntent().getExtras().get(strArtistDataId);
         dbAdapter = new DataBaseAdapter(getApplicationContext());
-        dbAdapter.open();
+        //Open existing database - flag = 0
+        dbAdapter.open(0);
 
         getArtistTable((int) artistDataId);
 
@@ -53,6 +52,21 @@ public class AlbumsListActivity extends AppCompatActivity {
 
         fillListView(strArtistId);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.album_list_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
+        updatesCheck.execute();
+        int id = item.getItemId();
+        return super.onOptionsItemSelected(item);
+    }
+
     private Cursor getArtistTable(int position) {
         dbCursor = dbAdapter.getArtistListItems();
         if (dbCursor != null) {
@@ -61,6 +75,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         }
         return dbCursor;
     }
+
     private void initUiElements() {
         lvAlbums = (ListView) findViewById(R.id.albumsListView);
         tvName = (TextView) findViewById(R.id.tvAlbumListName);
@@ -68,6 +83,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         tvDescription = (TextView) findViewById(R.id.tvAlbumListDescription);
         ivArtist = (ImageView) findViewById(R.id.albumListArtistImageView);
     }
+
     private void fillUiElements(String[] artistData, byte[] imageByteArray){
         tvName.setText("Names: " + artistData[0]);
         tvGenres.setText("Genres: " + artistData[1]);
@@ -93,19 +109,5 @@ public class AlbumsListActivity extends AppCompatActivity {
             dbCursor.moveToFirst();
         }
         return dbCursor;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.album_list_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
-        updatesCheck.execute();
-        int id = item.getItemId();
-        return super.onOptionsItemSelected(item);
     }
 }

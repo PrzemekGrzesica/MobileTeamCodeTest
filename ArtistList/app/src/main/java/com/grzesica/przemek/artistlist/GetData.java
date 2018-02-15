@@ -15,7 +15,7 @@ import static android.content.ContentValues.TAG;
 /**
  * Created by przemek on 13.12.17. Getting data from json file.
  */
-public class GetData extends AsyncTask<Void, Void, Void> {
+public class GetData extends AsyncTask<Integer, Void, Void> {
 
     public static final String JSON_URL = "http://i.img.co/data/data.json";
     Context context;
@@ -32,7 +32,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... arg0) {
+    protected Void doInBackground(Integer... dbVersionFlag) {
 
         HttpHandler httpHandler = new HttpHandler();
         String jsonStr = httpHandler.jsonServiceCall(JSON_URL);
@@ -46,7 +46,7 @@ public class GetData extends AsyncTask<Void, Void, Void> {
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
                 dbAdapter = new DataBaseAdapter(context);
-                dbAdapter.open();
+                dbAdapter.open(dbVersionFlag[0]);
                 //
                 dbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist

@@ -9,12 +9,12 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        new UpdatesCheck(getApplicationContext()).execute();
         setContentView(R.layout.settings_activity);
     }
 
     public void onClickUpdate(View view){
-        new GetData(getApplicationContext()).execute();
+        Integer databaseVersion = (Integer) 2;
+        new GetData(getApplicationContext()).execute(databaseVersion);
     }
 
     public void onClickCancel(View view){

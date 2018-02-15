@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
  * Created by przemek on 13.02.18.
  */
 
-public class UpdatesCheck extends AsyncTask<Void, Void, Boolean> {
+public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
     private DataBaseAdapter dbAdapter;
     Context context;
@@ -35,7 +35,7 @@ public class UpdatesCheck extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... voids) {
+    protected Boolean doInBackground(Integer... voids) {
         String newMD5Key = null;
         String oldMD5Key = null;
         HttpHandler httpHandler = new HttpHandler();
@@ -44,7 +44,8 @@ public class UpdatesCheck extends AsyncTask<Void, Void, Boolean> {
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
             dbAdapter = new DataBaseAdapter(context);
-            dbAdapter.open();
+            //Open existing database - flag = 0
+            dbAdapter.open(0);
             Cursor cursor = dbAdapter.getMd5Key();
             cursor.moveToFirst();
             oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
