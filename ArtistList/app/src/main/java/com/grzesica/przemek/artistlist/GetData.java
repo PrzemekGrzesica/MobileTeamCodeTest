@@ -3,8 +3,9 @@ package com.grzesica.przemek.artistlist;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.grzesica.przemek.artistlist.Container.IhttpHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,20 +18,20 @@ import static android.content.ContentValues.TAG;
  */
 public class GetData extends AsyncTask<Integer, Void, Void> {
 
-    private Context context;
-    private DataBaseAdapter dbAdapter;
+    private Context mContext;
+    private DataBaseAdapter mDbAdapter;
     private IhttpHandler httpHandler;
 
     public static final String JSON_URL = "http://i.img.co/data/data.json";
 
     protected GetData(Context context, IhttpHandler httpHandler){
-        this.context = context;
+        this.mContext = context;
         this.httpHandler = httpHandler;
     }
 
     @Override
     protected void onPreExecute() {
-        Toast.makeText(context, "Database is creating...", Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, "Database is creating...", Toast.LENGTH_LONG).show();
         super.onPreExecute();
     }
 
@@ -48,10 +49,10 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
-                dbAdapter = new DataBaseAdapter(context);
-                dbAdapter.open(dbVersionFlag[0]);
+                mDbAdapter = new DataBaseAdapter(mContext);
+                mDbAdapter.open(dbVersionFlag[0]);
                 //
-                dbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
+                mDbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
                 for (int i = 0; i < artArray.length(); i++) {
                     JSONObject artObj = artArray.getJSONObject(i);
@@ -61,7 +62,7 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
                     byte[] artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
-                    dbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
+                    mDbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
                 }
                 // Getting JSON Array node
                 JSONArray albArray = jsonObj.getJSONArray("albums");
@@ -74,10 +75,10 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
                     byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
-                    dbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
+                    mDbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
                 //
-                dbAdapter.close();
+                mDbAdapter.close();
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
                 /*runOnUiThread(new Runnable() {

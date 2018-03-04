@@ -4,7 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import java.io.ByteArrayOutputStream;
+import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
 
 public class SettingsActivity extends AppCompatActivity {
 

@@ -1,4 +1,6 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Container;
+
+import com.grzesica.przemek.artistlist.HttpHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -10,16 +12,24 @@ import java.io.OutputStream;
 public class DependencyInjectionBuilder {
     public Appendable mStrBuilder;
     public OutputStream mByteArrayOutputStream;
+    public IExtendedUrl mExtendedUrl;
 
-    DependencyInjectionBuilder strBuilder(){
+    public DependencyInjectionBuilder strBuilder() {
         mStrBuilder = new StringBuilder();
         return this;
     }
-    DependencyInjectionBuilder byteArrayOutputStream(){
+
+    public DependencyInjectionBuilder byteArrayOutputStream() {
         mByteArrayOutputStream = new ByteArrayOutputStream();
         return this;
     }
-    public HttpHandler build(){
+
+    public DependencyInjectionBuilder extendedUrl() {
+        mExtendedUrl = new ExtendedURL();
+        return this;
+    }
+
+    public HttpHandler build() {
         return new HttpHandler(this);
     }
 }

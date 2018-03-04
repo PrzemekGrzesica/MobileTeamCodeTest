@@ -103,7 +103,12 @@ public class DataBaseAdapter {
 
     public DataBaseAdapter open(int dbVersionFlag){
         String strDbPath = context.getDatabasePath(DATABASE_NAME).toString();
-        int dbVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
+        int dbVersion;
+        try{
+            dbVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
+        } catch (Exception e) {
+            dbVersion = 1;
+        }
         dbVersion = dbVersionFlag + dbVersion;
         dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, dbVersion);
         if (dbVersionFlag == 0) {

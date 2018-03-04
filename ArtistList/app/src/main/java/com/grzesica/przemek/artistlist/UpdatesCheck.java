@@ -6,7 +6,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
+import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -41,7 +42,11 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
         String oldMD5Key = null;
 //        HttpHandler httpHandler = new HttpHandler(new StringBuilder(), new ByteArrayOutputStream());
         DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
-        HttpHandler httpHandler = depInjBuilder.byteArrayOutputStream().strBuilder().build();
+        HttpHandler httpHandler = depInjBuilder
+                                    .byteArrayOutputStream()
+                                    .strBuilder()
+                                    .extendedUrl()
+                                    .build();
 
         String jsonStr = httpHandler.jsonServiceCall(GetData.JSON_URL);
 
