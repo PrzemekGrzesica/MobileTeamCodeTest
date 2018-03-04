@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.io.ByteArrayOutputStream;
+
 public class ArtistListActivity extends AppCompatActivity {
 
     private ArtistListAdapter artistListAdapter;
@@ -27,8 +29,8 @@ public class ArtistListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
-        //
-        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        //todo swipeLayout issue
+        /*swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
@@ -37,7 +39,7 @@ public class ArtistListActivity extends AppCompatActivity {
                     }
                 }, 2000);
             }
-        });
+        });*/
 
         context = this.getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.artistToolbar);
@@ -73,7 +75,11 @@ public class ArtistListActivity extends AppCompatActivity {
         dbCursor = getAllEntriesFromDb(1);
         if (dbCursor.moveToFirst() == false) {
             Integer databaseVersion = (Integer) 1;
-            new GetData(getApplicationContext()).execute(databaseVersion);
+
+            DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
+            HttpHandler httpHandler = depInjBuilder.byteArrayOutputStream().strBuilder().build();
+            new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
+//            new GetData(getApplicationContext(), new HttpHandler(new StringBuilder(), new ByteArrayOutputStream())).execute(databaseVersion);
         }
         artistListAdapter = new ArtistListAdapter(getApplicationContext(), dbCursor, 0);
         lvArtist.setAdapter(artistListAdapter);

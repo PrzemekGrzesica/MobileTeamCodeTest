@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import java.io.ByteArrayOutputStream;
+
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -14,7 +16,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void onClickUpdate(View view){
         Integer databaseVersion = (Integer) 2;
-        new GetData(getApplicationContext()).execute(databaseVersion);
+
+        DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
+        HttpHandler httpHandler = depInjBuilder.byteArrayOutputStream().strBuilder().build();
+        new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
     }
 
     public void onClickCancel(View view){

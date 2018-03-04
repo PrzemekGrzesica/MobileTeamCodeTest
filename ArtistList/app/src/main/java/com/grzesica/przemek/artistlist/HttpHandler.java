@@ -5,10 +5,13 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -16,10 +19,22 @@ import java.net.URL;
 import java.net.URLConnection;
 /**
  * Created by przemek on 26.11.17.
- * Methods for download json and jpg files.
+ * Methods for download json file and images.
  */
-public class HttpHandler {
+public class HttpHandler implements IhttpHandler{
 
+    private URL mUrl;
+    private Appendable mStrBuilder;
+    private OutputStream mOutputStream;
+
+    public HttpHandler(DependencyInjectionBuilder builder){
+
+//    public HttpHandler(Appendable strBuilder, OutputStream byteArrayOutputStream){
+        this.mStrBuilder = builder.mStrBuilder;
+        this.mOutputStream = builder.mByteArrayOutputStream;
+    }
+
+    @Override
     public String jsonServiceCall(String requestUrl) {
         String response = null;
         HttpURLConnection con = null;
@@ -44,11 +59,11 @@ public class HttpHandler {
     public String convertStreamToString(InputStream is) {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder strBuilder = new StringBuilder();
+//        StringBuilder strBuilder = new StringBuilder();
         String line;
         try {
             while ((line = reader.readLine()) != null) {
-                strBuilder.append(line).append('\n');
+                mStrBuilder.append(line).append('\n');
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,7 +74,7 @@ public class HttpHandler {
                 e.printStackTrace();
             }
         }
-        return strBuilder.toString();
+        return mStrBuilder.toString();
     }
 
     public InputStream getHttpConnection(String strUrl)  throws IOException {
@@ -87,6 +102,7 @@ public class HttpHandler {
         return httpConnection;
     }
 
+    @Override
     public Bitmap downloadImage(String url) {
         Bitmap bitmap = null;
         InputStream stream;
@@ -103,10 +119,12 @@ public class HttpHandler {
         return bitmap;
     }
 
+    @Override
     public byte[] getBlob(Bitmap bitmap) {
         if (bitmap!=null) {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+//            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, mOutputStream);
+            ByteArrayOutputStream stream = (ByteArrayOutputStream)mOutputStream;
             return stream.toByteArray();
         }
         return null;

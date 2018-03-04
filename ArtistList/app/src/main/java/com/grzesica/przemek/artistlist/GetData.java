@@ -17,12 +17,15 @@ import static android.content.ContentValues.TAG;
  */
 public class GetData extends AsyncTask<Integer, Void, Void> {
 
-    public static final String JSON_URL = "http://i.img.co/data/data.json";
-    Context context;
+    private Context context;
     private DataBaseAdapter dbAdapter;
+    private IhttpHandler httpHandler;
 
-    protected GetData(Context context){
+    public static final String JSON_URL = "http://i.img.co/data/data.json";
+
+    protected GetData(Context context, IhttpHandler httpHandler){
         this.context = context;
+        this.httpHandler = httpHandler;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
     @Override
     protected Void doInBackground(Integer... dbVersionFlag) {
 
-        HttpHandler httpHandler = new HttpHandler();
+//        HttpHandler httpHandler = new HttpHandler();
         String jsonStr = httpHandler.jsonServiceCall(JSON_URL);
 
         Log.e(TAG, "Response from url: " + jsonStr);
