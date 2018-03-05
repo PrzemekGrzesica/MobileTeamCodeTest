@@ -32,7 +32,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
             Intent intent = new Intent(context, SettingsActivity.class);
             context.startActivity(intent);
         }else{
-            Toast.makeText(context, "Your application is up-to-date", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -46,6 +46,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
                                     .byteArrayOutputStream()
                                     .strBuilder()
                                     .extendedUrl()
+                                    .extendedBufferedReader()
                                     .build();
 
         String jsonStr = httpHandler.jsonServiceCall(GetData.JSON_URL);

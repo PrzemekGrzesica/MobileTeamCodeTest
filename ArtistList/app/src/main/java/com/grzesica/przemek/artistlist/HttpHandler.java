@@ -5,14 +5,15 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Container.IDependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
-import com.grzesica.przemek.artistlist.Container.IhttpHandler;
+import com.grzesica.przemek.artistlist.Container.IHttpHandler;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -23,16 +24,18 @@ import java.net.URLConnection;
  * Created by przemek on 26.11.17.
  * Methods for download json file and images.
  */
-public class HttpHandler implements IhttpHandler {
+public class HttpHandler implements IHttpHandler {
 
     private Appendable mStrBuilder;
     private OutputStream mOutputStream;
     private IExtendedUrl mExtendedUrl;
+    private IExtendedBufferReader mExtendedBufferReader;
 
-    public HttpHandler(DependencyInjectionBuilder builder) {
-        this.mStrBuilder = builder.mStrBuilder;
-        this.mOutputStream = builder.mByteArrayOutputStream;
-        this.mExtendedUrl = builder.mExtendedUrl;
+    public HttpHandler(IDependencyInjectionBuilder builder) {
+        this.mStrBuilder = ((DependencyInjectionBuilder)builder).mStrBuilder;
+        this.mOutputStream = ((DependencyInjectionBuilder)builder).mByteArrayOutputStream;
+        this.mExtendedUrl = ((DependencyInjectionBuilder)builder).mExtendedUrl;
+        this.mExtendedBufferReader = ((DependencyInjectionBuilder)builder).mExtendedBufferedReader;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class HttpHandler implements IhttpHandler {
 
     public String convertStreamToString(InputStream inputStream) {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader reader = mExtendedBufferReader.setInputStream(inputStream);
         String line;
         try {
             while ((line = reader.readLine()) != null) {
@@ -106,8 +109,8 @@ public class HttpHandler implements IhttpHandler {
         try {
             stream = getInputStream(url);
             bitmap = BitmapFactory.decodeStream(stream, null, bitmapOptions);
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return bitmap;
     }

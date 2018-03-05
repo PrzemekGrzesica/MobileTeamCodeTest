@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.IhttpHandler;
+import com.grzesica.przemek.artistlist.Container.IHttpHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,13 +20,13 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
 
     private Context mContext;
     private DataBaseAdapter mDbAdapter;
-    private IhttpHandler httpHandler;
+    private IHttpHandler mhttpHandler;
 
     public static final String JSON_URL = "http://i.img.co/data/data.json";
 
-    protected GetData(Context context, IhttpHandler httpHandler){
+    protected GetData(Context context, IHttpHandler httpHandler){
         this.mContext = context;
-        this.httpHandler = httpHandler;
+        this.mhttpHandler = httpHandler;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
     protected Void doInBackground(Integer... dbVersionFlag) {
 
 //        HttpHandler httpHandler = new HttpHandler();
-        String jsonStr = httpHandler.jsonServiceCall(JSON_URL);
+        String jsonStr = mhttpHandler.jsonServiceCall(JSON_URL);
 
         Log.e(TAG, "Response from url: " + jsonStr);
 
@@ -59,7 +59,7 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
                     String artistId = artObj.getString("id");
                     String genres = artObj.getString("genres");
                     String artistPictureUrl = artObj.getString("picture");
-                    byte[] artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
+                    byte[] artistPicture = mhttpHandler.getBlob(mhttpHandler.downloadImage(artistPictureUrl));
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
                     mDbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
@@ -74,7 +74,7 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
                     String title = albObj.getString("title");
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
-                    byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
+                    byte[] albumPicture = mhttpHandler.getBlob(mhttpHandler.downloadImage(albumPictureUrl));
                     mDbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
                 //

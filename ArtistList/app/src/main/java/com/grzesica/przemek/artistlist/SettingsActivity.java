@@ -18,7 +18,12 @@ public class SettingsActivity extends AppCompatActivity {
         Integer databaseVersion = (Integer) 2;
 
         DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
-        HttpHandler httpHandler = depInjBuilder.byteArrayOutputStream().strBuilder().build();
+        HttpHandler httpHandler = depInjBuilder
+                                    .byteArrayOutputStream()
+                                    .strBuilder()
+                                    .extendedUrl()
+                                    .extendedBufferedReader()
+                                    .build();
         new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
     }
 

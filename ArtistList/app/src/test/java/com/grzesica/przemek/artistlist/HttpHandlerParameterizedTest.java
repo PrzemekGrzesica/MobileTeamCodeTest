@@ -1,5 +1,7 @@
 package com.grzesica.przemek.artistlist;
 
+import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -38,7 +40,14 @@ public class HttpHandlerParameterizedTest {
 
     @Test
     public void jsonServiceCallTest() throws Exception {
-        String parsedJson = new HttpHandler().jsonServiceCall(handlerUrl);
+        DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
+        HttpHandler httpHandler = depInjBuilder
+                .byteArrayOutputStream()
+                .strBuilder()
+                .extendedUrl()
+                .extendedBufferedReader()
+                .build();
+        String parsedJson = httpHandler.jsonServiceCall(handlerUrl);
         assertEquals(expectedBoolean, nonNull(parsedJson));
     }
 
