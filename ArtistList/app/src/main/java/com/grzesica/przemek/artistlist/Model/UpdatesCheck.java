@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Model;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,7 +6,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
+import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +18,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
-    private DataBaseAdapter dbAdapter;
+    private DataBaseSingleton dbAdapter;
     Context context;
 
     protected UpdatesCheck(Context context) {
@@ -41,7 +42,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
         String newMD5Key = null;
         String oldMD5Key = null;
 //        HttpHandler httpHandler = new HttpHandler(new StringBuilder(), new ByteArrayOutputStream());
-        DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
+        HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
         HttpHandler httpHandler = depInjBuilder
                                     .byteArrayOutputStream()
                                     .strBuilder()
@@ -53,7 +54,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
-            dbAdapter = new DataBaseAdapter(context);
+            dbAdapter = new DataBaseSingleton(context);
             //Open existing database - flag = 0
             dbAdapter.open(0);
             Cursor cursor = dbAdapter.getMd5Key();

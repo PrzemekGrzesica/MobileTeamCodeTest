@@ -1,6 +1,6 @@
 package com.grzesica.przemek.artistlist.Container;
 
-import com.grzesica.przemek.artistlist.HttpHandler;
+import com.grzesica.przemek.artistlist.Model.HttpHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -9,28 +9,28 @@ import java.io.OutputStream;
  * Created by przemek on 04.03.18.
  */
 
-public class DependencyInjectionBuilder implements IDependencyInjectionBuilder {
+public class HttpHandlerDIBuilder implements IHttpHandlerDIBuilder {
     public Appendable mStrBuilder;
     public OutputStream mByteArrayOutputStream;
     public IExtendedUrl mExtendedUrl;
     public IExtendedBufferReader mExtendedBufferedReader;
 
-    public DependencyInjectionBuilder strBuilder() {
+    public HttpHandlerDIBuilder strBuilder() {
         mStrBuilder = new StringBuilder();
         return this;
     }
 
-    public DependencyInjectionBuilder byteArrayOutputStream() {
+    public HttpHandlerDIBuilder byteArrayOutputStream() {
         mByteArrayOutputStream = new ByteArrayOutputStream();
         return this;
     }
 
-    public DependencyInjectionBuilder extendedUrl() {
+    public HttpHandlerDIBuilder extendedUrl() {
         mExtendedUrl = new ExtendedURL();
         return this;
     }
 
-    public DependencyInjectionBuilder extendedBufferedReader() {
+    public HttpHandlerDIBuilder extendedBufferedReader() {
         mExtendedBufferedReader = new ExtendedBufferReader();
         return this;
     }

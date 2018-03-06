@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Model;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,15 +9,13 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.io.File;
-
 /**
  * Created by przemek on 22.11.17.
  * SQLHelper for creation three types of tables (artist list table, albums list of an artist table, MD5 sum of json file table).
  * Internal static class has been created to avoid an implicit reference to an external class.
  */
 
-public class DataBaseAdapter {
+public class DataBaseSingleton implements IDataBaseSingleton {
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -72,9 +70,9 @@ public class DataBaseAdapter {
     private Context context;
     private DataBaseHelper dbHelper;
 
-    protected DataBaseAdapter(Context context){
-        this.context = context;
-    }
+//    public DataBaseAdapter(Context context){
+//        this.context = context;
+//    }
 
     private static class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -101,7 +99,8 @@ public class DataBaseAdapter {
         }
     }
 
-    public DataBaseAdapter open(int dbVersionFlag){
+    @Override
+    public DataBaseSingleton open(int dbVersionFlag){
         String strDbPath = context.getDatabasePath(DATABASE_NAME).toString();
         int dbVersion;
         try{
@@ -124,7 +123,7 @@ public class DataBaseAdapter {
         return this;
     }
 
-    public DataBaseAdapter open(){
+    public DataBaseSingleton open(){
         dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
         try {
             db = dbHelper.getWritableDatabase();
@@ -135,7 +134,8 @@ public class DataBaseAdapter {
         return this;
     }
 
-    public DataBaseAdapter close(){
+    @Override
+    public DataBaseSingleton close(){
         dbHelper.close();
         return this;
     }

@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist.Container;
+package com.grzesica.przemek.artistlist.Model;
 
 import android.graphics.Bitmap;
 

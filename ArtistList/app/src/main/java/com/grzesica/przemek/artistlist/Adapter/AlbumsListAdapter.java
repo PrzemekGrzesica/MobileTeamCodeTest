@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Adapter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
 

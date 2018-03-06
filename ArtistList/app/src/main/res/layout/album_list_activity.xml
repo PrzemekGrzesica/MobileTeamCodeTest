@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.grzesica.przemek.artistlist.AlbumsListActivity">
+    tools:context="com.grzesica.przemek.artistlist.Viewer.AlbumsListActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"

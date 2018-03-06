@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Viewer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +13,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
 import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.GetData;
+import com.grzesica.przemek.artistlist.Model.HttpHandler;
+import com.grzesica.przemek.artistlist.R;
+import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 
 public class ArtistListActivity extends AppCompatActivity {
 

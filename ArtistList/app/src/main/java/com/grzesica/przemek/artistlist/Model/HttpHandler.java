@@ -1,14 +1,13 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
-import com.grzesica.przemek.artistlist.Container.IDependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
-import com.grzesica.przemek.artistlist.Container.IHttpHandler;
+import com.grzesica.przemek.artistlist.Container.IHttpHandlerDIBuilder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -31,11 +30,11 @@ public class HttpHandler implements IHttpHandler {
     private IExtendedUrl mExtendedUrl;
     private IExtendedBufferReader mExtendedBufferReader;
 
-    public HttpHandler(IDependencyInjectionBuilder builder) {
-        this.mStrBuilder = ((DependencyInjectionBuilder)builder).mStrBuilder;
-        this.mOutputStream = ((DependencyInjectionBuilder)builder).mByteArrayOutputStream;
-        this.mExtendedUrl = ((DependencyInjectionBuilder)builder).mExtendedUrl;
-        this.mExtendedBufferReader = ((DependencyInjectionBuilder)builder).mExtendedBufferedReader;
+    public HttpHandler(IHttpHandlerDIBuilder builder) {
+        this.mStrBuilder = ((HttpHandlerDIBuilder)builder).mStrBuilder;
+        this.mOutputStream = ((HttpHandlerDIBuilder)builder).mByteArrayOutputStream;
+        this.mExtendedUrl = ((HttpHandlerDIBuilder)builder).mExtendedUrl;
+        this.mExtendedBufferReader = ((HttpHandlerDIBuilder)builder).mExtendedBufferedReader;
     }
 
     @Override

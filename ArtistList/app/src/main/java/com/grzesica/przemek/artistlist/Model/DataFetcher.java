@@ -1,11 +1,17 @@
-package com.grzesica.przemek.artistlist;
+package com.grzesica.przemek.artistlist.Model;
+
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.IHttpHandler;
+import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Adapter.IDataBaseAdapter;
+import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
+import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IDataFetcherDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IDataFetchingHandler;
+import com.grzesica.przemek.artistlist.Container.IDependencyInjectionBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,32 +20,28 @@ import org.json.JSONObject;
 import static android.content.ContentValues.TAG;
 
 /**
- * Created by przemek on 13.12.17. Getting data from json file.
+ * Created by przemek on 05.03.18.
  */
-public class GetData extends AsyncTask<Integer, Void, Void> {
 
+public class DataFetcher implements IDataFetcher {
     private Context mContext;
-    private DataBaseAdapter mDbAdapter;
-    private IHttpHandler mhttpHandler;
-
-    public static final String JSON_URL = "http://i.img.co/data/data.json";
-
-    protected GetData(Context context, IHttpHandler httpHandler){
-        this.mContext = context;
-        this.mhttpHandler = httpHandler;
+    private IDataBaseAdapter mDbAdapter;
+    private IHttpHandler mHttpHandler;
+    public DataFetcher(IDataFetcherDIBuilder builder){
+        this.mDbAdapter = ((DataFetcherDIBuilder) builder).mHttpHandler;
     }
 
-    @Override
-    protected void onPreExecute() {
-        Toast.makeText(mContext, "Database is creating...", Toast.LENGTH_LONG).show();
-        super.onPreExecute();
-    }
+    public void getData(){
+        HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
+        HttpHandler mHttpHandler = depInjBuilder
+                .byteArrayOutputStream()
+                .strBuilder()
+                .extendedUrl()
+                .extendedBufferedReader()
+                .build();
 
-    @Override
-    protected Void doInBackground(Integer... dbVersionFlag) {
-
-//        HttpHandler httpHandler = new HttpHandler();
         String jsonStr = mhttpHandler.jsonServiceCall(JSON_URL);
+
 
         Log.e(TAG, "Response from url: " + jsonStr);
 
@@ -104,12 +106,5 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
             });*/
 
         }
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void result) {
-        super.onPostExecute(result);
     }
 }
-

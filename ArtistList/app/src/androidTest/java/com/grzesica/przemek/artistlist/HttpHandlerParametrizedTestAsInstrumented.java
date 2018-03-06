@@ -1,5 +1,7 @@
 package com.grzesica.przemek.artistlist;
 
+import com.grzesica.przemek.artistlist.Model.HttpHandler;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
