@@ -26,21 +26,26 @@ import static android.content.ContentValues.TAG;
 public class DataFetcher implements IDataFetcher {
     private Context mContext;
     private IDataBaseAdapter mDbAdapter;
-    private IHttpHandler mHttpHandler;
+    private HttpHandler mHttpHandler;
+
+    public static final String JSON_URL = "http://i.img.co/data/data.json";
+
     public DataFetcher(IDataFetcherDIBuilder builder){
-        this.mDbAdapter = ((DataFetcherDIBuilder) builder).mHttpHandler;
+        this.mDbAdapter = ((DataFetcherDIBuilder) builder).mDbAdapter;
     }
 
+    @Override
     public void getData(){
+
         HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
-        HttpHandler mHttpHandler = depInjBuilder
+        mHttpHandler = depInjBuilder
                 .byteArrayOutputStream()
                 .strBuilder()
                 .extendedUrl()
                 .extendedBufferedReader()
                 .build();
 
-        String jsonStr = mhttpHandler.jsonServiceCall(JSON_URL);
+        String jsonStr = mHttpHandler.jsonServiceCall(JSON_URL);
 
 
         Log.e(TAG, "Response from url: " + jsonStr);
@@ -52,7 +57,7 @@ public class DataFetcher implements IDataFetcher {
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
                 mDbAdapter = new DataBaseAdapter(mContext);
-                mDbAdapter.open(dbVersionFlag[0]);
+                mDbAdapter.open(dbVersionFlag);
                 //
                 mDbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
@@ -61,7 +66,7 @@ public class DataFetcher implements IDataFetcher {
                     String artistId = artObj.getString("id");
                     String genres = artObj.getString("genres");
                     String artistPictureUrl = artObj.getString("picture");
-                    byte[] artistPicture = mhttpHandler.getBlob(mhttpHandler.downloadImage(artistPictureUrl));
+                    byte[] artistPicture = mHttpHandler.getBlob(mHttpHandler.downloadImage(artistPictureUrl));
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
                     mDbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
@@ -76,7 +81,7 @@ public class DataFetcher implements IDataFetcher {
                     String title = albObj.getString("title");
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
-                    byte[] albumPicture = mhttpHandler.getBlob(mhttpHandler.downloadImage(albumPictureUrl));
+                    byte[] albumPicture = mHttpHandler.getBlob(mHttpHandler.downloadImage(albumPictureUrl));
                     mDbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
                 //

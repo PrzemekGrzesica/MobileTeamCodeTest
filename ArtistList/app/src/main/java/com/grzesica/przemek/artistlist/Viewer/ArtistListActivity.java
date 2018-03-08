@@ -14,8 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
-import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
-import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.GetData;
 import com.grzesica.przemek.artistlist.Model.HttpHandler;
 import com.grzesica.przemek.artistlist.R;
@@ -74,7 +73,7 @@ public class ArtistListActivity extends AppCompatActivity {
     }
 
     private void fillListViewData() {
-        dbAdapter = new DataBaseAdapter(getApplicationContext());
+        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
         //Open existing database flag = 0
         dbAdapter.open(0);
         dbCursor = getAllEntriesFromDb(1);

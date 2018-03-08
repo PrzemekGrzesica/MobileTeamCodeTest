@@ -18,7 +18,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
-    private DataBaseSingleton dbAdapter;
+    private DataBaseAdapter dbAdapter;
     Context context;
 
     protected UpdatesCheck(Context context) {
@@ -54,7 +54,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
-            dbAdapter = new DataBaseSingleton(context);
+            dbAdapter = new DataBaseAdapter(context);
             //Open existing database - flag = 0
             dbAdapter.open(0);
             Cursor cursor = dbAdapter.getMd5Key();

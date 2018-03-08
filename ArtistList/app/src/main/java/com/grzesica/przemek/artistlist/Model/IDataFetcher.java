@@ -5,5 +5,5 @@ package com.grzesica.przemek.artistlist.Model;
  */
 
 public interface IDataFetcher {
-
+    void getData();
 }

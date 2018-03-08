@@ -1,7 +1,7 @@
 package com.grzesica.przemek.artistlist.Container;
 
-import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
-import com.grzesica.przemek.artistlist.Adapter.IDataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
 
 /**
  * Created by przemek on 05.03.18.
@@ -10,7 +10,7 @@ import com.grzesica.przemek.artistlist.Adapter.IDataBaseAdapter;
 public class DataFetcherDIBuilder implements IDataFetcherDIBuilder {
     public IDataBaseAdapter mDataBaseAdapter;
     public DataFetcherDIBuilder dataBaseAdapter(){
-        mDataBaseAdapter = new DataBaseAdapter();
+        mDataBaseAdapter = DataBaseAdapter.newInstance();
         return this;
     }
 }

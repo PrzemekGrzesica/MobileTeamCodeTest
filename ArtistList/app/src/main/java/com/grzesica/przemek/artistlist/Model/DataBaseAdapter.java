@@ -15,7 +15,7 @@ import android.util.Log;
  * Internal static class has been created to avoid an implicit reference to an external class.
  */
 
-public class DataBaseSingleton implements IDataBaseSingleton {
+public class DataBaseAdapter implements IDataBaseAdapter {
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -67,12 +67,25 @@ public class DataBaseSingleton implements IDataBaseSingleton {
             + " TEXT" + ")";
 
     private SQLiteDatabase db;
-    private Context context;
+    private Context mContext;
     private DataBaseHelper dbHelper;
 
-//    public DataBaseAdapter(Context context){
-//        this.context = context;
-//    }
+    private volatile static DataBaseAdapter uniqueInstance;
+    private DataBaseAdapter(Context context){
+        this.mContext = context;
+    }
+    public static DataBaseAdapter newInstance(Context context){
+        if(uniqueInstance==null){
+            synchronized (DataBaseAdapter.class){
+                if(uniqueInstance==null){
+                    uniqueInstance = new DataBaseAdapter(context);
+                }
+            }
+        }
+        return uniqueInstance;
+    }
+
+
 
     private static class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -100,7 +113,7 @@ public class DataBaseSingleton implements IDataBaseSingleton {
     }
 
     @Override
-    public DataBaseSingleton open(int dbVersionFlag){
+    public DataBaseAdapter open(int dbVersionFlag){
         String strDbPath = context.getDatabasePath(DATABASE_NAME).toString();
         int dbVersion;
         try{
@@ -123,7 +136,7 @@ public class DataBaseSingleton implements IDataBaseSingleton {
         return this;
     }
 
-    public DataBaseSingleton open(){
+    public DataBaseAdapter open(){
         dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
         try {
             db = dbHelper.getWritableDatabase();
@@ -135,7 +148,7 @@ public class DataBaseSingleton implements IDataBaseSingleton {
     }
 
     @Override
-    public DataBaseSingleton close(){
+    public DataBaseAdapter close(){
         dbHelper.close();
         return this;
     }
