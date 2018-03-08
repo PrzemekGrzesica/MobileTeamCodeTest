@@ -18,11 +18,11 @@ import java.security.NoSuchAlgorithmException;
 
 public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
-    private DataBaseAdapter dbAdapter;
-    Context context;
+    private DataBaseAdapter mDataBaseAdapter;
+    Context mContext;
 
-    protected UpdatesCheck(Context context) {
-        this.context = context;
+    public UpdatesCheck(Context context) {
+        this.mContext = context;
     }
 
     @Override
@@ -30,10 +30,10 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
         super.onPostExecute(aBoolean);
         boolean updatesAvailability = new Boolean(aBoolean).booleanValue();
         if (updatesAvailability){
-            Intent intent = new Intent(context, SettingsActivity.class);
-            context.startActivity(intent);
+            Intent intent = new Intent(mContext, SettingsActivity.class);
+            mContext.startActivity(intent);
         }else{
-            Toast.makeText(context, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -54,13 +54,13 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
-            dbAdapter = new DataBaseAdapter(context);
+            mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
             //Open existing database - flag = 0
-            dbAdapter.open(0);
-            Cursor cursor = dbAdapter.getMd5Key();
+            mDataBaseAdapter.open(1);
+            Cursor cursor = mDataBaseAdapter.getMd5Key();
             cursor.moveToFirst();
             oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
-            dbAdapter.close();
+            mDataBaseAdapter.close();
         }
         boolean updatesAvailability = false;
         if (newMD5Key.equals(oldMD5Key) == false) {

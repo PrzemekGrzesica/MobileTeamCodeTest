@@ -1,6 +1,9 @@
 package com.grzesica.przemek.artistlist.Container;
 
+import android.content.Context;
+
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.DataFetcher;
 import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
 
 /**
@@ -9,8 +12,19 @@ import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
 
 public class DataFetcherDIBuilder implements IDataFetcherDIBuilder {
     public IDataBaseAdapter mDataBaseAdapter;
-    public DataFetcherDIBuilder dataBaseAdapter(){
-        mDataBaseAdapter = DataBaseAdapter.newInstance();
+    public IHttpHandlerDIBuilder mHttpHandlerDIBuilder;
+
+    public DataFetcherDIBuilder dataBaseAdapter(Context context){
+        mDataBaseAdapter = DataBaseAdapter.newInstance(context);
         return this;
+    }
+    public DataFetcherDIBuilder httpHandlerDIBuilder(){
+        mHttpHandlerDIBuilder = new HttpHandlerDIBuilder();
+        return this;
+    }
+
+    @Override
+    public DataFetcher build() {
+        return new DataFetcher (this);
     }
 }

@@ -7,8 +7,8 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
-import com.grzesica.przemek.artistlist.Model.HttpHandler;
+import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
+import com.grzesica.przemek.artistlist.Model.DataFetcher;
 
 /**
  * Created by przemek on 05.03.18.
@@ -39,13 +39,11 @@ public class DataFetchingService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Integer databaseVersion = (Integer) 2;
-        DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
-        HttpHandler httpHandler = depInjBuilder
-                .byteArrayOutputStream()
-                .strBuilder()
-                .extendedUrl()
-                .extendedBufferedReader()
+        DataFetcherDIBuilder depInjBuilder = new DataFetcherDIBuilder();
+        DataFetcher dataFetcher = depInjBuilder
+                .httpHandlerDIBuilder()
                 .build();
+        dataFetcher.getData();
         String text = intent.getStringExtra(STR_MESSAGE);
         showText(text);
 //        new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);

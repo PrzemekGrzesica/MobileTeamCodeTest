@@ -5,8 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +47,7 @@ public class GetData extends AsyncTask<Integer, Void, Void> {
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
-                mDbAdapter = new DataBaseAdapter(mContext);
+                mDbAdapter = DataBaseAdapter.newInstance(mContext);
                 mDbAdapter.open(dbVersionFlag[0]);
                 //
                 mDbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));

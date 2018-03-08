@@ -13,7 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
-import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 
@@ -39,7 +39,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         long artistDataId = (long) getIntent().getExtras().get(strArtistDataId);
-        dbAdapter = new DataBaseAdapter(getApplicationContext());
+        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
         //Open existing database - flag = 0
         dbAdapter.open(0);
 

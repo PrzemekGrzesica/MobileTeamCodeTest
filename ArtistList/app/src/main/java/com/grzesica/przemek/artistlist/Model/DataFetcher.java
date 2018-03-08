@@ -4,14 +4,10 @@ package com.grzesica.przemek.artistlist.Model;
 import android.content.Context;
 import android.util.Log;
 
-import com.grzesica.przemek.artistlist.Adapter.DataBaseAdapter;
-import com.grzesica.przemek.artistlist.Adapter.IDataBaseAdapter;
 import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
-import com.grzesica.przemek.artistlist.Container.DependencyInjectionBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IDataFetcherDIBuilder;
-import com.grzesica.przemek.artistlist.Container.IDataFetchingHandler;
-import com.grzesica.przemek.artistlist.Container.IDependencyInjectionBuilder;
+import com.grzesica.przemek.artistlist.Container.IHttpHandlerDIBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,13 +21,15 @@ import static android.content.ContentValues.TAG;
 
 public class DataFetcher implements IDataFetcher {
     private Context mContext;
-    private IDataBaseAdapter mDbAdapter;
-    private HttpHandler mHttpHandler;
+    private IDataBaseAdapter mDataBaseAdapter;
+    private IHttpHandler mHttpHandler;
+    private IHttpHandlerDIBuilder mHttpHandlerDIBuilder;
 
     public static final String JSON_URL = "http://i.img.co/data/data.json";
 
     public DataFetcher(IDataFetcherDIBuilder builder){
-        this.mDbAdapter = ((DataFetcherDIBuilder) builder).mDbAdapter;
+        this.mDataBaseAdapter = ((DataFetcherDIBuilder) builder).mDataBaseAdapter;
+        this.mHttpHandlerDIBuilder = ((DataFetcherDIBuilder)builder).mHttpHandlerDIBuilder;
     }
 
     @Override
@@ -56,10 +54,10 @@ public class DataFetcher implements IDataFetcher {
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
-                mDbAdapter = new DataBaseAdapter(mContext);
-                mDbAdapter.open(dbVersionFlag);
+//                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
+                ((DataBaseAdapter)mDataBaseAdapter).open(1);
                 //
-                mDbAdapter.createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
+                ((DataBaseAdapter)mDataBaseAdapter).createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
                 for (int i = 0; i < artArray.length(); i++) {
                     JSONObject artObj = artArray.getJSONObject(i);
@@ -69,7 +67,7 @@ public class DataFetcher implements IDataFetcher {
                     byte[] artistPicture = mHttpHandler.getBlob(mHttpHandler.downloadImage(artistPictureUrl));
                     String name = artObj.getString("name");
                     String description = artObj.getString("description");
-                    mDbAdapter.createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
+                    ((DataBaseAdapter)mDataBaseAdapter).createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
                 }
                 // Getting JSON Array node
                 JSONArray albArray = jsonObj.getJSONArray("albums");
@@ -82,10 +80,10 @@ public class DataFetcher implements IDataFetcher {
                     String type = albObj.getString("type");
                     String albumPictureUrl = albObj.getString("picture");
                     byte[] albumPicture = mHttpHandler.getBlob(mHttpHandler.downloadImage(albumPictureUrl));
-                    mDbAdapter.createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
+                    ((DataBaseAdapter)mDataBaseAdapter).createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
                 //
-                mDbAdapter.close();
+                mDataBaseAdapter.close();
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
                 /*runOnUiThread(new Runnable() {

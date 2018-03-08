@@ -66,9 +66,9 @@ public class DataBaseAdapter implements IDataBaseAdapter {
             + TABLE_MD5_KEYS + "(" + _id + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_MD5_KEYS
             + " TEXT" + ")";
 
-    private SQLiteDatabase db;
+    private SQLiteDatabase mDataBase;
     private Context mContext;
-    private DataBaseHelper dbHelper;
+    private DataBaseHelper mDataBaseHelper;
 
     private volatile static DataBaseAdapter uniqueInstance;
     private DataBaseAdapter(Context context){
@@ -114,7 +114,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
 
     @Override
     public DataBaseAdapter open(int dbVersionFlag){
-        String strDbPath = context.getDatabasePath(DATABASE_NAME).toString();
+        String strDbPath = mContext.getDatabasePath(DATABASE_NAME).toString();
         int dbVersion;
         try{
             dbVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
@@ -122,34 +122,34 @@ public class DataBaseAdapter implements IDataBaseAdapter {
             dbVersion = 1;
         }
         dbVersion = dbVersionFlag + dbVersion;
-        dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, dbVersion);
+        mDataBaseHelper = new DataBaseHelper(mContext, DATABASE_NAME, null, dbVersion);
         if (dbVersionFlag == 0) {
             try {
-                db = dbHelper.getWritableDatabase();
+                mDataBase = mDataBaseHelper.getWritableDatabase();
             } catch (SQLException e) {
                 Log.e("MYAPP", "SqliteException: " + e);
-                db = dbHelper.getReadableDatabase();
+                mDataBase = mDataBaseHelper.getReadableDatabase();
             }
         }else{
-            db = dbHelper.getReadableDatabase();
+            mDataBase = mDataBaseHelper.getReadableDatabase();
         }
         return this;
     }
 
     public DataBaseAdapter open(){
-        dbHelper = new DataBaseHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+        mDataBaseHelper = new DataBaseHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION);
         try {
-            db = dbHelper.getWritableDatabase();
+            mDataBase = mDataBaseHelper.getWritableDatabase();
         } catch (SQLException e) {
             Log.e("MYAPP", "SqliteException: " + e);
-            db = dbHelper.getReadableDatabase();
+            mDataBase = mDataBaseHelper.getReadableDatabase();
         }
         return this;
     }
 
     @Override
     public DataBaseAdapter close(){
-        dbHelper.close();
+        mDataBaseHelper.close();
         return this;
     }
 
@@ -164,7 +164,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         values.put(KEY_NAME, name);
         values.put(KEY_DESCRIPTION, description);
 
-        return db.insert(TABLE_ARTIST_LIST, null, values);
+        return mDataBase.insert(TABLE_ARTIST_LIST, null, values);
     }
 
     public long createAlbumListRecords(String artistId, String albumId, String albumTitle,
@@ -178,27 +178,27 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         values.put(KEY_ALBUM_PICTURE_URL, albumPictureUrl);
         values.put(KEY_ALBUM_PICTURE_BLOB, albumPicture);
 
-        return db.insert(TABLE_ALBUM_LIST, null, values);
+        return mDataBase.insert(TABLE_ALBUM_LIST, null, values);
     }
 
     public long createMD5KeysRecords(String md5Key){
         ContentValues values = new ContentValues();
         values.put(KEY_MD5_KEYS, md5Key);
-        return db.insert(TABLE_MD5_KEYS, null, values);
+        return mDataBase.insert(TABLE_MD5_KEYS, null, values);
     }
 
     public Cursor getArtistListItems() {
         String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_DESCRIPTION, KEY_ARTIST_PICTURE_URL, KEY_ARTIST_PICTURE_BLOB};
-        return db.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
+        return mDataBase.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
     }
 
     public Cursor getAlbumsListItems(String artistId) {
         String[] columns = {_id, KEY_ARTIST_ID, KEY_ALBUM_ID, KEY_ALBUM_TITLE, KEY_TYPE, KEY_ALBUM_PICTURE_URL, KEY_ALBUM_PICTURE_BLOB};
-        return db.query(TABLE_ALBUM_LIST, columns, KEY_ARTIST_ID + " = " + artistId, null, null, null, null);
+        return mDataBase.query(TABLE_ALBUM_LIST, columns, KEY_ARTIST_ID + " = " + artistId, null, null, null, null);
     }
 
     public Cursor getMd5Key(){
         String[] columns = {_id, KEY_MD5_KEYS};
-        return db.query(TABLE_MD5_KEYS, columns, null, null, null, null, null);
+        return mDataBase.query(TABLE_MD5_KEYS, columns, null, null, null, null, null);
     }
 }

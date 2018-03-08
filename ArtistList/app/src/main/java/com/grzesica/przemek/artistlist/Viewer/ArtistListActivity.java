@@ -14,7 +14,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
+import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
+import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.DataFetcher;
 import com.grzesica.przemek.artistlist.Model.GetData;
 import com.grzesica.przemek.artistlist.Model.HttpHandler;
 import com.grzesica.przemek.artistlist.R;
@@ -22,11 +25,11 @@ import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 
 public class ArtistListActivity extends AppCompatActivity {
 
-    private ArtistListAdapter artistListAdapter;
-    private Context context;
-    private Cursor dbCursor;
-    private DataBaseAdapter dbAdapter;
-    private ListView lvArtist;
+    private ArtistListAdapter mArtistListAdapter;
+    private Context mContext;
+    private Cursor mCursor;
+    private DataBaseAdapter mDataBaseAdapter;
+    private ListView mArtistListView;
     private SwipeRefreshLayout swipeLayout;
 
     @Override
@@ -45,7 +48,7 @@ public class ArtistListActivity extends AppCompatActivity {
             }
         });*/
 
-        context = this.getApplicationContext();
+        mContext = this.getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.artistToolbar);
 
         setSupportActionBar(toolbar);
@@ -67,35 +70,43 @@ public class ArtistListActivity extends AppCompatActivity {
     }
 
     protected void initUiElements() {
-        lvArtist = (ListView) findViewById(R.id.artistListView);
+        mArtistListView = (ListView) findViewById(R.id.artistListView);
         fillListViewData();
         initListViewOnItemClick();
     }
 
     private void fillListViewData() {
-        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
+        mDataBaseAdapter = DataBaseAdapter.newInstance(getApplicationContext());
         //Open existing database flag = 0
-        dbAdapter.open(0);
-        dbCursor = getAllEntriesFromDb(1);
-        if (dbCursor.moveToFirst() == false) {
+        mDataBaseAdapter.open(0);
+        mCursor = getAllEntriesFromDb(1);
+        if (mCursor.moveToFirst() == false) {
             Integer databaseVersion = (Integer) 1;
 
-            DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
-            HttpHandler httpHandler = depInjBuilder.byteArrayOutputStream().strBuilder().build();
-            new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
+            HttpHandlerDIBuilder httpHandlerDIBuilder = new HttpHandlerDIBuilder();
+            HttpHandler httpHandler = httpHandlerDIBuilder
+                                        .byteArrayOutputStream()
+                                        .strBuilder()
+                                        .build();
+//            new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
 //            new GetData(getApplicationContext(), new HttpHandler(new StringBuilder(), new ByteArrayOutputStream())).execute(databaseVersion);
+            DataFetcherDIBuilder dataFetcherDIBuilder = new DataFetcherDIBuilder();
+            DataFetcher dataFetcher = dataFetcherDIBuilder
+                                        .dataBaseAdapter(mContext)
+                                        .httpHandlerDIBuilder()
+                                        .build();
         }
-        artistListAdapter = new ArtistListAdapter(getApplicationContext(), dbCursor, 0);
-        lvArtist.setAdapter(artistListAdapter);
+        mArtistListAdapter = new ArtistListAdapter(getApplicationContext(), mCursor, 0);
+        mArtistListView.setAdapter(mArtistListAdapter);
     }
 
     private Cursor getAllEntriesFromDb(int position) {
-        dbCursor = dbAdapter.getArtistListItems();
-        if (dbCursor != null) {
-            startManagingCursor(dbCursor);
-            dbCursor.moveToPosition(--position);
+        mCursor = mDataBaseAdapter.getArtistListItems();
+        if (mCursor != null) {
+            startManagingCursor(mCursor);
+            mCursor.moveToPosition(--position);
         }
-        return dbCursor;
+        return mCursor;
     }
 
     private void initListViewOnItemClick() {
@@ -111,7 +122,7 @@ public class ArtistListActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 };
-        lvArtist = (ListView) findViewById(R.id.artistListView);
-        lvArtist.setOnItemClickListener(itemClickListener);
+        mArtistListView = (ListView) findViewById(R.id.artistListView);
+        mArtistListView.setOnItemClickListener(itemClickListener);
     }
 }
