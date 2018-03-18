@@ -19,6 +19,7 @@ public class DataFetchingService extends IntentService {
     private Context mContext;
     private Handler mHandler;
     public static final String STR_MESSAGE = "message";
+    public static final String INT_DATABASE_VERSION = "dataBaseVersion";
 
     public DataFetchingService() {
         super("Data fetching service");
@@ -38,14 +39,17 @@ public class DataFetchingService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Integer databaseVersion = (Integer) 2;
+        String text = intent.getStringExtra(STR_MESSAGE);
+        int dbVersion = intent.getIntExtra(INT_DATABASE_VERSION,0);
+        showText(text);
+//        Integer databaseVersion = (Integer) 2;
         DataFetcherDIBuilder depInjBuilder = new DataFetcherDIBuilder();
         DataFetcher dataFetcher = depInjBuilder
                 .httpHandlerDIBuilder()
+                .dataBaseAdapter(mContext)
                 .build();
         dataFetcher.getData();
-        String text = intent.getStringExtra(STR_MESSAGE);
-        showText(text);
+
 //        new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
     }
 

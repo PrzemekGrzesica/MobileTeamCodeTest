@@ -131,7 +131,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
                 mDataBase = mDataBaseHelper.getReadableDatabase();
             }
         }else{
-            mDataBase = mDataBaseHelper.getReadableDatabase();
+            mDataBase = mDataBaseHelper.getWritableDatabase();
         }
         return this;
     }

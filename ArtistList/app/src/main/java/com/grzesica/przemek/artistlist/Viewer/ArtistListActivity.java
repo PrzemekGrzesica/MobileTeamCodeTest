@@ -22,6 +22,7 @@ import com.grzesica.przemek.artistlist.Model.GetData;
 import com.grzesica.przemek.artistlist.Model.HttpHandler;
 import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
+import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 public class ArtistListActivity extends AppCompatActivity {
 
@@ -81,20 +82,24 @@ public class ArtistListActivity extends AppCompatActivity {
         mDataBaseAdapter.open(0);
         mCursor = getAllEntriesFromDb(1);
         if (mCursor.moveToFirst() == false) {
-            Integer databaseVersion = (Integer) 1;
+            int dbVersion = 0;
+            mDataBaseAdapter.close();
+            Intent intent = new Intent(mContext, DataFetchingService.class);
+            intent.putExtra(DataFetchingService.STR_MESSAGE, "Serwis działa sobie w tle...");
+            intent.putExtra(DataFetchingService.INT_DATABASE_VERSION, dbVersion);
+            mContext.startService(intent);
 
-            HttpHandlerDIBuilder httpHandlerDIBuilder = new HttpHandlerDIBuilder();
-            HttpHandler httpHandler = httpHandlerDIBuilder
-                                        .byteArrayOutputStream()
-                                        .strBuilder()
-                                        .build();
-//            new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
-//            new GetData(getApplicationContext(), new HttpHandler(new StringBuilder(), new ByteArrayOutputStream())).execute(databaseVersion);
-            DataFetcherDIBuilder dataFetcherDIBuilder = new DataFetcherDIBuilder();
-            DataFetcher dataFetcher = dataFetcherDIBuilder
-                                        .dataBaseAdapter(mContext)
-                                        .httpHandlerDIBuilder()
-                                        .build();
+//            HttpHandlerDIBuilder httpHandlerDIBuilder = new HttpHandlerDIBuilder();
+//            HttpHandler httpHandler = httpHandlerDIBuilder
+//                                        .byteArrayOutputStream()
+//                                        .strBuilder()
+//                                        .build();
+//            DataFetcherDIBuilder dataFetcherDIBuilder = new DataFetcherDIBuilder();
+//            DataFetcher dataFetcher = dataFetcherDIBuilder
+//                                        .dataBaseAdapter(mContext)
+//                                        .httpHandlerDIBuilder()
+//                                        .build();
+//            dataFetcher.getData();
         }
         mArtistListAdapter = new ArtistListAdapter(getApplicationContext(), mCursor, 0);
         mArtistListView.setAdapter(mArtistListAdapter);
@@ -118,7 +123,7 @@ public class ArtistListActivity extends AppCompatActivity {
                                             long id) {
                         Intent intent = new Intent(ArtistListActivity.this,
                                 AlbumsListActivity.class);
-                        intent.putExtra(AlbumsListActivity.strArtistDataId, id);
+                        intent.putExtra(AlbumsListActivity.STR_ARTIST_DATA_ID, id);
                         startActivity(intent);
                     }
                 };

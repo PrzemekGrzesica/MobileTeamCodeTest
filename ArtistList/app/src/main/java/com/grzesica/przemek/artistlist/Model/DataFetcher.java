@@ -35,7 +35,8 @@ public class DataFetcher implements IDataFetcher {
     @Override
     public void getData(){
 
-        HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
+//        HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
+        HttpHandlerDIBuilder depInjBuilder = (HttpHandlerDIBuilder) mHttpHandlerDIBuilder;
         mHttpHandler = depInjBuilder
                 .byteArrayOutputStream()
                 .strBuilder()
@@ -54,8 +55,8 @@ public class DataFetcher implements IDataFetcher {
                 // Getting JSON Array node
                 JSONArray artArray = jsonObj.getJSONArray("artists");
 
-//                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
-                ((DataBaseAdapter)mDataBaseAdapter).open(1);
+                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
+                ((DataBaseAdapter)mDataBaseAdapter).open(2);
                 //
                 ((DataBaseAdapter)mDataBaseAdapter).createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist

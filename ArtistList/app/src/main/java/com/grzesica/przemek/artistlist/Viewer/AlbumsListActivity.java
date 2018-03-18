@@ -21,7 +21,7 @@ import java.io.ByteArrayInputStream;
 
 public class AlbumsListActivity extends AppCompatActivity {
 
-    public static final String strArtistDataId = "artistDataId";
+    public static final String STR_ARTIST_DATA_ID = "artistDataId";
 
     private Cursor dbCursor;
     private DataBaseAdapter dbAdapter;
@@ -38,7 +38,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.albumsToolbar);
         setSupportActionBar(toolbar);
 
-        long artistDataId = (long) getIntent().getExtras().get(strArtistDataId);
+        long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
         dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
         //Open existing database - flag = 0
         dbAdapter.open(0);

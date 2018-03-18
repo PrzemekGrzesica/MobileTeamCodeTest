@@ -116,10 +116,10 @@ public class HttpHandler implements IHttpHandler {
 
     @Override
     public byte[] getBlob(Bitmap bitmap) {
+        ((ByteArrayOutputStream)mOutputStream).reset();
         if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, mOutputStream);
-            ByteArrayOutputStream stream = (ByteArrayOutputStream) mOutputStream;
-            return stream.toByteArray();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, mOutputStream);
+            return ((ByteArrayOutputStream) mOutputStream).toByteArray();
         }
         return null;
     }

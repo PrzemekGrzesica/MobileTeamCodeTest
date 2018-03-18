@@ -19,7 +19,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void onClickUpdate(View view){
-        Integer databaseVersion = (Integer) 2;
+//        Integer databaseVersion = (Integer) 2;
 
 //        DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
 //        HttpHandler httpHandler = depInjBuilder
