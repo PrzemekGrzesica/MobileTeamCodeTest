@@ -153,7 +153,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return this;
     }
 
-    public long createArtistListRecords(String artistId, String genres, String artistPictureUrl,
+    public synchronized long createArtistListRecords(String artistId, String genres, String artistPictureUrl,
                                         byte[] artistPicture, String name, String description) {
 
         ContentValues values = new ContentValues();
@@ -167,7 +167,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return mDataBase.insert(TABLE_ARTIST_LIST, null, values);
     }
 
-    public long createAlbumListRecords(String artistId, String albumId, String albumTitle,
+    public synchronized long createAlbumListRecords(String artistId, String albumId, String albumTitle,
                                        String type, String albumPictureUrl, byte[] albumPicture) {
 
         ContentValues values = new ContentValues();
@@ -181,7 +181,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return mDataBase.insert(TABLE_ALBUM_LIST, null, values);
     }
 
-    public long createMD5KeysRecords(String md5Key){
+    public synchronized long createMD5KeysRecords(String md5Key){
         ContentValues values = new ContentValues();
         values.put(KEY_MD5_KEYS, md5Key);
         return mDataBase.insert(TABLE_MD5_KEYS, null, values);
@@ -189,7 +189,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
 
     public Cursor getArtistListItems() {
         String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_DESCRIPTION, KEY_ARTIST_PICTURE_URL, KEY_ARTIST_PICTURE_BLOB};
-        return mDataBase.query(TABLE_ARTIST_LIST, columns, null, null, null, null, null);
+        return mDataBase.query(TABLE_ARTIST_LIST, columns, null, null, null, null, KEY_NAME);
     }
 
     public Cursor getAlbumsListItems(String artistId) {
