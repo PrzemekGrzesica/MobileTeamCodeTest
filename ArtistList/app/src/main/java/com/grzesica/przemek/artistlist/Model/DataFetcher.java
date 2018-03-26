@@ -75,7 +75,7 @@ public class DataFetcher implements IDataFetcher {
                 JSONArray artistJsonArray = jsonObj.getJSONArray("artists");
 
 //                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
-                ((DataBaseAdapter)mDataBaseAdapter).open(0, true);
+                ((DataBaseAdapter)mDataBaseAdapter).open(1, true);
                 //
                 ((DataBaseAdapter)mDataBaseAdapter).createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
@@ -117,7 +117,7 @@ public class DataFetcher implements IDataFetcher {
                 @Override
                 public void run() {
                     Toast.makeText(mContext,
-                            "Couldn't get json from server. Check your internet connection!!!",
+                            "Couldn't get server. Check your internet connection!!!",
                             Toast.LENGTH_LONG).show();
                 }
             });

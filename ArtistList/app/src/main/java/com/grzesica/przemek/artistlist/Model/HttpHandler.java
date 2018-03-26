@@ -43,8 +43,11 @@ public class HttpHandler implements IHttpHandler {
         try {
             response = convertStreamToString(getInputStream(requestUrl));
         } catch (MalformedURLException e) {
+
         } catch (ProtocolException e) {
+
         } catch (IOException e) {
+
         } catch (Exception e) {
             Log.e("MYAPP", "exception: " + e);
         } finally {

@@ -23,13 +23,13 @@ public class AlbumsListActivity extends AppCompatActivity {
 
     public static final String STR_ARTIST_DATA_ID = "artistDataId";
 
-    private Cursor dbCursor;
-    private DataBaseAdapter dbAdapter;
-    private ListView lvAlbums;
-    private TextView tvName;
-    private TextView tvGenres;
-    private TextView tvDescription;
-    private ImageView ivArtist;
+    private Cursor mCursor;
+    private DataBaseAdapter mDataBaseAdapter;
+    private ListView mLvAlbums;
+    private TextView mTvName;
+    private TextView mTvGenres;
+    private TextView mTvDescription;
+    private ImageView mIvArtist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,18 +40,18 @@ public class AlbumsListActivity extends AppCompatActivity {
 
         long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
 //        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
-        dbAdapter = new DataBaseAdapter(getApplicationContext());
+        mDataBaseAdapter = new DataBaseAdapter(getApplicationContext());
         //Open existing database - flag = 0
-        dbAdapter.open(0, false);
+        mDataBaseAdapter.open(0, false);
 
         getArtistTable((int) artistDataId);
 
-        String strName = dbCursor.getString(dbCursor.getColumnIndex("name"));
-        String strGenres = dbCursor.getString(dbCursor.getColumnIndex("genres"));
-        String strDescription = dbCursor.getString(dbCursor.getColumnIndex("description"));
-        String strArtistId = dbCursor.getString(dbCursor.getColumnIndex("artistId"));
+        String strName = mCursor.getString(mCursor.getColumnIndex("name"));
+        String strGenres = mCursor.getString(mCursor.getColumnIndex("genres"));
+        String strDescription = mCursor.getString(mCursor.getColumnIndex("description"));
+        String strArtistId = mCursor.getString(mCursor.getColumnIndex("artistId"));
         String artistDataArray[] = {strName, strGenres, strDescription};
-        byte[] imageByteArray = dbCursor.getBlob(dbCursor.getColumnIndex("artistPictureBlob"));
+        byte[] imageByteArray = mCursor.getBlob(mCursor.getColumnIndex("artistPictureBlob"));
 
         initUiElements();
         fillUiElements(artistDataArray, imageByteArray);
@@ -74,46 +74,46 @@ public class AlbumsListActivity extends AppCompatActivity {
     }
 
     private Cursor getArtistTable(int position) {
-        dbCursor = dbAdapter.getArtistListItems();
-        if (dbCursor != null) {
-            startManagingCursor(dbCursor);
-            dbCursor.moveToPosition(--position);
+        mCursor = mDataBaseAdapter.getArtistListItems();
+        if (mCursor != null) {
+            startManagingCursor(mCursor);
+            mCursor.moveToPosition(--position);
         }
-        return dbCursor;
+        return mCursor;
     }
 
     private void initUiElements() {
-        lvAlbums = (ListView) findViewById(R.id.albumsListView);
-        tvName = (TextView) findViewById(R.id.tvAlbumListName);
-        tvGenres = (TextView) findViewById(R.id.tvAlbumListGenres);
-        tvDescription = (TextView) findViewById(R.id.tvAlbumListDescription);
-        ivArtist = (ImageView) findViewById(R.id.albumListArtistImageView);
+        mLvAlbums = (ListView) findViewById(R.id.albumsListView);
+        mTvName = (TextView) findViewById(R.id.tvAlbumListName);
+        mTvGenres = (TextView) findViewById(R.id.tvAlbumListGenres);
+        mTvDescription = (TextView) findViewById(R.id.tvAlbumListDescription);
+        mIvArtist = (ImageView) findViewById(R.id.albumListArtistImageView);
     }
 
     private void fillUiElements(String[] artistData, byte[] imageByteArray){
-        tvName.setText("Names: " + artistData[0]);
-        tvGenres.setText("Genres: " + artistData[1]);
-        tvDescription.setText(artistData[2]);
+        mTvName.setText("Names: " + artistData[0]);
+        mTvGenres.setText("Genres: " + artistData[1]);
+        mTvDescription.setText(artistData[2]);
         if (imageByteArray!=null) {
             ByteArrayInputStream imageStream = new ByteArrayInputStream(imageByteArray);
             Bitmap artistImage = BitmapFactory.decodeStream(imageStream);
-            ivArtist.setImageBitmap(artistImage);
+            mIvArtist.setImageBitmap(artistImage);
         }
     }
 
     private void fillListView(String artistId) {
 
-        dbCursor = getAlbumTable(artistId);
-        AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), dbCursor, 0);
-        lvAlbums.setAdapter(albumsListAdapter);
+        mCursor = getAlbumTable(artistId);
+        AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), mCursor, 0);
+        mLvAlbums.setAdapter(albumsListAdapter);
     }
 
     private Cursor getAlbumTable(String position) {
-        dbCursor = dbAdapter.getAlbumsListItems(position);
-        if (dbCursor != null) {
-            startManagingCursor(dbCursor);
-            dbCursor.moveToFirst();
+        mCursor = mDataBaseAdapter.getAlbumsListItems(position);
+        if (mCursor != null) {
+            startManagingCursor(mCursor);
+            mCursor.moveToFirst();
         }
-        return dbCursor;
+        return mCursor;
     }
 }

@@ -115,19 +115,19 @@ public class DataBaseAdapter implements IDataBaseAdapter {
     @Override
     public DataBaseAdapter open(int dbVersionFlag, boolean writableFlag){
         String strDbPath = mContext.getDatabasePath(DATABASE_NAME).toString();
-        int dbVersion;
+        int dbPresentVersion;
         try{
-            dbVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
+            dbPresentVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
         } catch (Exception e) {
-            dbVersion = 1;
+            dbPresentVersion = 1;
+            writableFlag = true;
         }
-        dbVersion = dbVersionFlag + dbVersion;
+        int dbVersion = dbVersionFlag + dbPresentVersion;
         mDataBaseHelper = new DataBaseHelper(mContext, DATABASE_NAME, null, dbVersion);
-        if (writableFlag == true && dbVersion == 0) {
+        if (writableFlag == true && dbVersion == 1) {
             try {
                 mDataBase = mDataBaseHelper.getWritableDatabase();
             } catch (SQLException e) {
-                Log.e("MYAPP", "SqliteException: " + e);
                 mDataBase = mDataBaseHelper.getReadableDatabase();
             }
         }else{

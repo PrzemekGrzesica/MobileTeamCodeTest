@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
@@ -19,10 +20,12 @@ import java.security.NoSuchAlgorithmException;
 public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
     private DataBaseAdapter mDataBaseAdapter;
-    Context mContext;
+    private Context mContext;
+    private Handler mHandler;
 
     public UpdatesCheck(Context context) {
         this.mContext = context;
+        this.mHandler = new Handler(mContext.getMainLooper());
     }
 
     @Override
@@ -39,9 +42,8 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Integer... voids) {
-        String newMD5Key = null;
-        String oldMD5Key = null;
-//        HttpHandler httpHandler = new HttpHandler(new StringBuilder(), new ByteArrayOutputStream());
+        String newMD5Key;
+        String oldMD5Key;
         HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
         HttpHandler httpHandler = depInjBuilder
                                     .byteArrayOutputStream()
@@ -52,26 +54,40 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
+        mDataBaseAdapter = new DataBaseAdapter(mContext);
+        //Open existing database - flag = 0
+        mDataBaseAdapter.open(0, false);
+        Cursor cursor = mDataBaseAdapter.getMd5Key();
+        cursor.moveToFirst();
+        try{
+            oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
+        }catch(Exception e){
+            oldMD5Key = "EmptyOld";
+        }
+        mDataBaseAdapter.close();
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
 //            mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
-            mDataBaseAdapter = new DataBaseAdapter(mContext);
-            //Open existing database - flag = 0
-            mDataBaseAdapter.open(1, false);
-            Cursor cursor = mDataBaseAdapter.getMd5Key();
-            cursor.moveToFirst();
-            try{
-                oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
-            }catch(Exception e){
-                oldMD5Key = "Empty";
-            }
-            mDataBaseAdapter.close();
+        }else{
+            newMD5Key = "EmptyNew";
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mContext,
+                            "Couldn't get server. Check your internet connection!!!",
+                            Toast.LENGTH_LONG).show();
+                }
+            });
         }
         boolean updatesAvailability = false;
         if (newMD5Key.equals(oldMD5Key) == false) {
             updatesAvailability = true;
         }
         return (Boolean) updatesAvailability;
+    }
+
+    private void runOnUiThread(Runnable r) {
+        mHandler.post(r);
     }
 }
 

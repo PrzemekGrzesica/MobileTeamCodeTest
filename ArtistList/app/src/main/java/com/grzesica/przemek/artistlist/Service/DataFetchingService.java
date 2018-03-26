@@ -41,7 +41,7 @@ public class DataFetchingService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         String text = intent.getStringExtra(STR_MESSAGE);
-        int dbVersion = intent.getIntExtra(INT_DATABASE_VERSION,0);
+//        int dbVersion = intent.getIntExtra(INT_DATABASE_VERSION,0);
         showText(text);
 //        Integer databaseVersion = (Integer) 2;
         DataFetcherDIBuilder depInjBuilder = new DataFetcherDIBuilder();

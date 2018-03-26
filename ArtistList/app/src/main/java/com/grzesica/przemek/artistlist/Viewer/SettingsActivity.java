@@ -11,7 +11,7 @@ import com.grzesica.przemek.artistlist.R;
 
 
 public class SettingsActivity extends AppCompatActivity {
-//    Context context = this.getApplicationContext();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,20 +19,11 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void onClickUpdate(View view){
-//        Integer databaseVersion = (Integer) 2;
-
-//        DependencyInjectionBuilder depInjBuilder = new DependencyInjectionBuilder();
-//        HttpHandler httpHandler = depInjBuilder
-//                                    .byteArrayOutputStream()
-//                                    .strBuilder()
-//                                    .extendedUrl()
-//                                    .extendedBufferedReader()
-//                                    .build();
-////        new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
         Context context = this.getApplicationContext();
         Intent intent = new Intent(context, DataFetchingService.class);
-        intent.putExtra(DataFetchingService.STR_MESSAGE, "Nie wiem co napisać...");
+        intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for database refreshing...");
         context.startService(intent);
+        finish();
     }
 
     public void onClickCancel(View view){
