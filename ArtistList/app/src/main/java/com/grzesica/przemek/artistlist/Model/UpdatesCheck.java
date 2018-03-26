@@ -50,16 +50,21 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
                                     .extendedBufferedReader()
                                     .build();
 
-        String jsonStr = httpHandler.jsonServiceCall(GetData.JSON_URL);
+        String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
-            mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
+//            mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
+            mDataBaseAdapter = new DataBaseAdapter(mContext);
             //Open existing database - flag = 0
-            mDataBaseAdapter.open(1);
+            mDataBaseAdapter.open(1, false);
             Cursor cursor = mDataBaseAdapter.getMd5Key();
             cursor.moveToFirst();
-            oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
+            try{
+                oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
+            }catch(Exception e){
+                oldMD5Key = "Empty";
+            }
             mDataBaseAdapter.close();
         }
         boolean updatesAvailability = false;

@@ -1,5 +1,7 @@
 package com.grzesica.przemek.artistlist.Container;
 
+import android.content.Context;
+
 import com.grzesica.przemek.artistlist.Model.DataFetcher;
 
 /**
@@ -7,5 +9,5 @@ import com.grzesica.przemek.artistlist.Model.DataFetcher;
  */
 
 public interface IDataFetcherDIBuilder {
-    DataFetcher build();
+    DataFetcher build(Context context);
 }

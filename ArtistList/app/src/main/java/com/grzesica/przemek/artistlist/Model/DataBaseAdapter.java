@@ -70,20 +70,20 @@ public class DataBaseAdapter implements IDataBaseAdapter {
     private Context mContext;
     private DataBaseHelper mDataBaseHelper;
 
-    private volatile static DataBaseAdapter uniqueInstance;
-    private DataBaseAdapter(Context context){
+//    private volatile static DataBaseAdapter uniqueInstance;
+    public DataBaseAdapter(Context context){
         this.mContext = context;
     }
-    public static DataBaseAdapter newInstance(Context context){
-        if(uniqueInstance==null){
-            synchronized (DataBaseAdapter.class){
-                if(uniqueInstance==null){
-                    uniqueInstance = new DataBaseAdapter(context);
-                }
-            }
-        }
-        return uniqueInstance;
-    }
+//    public static DataBaseAdapter newInstance(Context context){
+//        if(uniqueInstance==null){
+//            synchronized (DataBaseAdapter.class){
+//                if(uniqueInstance==null){
+//                    uniqueInstance = new DataBaseAdapter(context);
+//                }
+//            }
+//        }
+//        return uniqueInstance;
+//    }
 
 
 
@@ -113,7 +113,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
     }
 
     @Override
-    public DataBaseAdapter open(int dbVersionFlag){
+    public DataBaseAdapter open(int dbVersionFlag, boolean writableFlag){
         String strDbPath = mContext.getDatabasePath(DATABASE_NAME).toString();
         int dbVersion;
         try{
@@ -123,7 +123,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         }
         dbVersion = dbVersionFlag + dbVersion;
         mDataBaseHelper = new DataBaseHelper(mContext, DATABASE_NAME, null, dbVersion);
-        if (dbVersionFlag == 0) {
+        if (writableFlag == true && dbVersion == 0) {
             try {
                 mDataBase = mDataBaseHelper.getWritableDatabase();
             } catch (SQLException e) {
@@ -131,7 +131,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
                 mDataBase = mDataBaseHelper.getReadableDatabase();
             }
         }else{
-            mDataBase = mDataBaseHelper.getWritableDatabase();
+            mDataBase = mDataBaseHelper.getReadableDatabase();
         }
         return this;
     }
@@ -189,7 +189,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
 
     public Cursor getArtistListItems() {
         String[] columns = {_id, KEY_ARTIST_ID, KEY_NAME, KEY_GENRES, KEY_DESCRIPTION, KEY_ARTIST_PICTURE_URL, KEY_ARTIST_PICTURE_BLOB};
-        return mDataBase.query(TABLE_ARTIST_LIST, columns, null, null, null, null, KEY_NAME);
+        return mDataBase.query(TABLE_ARTIST_LIST, columns, null, null, null, null, _id);
     }
 
     public Cursor getAlbumsListItems(String artistId) {

@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
+import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.DataFetcher;
 
 /**
@@ -47,10 +48,8 @@ public class DataFetchingService extends IntentService {
         DataFetcher dataFetcher = depInjBuilder
                 .httpHandlerDIBuilder()
                 .dataBaseAdapter(mContext)
-                .build();
+                .build(mContext);
         dataFetcher.getData();
-
-//        new GetData(getApplicationContext(), httpHandler).execute(databaseVersion);
     }
 
     private void showText(final String text) {

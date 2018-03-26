@@ -5,6 +5,6 @@ package com.grzesica.przemek.artistlist.Model;
  */
 
 public interface IDataBaseAdapter {
-    DataBaseAdapter open(int dbVersionFlag);
+    DataBaseAdapter open(int dbVersionFlag, boolean writableFlag);
     DataBaseAdapter close();
 }

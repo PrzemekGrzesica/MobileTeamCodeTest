@@ -1,9 +1,9 @@
 package com.grzesica.przemek.artistlist.Viewer;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,31 +14,19 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
-import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
-import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
-import com.grzesica.przemek.artistlist.Model.DataFetcher;
-import com.grzesica.przemek.artistlist.Model.GetData;
-import com.grzesica.przemek.artistlist.Model.HttpHandler;
-import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
+import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 public class ArtistListActivity extends AppCompatActivity {
-
-    private ArtistListAdapter mArtistListAdapter;
-    private Context mContext;
-    private Cursor mCursor;
-    private DataBaseAdapter mDataBaseAdapter;
-    private ListView mArtistListView;
-    private SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
-        //todo swipeLayout issue
-        /*swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+
+        SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
@@ -47,9 +35,8 @@ public class ArtistListActivity extends AppCompatActivity {
                     }
                 }, 2000);
             }
-        });*/
+        });
 
-        mContext = this.getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.artistToolbar);
 
         setSupportActionBar(toolbar);
@@ -66,55 +53,44 @@ public class ArtistListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
         updatesCheck.execute();
-        int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
 
     protected void initUiElements() {
-        mArtistListView = (ListView) findViewById(R.id.artistListView);
-        fillListViewData();
-        initListViewOnItemClick();
+        ListView artistListView = (ListView) findViewById(R.id.artistListView);
+        fillListViewData(artistListView);
+        initListViewOnItemClick(artistListView);
     }
 
-    private void fillListViewData() {
-        mDataBaseAdapter = DataBaseAdapter.newInstance(getApplicationContext());
+    private void fillListViewData(ListView artistListView) {
+
+//        DataBaseAdapter dataBaseAdapter = DataBaseAdapter.newInstance(getApplicationContext());
+        DataBaseAdapter dataBaseAdapter = new DataBaseAdapter(getApplicationContext());
         //Open existing database flag = 0
-        mDataBaseAdapter.open(0);
-        mCursor = getAllEntriesFromDb(1);
-        if (mCursor.moveToFirst() == false) {
+        dataBaseAdapter.open(0, false);
+        Cursor cursor = getAllEntriesFromDb(dataBaseAdapter, 1);
+        if (cursor.moveToFirst() == false) {
             int dbVersion = 0;
-            mDataBaseAdapter.close();
-            Intent intent = new Intent(mContext, DataFetchingService.class);
-            intent.putExtra(DataFetchingService.STR_MESSAGE, "Serwis działa sobie w tle...");
+            dataBaseAdapter.close();
+            Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
+            intent.putExtra(DataFetchingService.STR_MESSAGE, "Please wait for data...");
             intent.putExtra(DataFetchingService.INT_DATABASE_VERSION, dbVersion);
-            mContext.startService(intent);
-
-//            HttpHandlerDIBuilder httpHandlerDIBuilder = new HttpHandlerDIBuilder();
-//            HttpHandler httpHandler = httpHandlerDIBuilder
-//                                        .byteArrayOutputStream()
-//                                        .strBuilder()
-//                                        .build();
-//            DataFetcherDIBuilder dataFetcherDIBuilder = new DataFetcherDIBuilder();
-//            DataFetcher dataFetcher = dataFetcherDIBuilder
-//                                        .dataBaseAdapter(mContext)
-//                                        .httpHandlerDIBuilder()
-//                                        .build();
-//            dataFetcher.getData();
+            getApplicationContext().startService(intent);
         }
-        mArtistListAdapter = new ArtistListAdapter(getApplicationContext(), mCursor, 0);
-        mArtistListView.setAdapter(mArtistListAdapter);
+        ArtistListAdapter artistListAdapter= new ArtistListAdapter(getApplicationContext(), cursor, 0);
+        artistListView.setAdapter(artistListAdapter);
     }
 
-    private Cursor getAllEntriesFromDb(int position) {
-        mCursor = mDataBaseAdapter.getArtistListItems();
-        if (mCursor != null) {
-            startManagingCursor(mCursor);
-            mCursor.moveToPosition(--position);
+    private Cursor getAllEntriesFromDb(DataBaseAdapter dataBaseAdapter, int position) {
+        Cursor cursor = dataBaseAdapter.getArtistListItems();
+        if (cursor != null) {
+            startManagingCursor(cursor);
+            cursor.moveToPosition(--position);
         }
-        return mCursor;
+        return cursor;
     }
 
-    private void initListViewOnItemClick() {
+    private void initListViewOnItemClick(ListView artistListView) {
         AdapterView.OnItemClickListener itemClickListener =
                 new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> listView,
@@ -127,7 +103,6 @@ public class ArtistListActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 };
-        mArtistListView = (ListView) findViewById(R.id.artistListView);
-        mArtistListView.setOnItemClickListener(itemClickListener);
+        artistListView.setOnItemClickListener(itemClickListener);
     }
 }

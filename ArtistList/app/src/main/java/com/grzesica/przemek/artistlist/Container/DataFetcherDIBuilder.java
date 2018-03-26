@@ -15,7 +15,8 @@ public class DataFetcherDIBuilder implements IDataFetcherDIBuilder {
     public IHttpHandlerDIBuilder mHttpHandlerDIBuilder;
 
     public DataFetcherDIBuilder dataBaseAdapter(Context context){
-        mDataBaseAdapter = DataBaseAdapter.newInstance(context);
+//        mDataBaseAdapter = DataBaseAdapter.newInstance(context);
+        mDataBaseAdapter = new DataBaseAdapter(context);
         return this;
     }
     public DataFetcherDIBuilder httpHandlerDIBuilder(){
@@ -24,7 +25,7 @@ public class DataFetcherDIBuilder implements IDataFetcherDIBuilder {
     }
 
     @Override
-    public DataFetcher build() {
-        return new DataFetcher (this);
+    public DataFetcher build(Context context) {
+        return new DataFetcher (this, context);
     }
 }

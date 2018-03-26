@@ -1,8 +1,11 @@
 package com.grzesica.przemek.artistlist.Model;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
@@ -28,7 +31,7 @@ public class DataFetcher implements IDataFetcher {
     private IDataBaseAdapter mDataBaseAdapter;
     private IHttpHandler mHttpHandler;
     private IHttpHandlerDIBuilder mHttpHandlerDIBuilder;
-    private JSONArray mArtistJsonArray;
+    private final Handler mHandler;
     private JSONArray mAlbumJsonArray;
 
     /*
@@ -45,15 +48,16 @@ public class DataFetcher implements IDataFetcher {
 
     public static final String JSON_URL = "http://i.img.co/data/data.json";
 
-    public DataFetcher(IDataFetcherDIBuilder builder){
+    public DataFetcher(IDataFetcherDIBuilder builder, Context context){
         this.mDataBaseAdapter = ((DataFetcherDIBuilder) builder).mDataBaseAdapter;
         this.mHttpHandlerDIBuilder = ((DataFetcherDIBuilder)builder).mHttpHandlerDIBuilder;
+        this.mContext = context;
+        this.mHandler = new Handler(mContext.getMainLooper());
     }
 
     @Override
     public void getData(){
 
-//        HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
         HttpHandlerDIBuilder depInjBuilder = (HttpHandlerDIBuilder) mHttpHandlerDIBuilder;
         mHttpHandler = depInjBuilder
                 .byteArrayOutputStream()
@@ -64,17 +68,14 @@ public class DataFetcher implements IDataFetcher {
 
         String jsonStr = mHttpHandler.jsonServiceCall(JSON_URL);
 
-
-        Log.e(TAG, "Response from url: " + jsonStr);
-
         if (jsonStr != null) {
             try {
                 JSONObject jsonObj = new JSONObject(jsonStr);
                 // Getting JSON Array node
                 JSONArray artistJsonArray = jsonObj.getJSONArray("artists");
 
-                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
-                ((DataBaseAdapter)mDataBaseAdapter).open(2);
+//                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
+                ((DataBaseAdapter)mDataBaseAdapter).open(0, true);
                 //
                 ((DataBaseAdapter)mDataBaseAdapter).createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
@@ -85,19 +86,10 @@ public class DataFetcher implements IDataFetcher {
                         KEEP_ALIVE_TIME_UNIT,  // Sets the Time Unit for KEEP_ALIVE_TIME
                         new LinkedBlockingDeque<Runnable>());
 
-
                 for (int i = 0; i < artistJsonArray.length(); i++) {
                     JSONObject artistJsonObj = artistJsonArray.getJSONObject(i);
                     Runnable artistFetchingRunnable = new ArtistFetchingRunnable(artistJsonObj);
                     mThreadPoolExecutor.execute(artistFetchingRunnable);
-
-//                    String artistId = artObj.getString("id");
-//                    String genres = artObj.getString("genres");
-//                    String artistPictureUrl = artObj.getString("picture");
-//                    byte[] artistPicture = mHttpHandler.getBlob(mHttpHandler.downloadImage(artistPictureUrl));
-//                    String name = artObj.getString("name");
-//                    String description = artObj.getString("description");
-//                    ((DataBaseAdapter)mDataBaseAdapter).createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
                 }
                 // Getting JSON Array node
                 JSONArray albumJsonArray = jsonObj.getJSONArray("albums");
@@ -106,42 +98,34 @@ public class DataFetcher implements IDataFetcher {
                     JSONObject albumJsonObj = albumJsonArray.getJSONObject(i);
                     Runnable albumFetchingRunnable = new AlbumFetchingRunnable(albumJsonObj);
                     mThreadPoolExecutor.execute(albumFetchingRunnable);
-
-//                    String albumId = albObj.getString("id");
-//                    String artistId = albObj.getString("artistId");
-//                    String title = albObj.getString("title");
-//                    String type = albObj.getString("type");
-//                    String albumPictureUrl = albObj.getString("picture");
-//                    byte[] albumPicture = mHttpHandler.getBlob(mHttpHandler.downloadImage(albumPictureUrl));
-//                    ((DataBaseAdapter)mDataBaseAdapter).createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
                 }
                 //
-                mDataBaseAdapter.close();
+//                mDataBaseAdapter.close();
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
-                /*runOnUiThread(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, "Json parsing error: " + e.getMessage(),
-                                Toast.LENGTH_LONG)
-                                .show();
+                        Toast.makeText(mContext, "Json parsing error: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
                     }
-                });*/
-
+                });
             }
         } else {
             Log.e(TAG, "Couldn't get json from server.");
-            /*runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(context,
-                            "Couldn't get json from server. Check LogCat for possible errors!",
-                            Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(mContext,
+                            "Couldn't get json from server. Check your internet connection!!!",
+                            Toast.LENGTH_LONG).show();
                 }
-            });*/
+            });
 
         }
+    }
+    private void runOnUiThread(Runnable r) {
+        mHandler.post(r);
     }
 
     private class ArtistFetchingRunnable implements Runnable {
@@ -187,5 +171,5 @@ public class DataFetcher implements IDataFetcher {
 
             }
         }
-    };
+    }
 }

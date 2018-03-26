@@ -39,9 +39,10 @@ public class AlbumsListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
-        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
+//        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
+        dbAdapter = new DataBaseAdapter(getApplicationContext());
         //Open existing database - flag = 0
-        dbAdapter.open(0);
+        dbAdapter.open(0, false);
 
         getArtistTable((int) artistDataId);
 
