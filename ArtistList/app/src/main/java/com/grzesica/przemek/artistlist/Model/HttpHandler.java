@@ -29,6 +29,7 @@ public class HttpHandler implements IHttpHandler {
     private OutputStream mOutputStream;
     private IExtendedUrl mExtendedUrl;
     private IExtendedBufferReader mExtendedBufferReader;
+    private HttpURLConnection mHttpConnection;
 
     public HttpHandler(IHttpHandlerDIBuilder builder) {
         this.mStrBuilder = ((HttpHandlerDIBuilder)builder).mStrBuilder;
@@ -51,7 +52,7 @@ public class HttpHandler implements IHttpHandler {
         } catch (Exception e) {
             Log.e("MYAPP", "exception: " + e);
         } finally {
-//            mConnection.disconnect();
+//            mHttpConnection.disconnect();
         }
         return response;
     }
@@ -79,12 +80,12 @@ public class HttpHandler implements IHttpHandler {
     public InputStream getInputStream(String strUrl) throws IOException {
         InputStream stream = null;
         try {
-            HttpURLConnection httpConnection = getHttpUrlConn(strUrl);
+            mHttpConnection = getHttpUrlConn(strUrl);
             //Checking and solving redirection.
-            if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                stream = httpConnection.getInputStream();
-            } else if (httpConnection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM) {
-                String newUrl = httpConnection.getHeaderField("Location");
+            if (mHttpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                stream = mHttpConnection.getInputStream();
+            } else if (mHttpConnection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM) {
+                String newUrl = mHttpConnection.getHeaderField("Location");
                 stream = getHttpUrlConn(newUrl).getInputStream();
             }
         } catch (Exception ex) {

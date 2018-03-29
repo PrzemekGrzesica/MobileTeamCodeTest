@@ -7,7 +7,11 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import android.os.Parcelable;
+
+import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.Container.DataBaseHelperDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IDataBaseHelperDIBuilder;
 
 /**
  * Created by przemek on 22.11.17.
@@ -16,9 +20,6 @@ import android.util.Log;
  */
 
 public class DataBaseAdapter implements IDataBaseAdapter {
-
-    // Database Version
-    private static final int DATABASE_VERSION = 1;
 
     // Database Name
     private static final String DATABASE_NAME = "artistDb.db";
@@ -68,29 +69,24 @@ public class DataBaseAdapter implements IDataBaseAdapter {
 
     private SQLiteDatabase mDataBase;
     private Context mContext;
-    private DataBaseHelper mDataBaseHelper;
+    private IDataBaseHelperDIBuilder mDataBaseHelperDIBuilder;
+    private Parcelable mContentValues;
+    private SQLiteOpenHelper mDataBaseHelper;
 
-//    private volatile static DataBaseAdapter uniqueInstance;
-    public DataBaseAdapter(Context context){
+    public DataBaseAdapter(DataBaseAdapterDIBuilder builder, Context context){
         this.mContext = context;
+        this.mDataBaseHelperDIBuilder = ((DataBaseAdapterDIBuilder)builder).mDataBaseHelper;
+        this.mContentValues = ((DataBaseAdapterDIBuilder)builder).mContentValues;
+
     }
-//    public static DataBaseAdapter newInstance(Context context){
-//        if(uniqueInstance==null){
-//            synchronized (DataBaseAdapter.class){
-//                if(uniqueInstance==null){
-//                    uniqueInstance = new DataBaseAdapter(context);
-//                }
-//            }
-//        }
-//        return uniqueInstance;
-//    }
 
+    public static class DataBaseHelper extends SQLiteOpenHelper {
 
+        private SQLiteOpenHelper mDataBaseHelper;
 
-    private static class DataBaseHelper extends SQLiteOpenHelper {
-
-        public DataBaseHelper(Context context, String dbName, CursorFactory factory, int dbVersion) {
+        public DataBaseHelper(IDataBaseHelperDIBuilder builder, Context context, String dbName, CursorFactory factory, int dbVersion) {
             super(context, dbName, factory, dbVersion);
+            this.mDataBaseHelper = ((DataBaseHelperDIBuilder)builder).mDataBaseHelper;
         }
 
         @Override
@@ -114,6 +110,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
 
     @Override
     public DataBaseAdapter open(int dbVersionFlag, boolean writableFlag){
+
         String strDbPath = mContext.getDatabasePath(DATABASE_NAME).toString();
         int dbPresentVersion;
         try{
@@ -123,33 +120,27 @@ public class DataBaseAdapter implements IDataBaseAdapter {
             writableFlag = true;
         }
         int dbVersion = dbVersionFlag + dbPresentVersion;
-        mDataBaseHelper = new DataBaseHelper(mContext, DATABASE_NAME, null, dbVersion);
+        DataBaseHelperDIBuilder dataBaseHelperDIBuilder = (DataBaseHelperDIBuilder) mDataBaseHelperDIBuilder;
+        mDataBaseHelper = dataBaseHelperDIBuilder
+//                .dataBaseHelper(mContext, DATABASE_NAME, null, dbVersion)
+                .build(mContext, DATABASE_NAME, null, dbVersion);
+
+        DataBaseHelper dataBaseHelper = (DataBaseHelper)mDataBaseHelper;
         if (writableFlag == true && dbVersion == 1) {
             try {
-                mDataBase = mDataBaseHelper.getWritableDatabase();
+                mDataBase = dataBaseHelper.getWritableDatabase();
             } catch (SQLException e) {
-                mDataBase = mDataBaseHelper.getReadableDatabase();
+                mDataBase = dataBaseHelper.getReadableDatabase();
             }
         }else{
-            mDataBase = mDataBaseHelper.getReadableDatabase();
-        }
-        return this;
-    }
-
-    public DataBaseAdapter open(){
-        mDataBaseHelper = new DataBaseHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION);
-        try {
-            mDataBase = mDataBaseHelper.getWritableDatabase();
-        } catch (SQLException e) {
-            Log.e("MYAPP", "SqliteException: " + e);
-            mDataBase = mDataBaseHelper.getReadableDatabase();
+            mDataBase = dataBaseHelper.getReadableDatabase();
         }
         return this;
     }
 
     @Override
     public DataBaseAdapter close(){
-        mDataBaseHelper.close();
+        ((DataBaseHelper)mDataBaseHelper).close();
         return this;
     }
 
@@ -170,7 +161,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
     public synchronized long createAlbumListRecords(String artistId, String albumId, String albumTitle,
                                        String type, String albumPictureUrl, byte[] albumPicture) {
 
-        ContentValues values = new ContentValues();
+        ContentValues values = (ContentValues)mContentValues;
         values.put(KEY_ARTIST_ID, artistId);
         values.put(KEY_ALBUM_ID, albumId);
         values.put(KEY_ALBUM_TITLE, albumTitle);
@@ -182,7 +173,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
     }
 
     public synchronized long createMD5KeysRecords(String md5Key){
-        ContentValues values = new ContentValues();
+        ContentValues values = (ContentValues)mContentValues;
         values.put(KEY_MD5_KEYS, md5Key);
         return mDataBase.insert(TABLE_MD5_KEYS, null, values);
     }

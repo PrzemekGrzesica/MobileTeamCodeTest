@@ -13,7 +13,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
+import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IUpdatesCheckDIBuilder;
+import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
 import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 
@@ -24,12 +28,13 @@ public class AlbumsListActivity extends AppCompatActivity {
     public static final String STR_ARTIST_DATA_ID = "artistDataId";
 
     private Cursor mCursor;
-    private DataBaseAdapter mDataBaseAdapter;
+    private IDataBaseAdapter mDataBaseAdapter;
     private ListView mLvAlbums;
     private TextView mTvName;
     private TextView mTvGenres;
     private TextView mTvDescription;
     private ImageView mIvArtist;
+    private IUpdatesCheckDIBuilder mUpdatesCheckDIBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +44,14 @@ public class AlbumsListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
-//        dbAdapter = DataBaseAdapter.newInstance(getApplicationContext());
-        mDataBaseAdapter = new DataBaseAdapter(getApplicationContext());
-        //Open existing database - flag = 0
+
+        DataBaseAdapterDIBuilder depInjBuilder = new DataBaseAdapterDIBuilder();
+
+        mDataBaseAdapter = depInjBuilder
+                .contentValues()
+                .dataBaseHelperDIBuilder()
+                .build(getApplicationContext());
+        //Open existing database - VersionFlag = 0
         mDataBaseAdapter.open(0, false);
 
         getArtistTable((int) artistDataId);
@@ -67,14 +77,20 @@ public class AlbumsListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
+
+        UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
+        UpdatesCheck updatesCheck = updatesCheckDIBuilder
+                .dataBaseAdapterDIBUilder()
+                .handler()
+                .build(getApplicationContext());
+
         updatesCheck.execute();
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
 
     private Cursor getArtistTable(int position) {
-        mCursor = mDataBaseAdapter.getArtistListItems();
+        mCursor =((DataBaseAdapter)mDataBaseAdapter).getArtistListItems();
         if (mCursor != null) {
             startManagingCursor(mCursor);
             mCursor.moveToPosition(--position);
@@ -109,7 +125,8 @@ public class AlbumsListActivity extends AppCompatActivity {
     }
 
     private Cursor getAlbumTable(String position) {
-        mCursor = mDataBaseAdapter.getAlbumsListItems(position);
+//        DataBaseAdapter dataBaseAdapter = mDataBaseAdapter;
+        mCursor = ((DataBaseAdapter)mDataBaseAdapter).getAlbumsListItems(position);
         if (mCursor != null) {
             startManagingCursor(mCursor);
             mCursor.moveToFirst();

@@ -7,7 +7,11 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.Toast;
 
+import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IDataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
 
 import java.security.MessageDigest;
@@ -15,23 +19,30 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by przemek on 13.02.18.
+ * todo DI
  */
 
-public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
+public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
-    private DataBaseAdapter mDataBaseAdapter;
+
     private Context mContext;
+    private Comparable mBoolean;
     private Handler mHandler;
+    private IDataBaseAdapter mDataBaseAdapter;
+    private IDataBaseAdapterDIBuilder mDataBaseAdapterDIBuilder;
 
-    public UpdatesCheck(Context context) {
+    public UpdatesCheck(UpdatesCheckDIBuilder builder, Context context) {
         this.mContext = context;
-        this.mHandler = new Handler(mContext.getMainLooper());
+//        this.mHandler = new Handler(mContext.getMainLooper());
+        this.mHandler = ((UpdatesCheckDIBuilder)builder).mHandler;
+//        this.mBoolean = ((UpdatesCheckDIBuilder)builder).mBoolean;
+        this.mDataBaseAdapterDIBuilder = ((UpdatesCheckDIBuilder) builder).mDataBaseAdapterDIBuilder;
     }
 
     @Override
-    protected void onPostExecute(Boolean aBoolean) {
-        super.onPostExecute(aBoolean);
-        boolean updatesAvailability = new Boolean(aBoolean).booleanValue();
+    protected void onPostExecute(String strBoolean) {
+        super.onPostExecute(strBoolean);
+        boolean updatesAvailability = Boolean.getBoolean(strBoolean);
         if (updatesAvailability){
             Intent intent = new Intent(mContext, SettingsActivity.class);
             mContext.startActivity(intent);
@@ -41,7 +52,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Integer... voids) {
+    protected String doInBackground(Integer... voids) {
         String newMD5Key;
         String oldMD5Key;
         HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
@@ -54,10 +65,15 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
 
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
-        mDataBaseAdapter = new DataBaseAdapter(mContext);
+        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = (DataBaseAdapterDIBuilder) mDataBaseAdapterDIBuilder;
+        mDataBaseAdapter = dataBaseAdapterDIBuilder
+                .contentValues()
+                .dataBaseHelperDIBuilder()
+                .build(mContext);
+
         //Open existing database - flag = 0
         mDataBaseAdapter.open(0, false);
-        Cursor cursor = mDataBaseAdapter.getMd5Key();
+        Cursor cursor = ((DataBaseAdapter)mDataBaseAdapter).getMd5Key();
         cursor.moveToFirst();
         try{
             oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
@@ -67,7 +83,6 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
         mDataBaseAdapter.close();
         if (jsonStr != null) {
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
-//            mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
         }else{
             newMD5Key = "EmptyNew";
             runOnUiThread(new Runnable() {
@@ -79,11 +94,11 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, Boolean> {
                 }
             });
         }
-        boolean updatesAvailability = false;
+        String updatesAvailability = "false";
         if (newMD5Key.equals(oldMD5Key) == false) {
-            updatesAvailability = true;
+            updatesAvailability = "true";
         }
-        return (Boolean) updatesAvailability;
+        return updatesAvailability;
     }
 
     private void runOnUiThread(Runnable r) {

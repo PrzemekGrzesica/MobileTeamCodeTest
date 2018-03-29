@@ -1,14 +1,14 @@
 package com.grzesica.przemek.artistlist.Model;
 
-
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IDataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IDataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IHttpHandlerDIBuilder;
 
@@ -27,12 +27,13 @@ import static android.content.ContentValues.TAG;
  */
 
 public class DataFetcher implements IDataFetcher {
+
     private Context mContext;
     private IDataBaseAdapter mDataBaseAdapter;
+    private IDataBaseAdapterDIBuilder mDataBaseAdapterDIBuilder;
     private IHttpHandler mHttpHandler;
     private IHttpHandlerDIBuilder mHttpHandlerDIBuilder;
     private final Handler mHandler;
-    private JSONArray mAlbumJsonArray;
 
     /*
      * Gets the number of available cores
@@ -49,7 +50,7 @@ public class DataFetcher implements IDataFetcher {
     public static final String JSON_URL = "http://i.img.co/data/data.json";
 
     public DataFetcher(IDataFetcherDIBuilder builder, Context context){
-        this.mDataBaseAdapter = ((DataFetcherDIBuilder) builder).mDataBaseAdapter;
+        this.mDataBaseAdapterDIBuilder = ((DataFetcherDIBuilder)builder).mDataBaseAdapterDIBuilder;
         this.mHttpHandlerDIBuilder = ((DataFetcherDIBuilder)builder).mHttpHandlerDIBuilder;
         this.mContext = context;
         this.mHandler = new Handler(mContext.getMainLooper());
@@ -66,6 +67,12 @@ public class DataFetcher implements IDataFetcher {
                 .extendedBufferedReader()
                 .build();
 
+        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = (DataBaseAdapterDIBuilder) mDataBaseAdapterDIBuilder;
+        mDataBaseAdapter = dataBaseAdapterDIBuilder
+                .contentValues()
+                .dataBaseHelperDIBuilder()
+                .build(mContext);
+
         String jsonStr = mHttpHandler.jsonServiceCall(JSON_URL);
 
         if (jsonStr != null) {
@@ -74,12 +81,11 @@ public class DataFetcher implements IDataFetcher {
                 // Getting JSON Array node
                 JSONArray artistJsonArray = jsonObj.getJSONArray("artists");
 
-//                mDataBaseAdapter = DataBaseAdapter.newInstance(mContext);
                 ((DataBaseAdapter)mDataBaseAdapter).open(1, true);
-                //
+
                 ((DataBaseAdapter)mDataBaseAdapter).createMD5KeysRecords(new MD5checkSum().stringToMD5(jsonStr));
                 // Looping through All Artist
-                ThreadPoolExecutor mThreadPoolExecutor = new ThreadPoolExecutor(
+                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
                         NUMBER_OF_CORES + 5,   // Initial pool size
                         NUMBER_OF_CORES + 8,   // Max pool size
                         KEEP_ALIVE_TIME,       // Time idle thread waits before terminating
@@ -89,7 +95,7 @@ public class DataFetcher implements IDataFetcher {
                 for (int i = 0; i < artistJsonArray.length(); i++) {
                     JSONObject artistJsonObj = artistJsonArray.getJSONObject(i);
                     Runnable artistFetchingRunnable = new ArtistFetchingRunnable(artistJsonObj);
-                    mThreadPoolExecutor.execute(artistFetchingRunnable);
+                    threadPoolExecutor.execute(artistFetchingRunnable);
                 }
                 // Getting JSON Array node
                 JSONArray albumJsonArray = jsonObj.getJSONArray("albums");
@@ -97,10 +103,8 @@ public class DataFetcher implements IDataFetcher {
                 for (int i = 0; i < albumJsonArray.length(); i++) {
                     JSONObject albumJsonObj = albumJsonArray.getJSONObject(i);
                     Runnable albumFetchingRunnable = new AlbumFetchingRunnable(albumJsonObj);
-                    mThreadPoolExecutor.execute(albumFetchingRunnable);
+                    threadPoolExecutor.execute(albumFetchingRunnable);
                 }
-                //
-//                mDataBaseAdapter.close();
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
                 runOnUiThread(new Runnable() {
@@ -145,8 +149,6 @@ public class DataFetcher implements IDataFetcher {
                 ((DataBaseAdapter) mDataBaseAdapter).createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
             }catch (JSONException e) {
                 e.printStackTrace();
-            } {
-
             }
         }
     }
@@ -167,8 +169,6 @@ public class DataFetcher implements IDataFetcher {
                 ((DataBaseAdapter)mDataBaseAdapter).createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
             }catch (JSONException e) {
                 e.printStackTrace();
-            } {
-
             }
         }
     }

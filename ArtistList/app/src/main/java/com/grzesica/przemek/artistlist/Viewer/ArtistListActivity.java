@@ -14,23 +14,35 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
+import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 public class ArtistListActivity extends AppCompatActivity {
 
+    private IDataBaseAdapter mDataBaseAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
 
+        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = new DataBaseAdapterDIBuilder();
+        mDataBaseAdapter = dataBaseAdapterDIBuilder
+                .contentValues()
+                .dataBaseHelperDIBuilder()
+                .build(getApplicationContext());
+
         final SwipeRefreshLayout swipeRefLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-        swipeRefLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+        swipeRefLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
                 new Handler().postDelayed(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         initUiElements();
                         swipeRefLayout.setRefreshing(false);
                     }
@@ -51,10 +63,6 @@ public class ArtistListActivity extends AppCompatActivity {
         super.onResume();
 //        initUiElements();
     }
-    protected void onRestart() {
-        super.onRestart();
-//        initUiElements();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -64,7 +72,13 @@ public class ArtistListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        UpdatesCheck updatesCheck = new UpdatesCheck(getApplicationContext());
+
+        UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
+        UpdatesCheck updatesCheck = updatesCheckDIBuilder
+                .dataBaseAdapterDIBUilder()
+                .handler()
+                .build(getApplicationContext());
+
         updatesCheck.execute();
         return super.onOptionsItemSelected(item);
     }
@@ -77,21 +91,16 @@ public class ArtistListActivity extends AppCompatActivity {
 
     private void fillListViewData(ListView artistListView) {
 
-        DataBaseAdapter dataBaseAdapter = new DataBaseAdapter(getApplicationContext());
         //Open existing database flag = 0
-        dataBaseAdapter.open(0, false);
-        Cursor cursor = getAllEntriesFromDb(dataBaseAdapter, 1);
+        mDataBaseAdapter.open(0, false);
+        Cursor cursor = getAllEntriesFromDb(((DataBaseAdapter)mDataBaseAdapter), 1);
         if (cursor.moveToFirst() == false) {
-//            dataBaseAdapter.close();
-//            int dbVersion = 1;
             Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
             intent.putExtra(DataFetchingService.STR_MESSAGE, "Please wait for data...");
-//            intent.putExtra(DataFetchingService.INT_DATABASE_VERSION, dbVersion);
-           getApplicationContext().startService(intent);
+            getApplicationContext().startService(intent);
         }
-        ArtistListAdapter artistListAdapter= new ArtistListAdapter(getApplicationContext(), cursor, 0);
+        ArtistListAdapter artistListAdapter = new ArtistListAdapter(getApplicationContext(), cursor, 0);
         artistListView.setAdapter(artistListAdapter);
-//        dataBaseAdapter.close();
     }
 
     private Cursor getAllEntriesFromDb(DataBaseAdapter dataBaseAdapter, int position) {
