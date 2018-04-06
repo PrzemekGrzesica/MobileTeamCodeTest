@@ -14,11 +14,6 @@ public class DataBaseHelperDIBuilder implements IDataBaseHelperDIBuilder{
 
     public SQLiteOpenHelper mDataBaseHelper;
 
-//    public DataBaseHelperDIBuilder dataBaseHelper(Context context, String dbName, SQLiteDatabase.CursorFactory factory, int dbVersion){
-//        mDataBaseHelper = new DataBaseAdapter.DataBaseHelper(context, dbName, factory, dbVersion);
-//        return this;
-//    }
-
     @Override
     public DataBaseAdapter.DataBaseHelper build(Context context, String dbName, SQLiteDatabase.CursorFactory factory, int dbVersion) {
         return new DataBaseAdapter.DataBaseHelper(this, context, dbName, factory, dbVersion);

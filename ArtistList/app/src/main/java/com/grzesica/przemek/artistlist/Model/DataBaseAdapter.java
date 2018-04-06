@@ -72,39 +72,47 @@ public class DataBaseAdapter implements IDataBaseAdapter {
     private IDataBaseHelperDIBuilder mDataBaseHelperDIBuilder;
     private Parcelable mContentValues;
     private SQLiteOpenHelper mDataBaseHelper;
+    private volatile static DataBaseAdapter uniqueInstance;
 
     public DataBaseAdapter(DataBaseAdapterDIBuilder builder, Context context){
         this.mContext = context;
-        this.mDataBaseHelperDIBuilder = ((DataBaseAdapterDIBuilder)builder).mDataBaseHelper;
+        this.mDataBaseHelperDIBuilder = ((DataBaseAdapterDIBuilder)builder).mDataBaseHelperDIBuilder;
         this.mContentValues = ((DataBaseAdapterDIBuilder)builder).mContentValues;
+    }
 
+    public static DataBaseAdapter newInstance(DataBaseAdapterDIBuilder builder, Context context){
+        if(uniqueInstance==null){
+            synchronized (DataBaseAdapter.class){
+                if(uniqueInstance==null){
+                    uniqueInstance = new DataBaseAdapter(builder, context);
+                }
+            }
+        }
+        return uniqueInstance;
     }
 
     public static class DataBaseHelper extends SQLiteOpenHelper {
 
-        private SQLiteOpenHelper mDataBaseHelper;
-
         public DataBaseHelper(IDataBaseHelperDIBuilder builder, Context context, String dbName, CursorFactory factory, int dbVersion) {
             super(context, dbName, factory, dbVersion);
-            this.mDataBaseHelper = ((DataBaseHelperDIBuilder)builder).mDataBaseHelper;
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(SQLiteDatabase dataBase) {
             // Creating required tables
-            db.execSQL(CREATE_TABLE_ARTIST_LIST);
-            db.execSQL(CREATE_TABLE_ALBUM_LIST);
-            db.execSQL(CREATE_TABLE_MD5_KEYS);
+            dataBase.execSQL(CREATE_TABLE_ARTIST_LIST);
+            dataBase.execSQL(CREATE_TABLE_ALBUM_LIST);
+            dataBase.execSQL(CREATE_TABLE_MD5_KEYS);
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(SQLiteDatabase dataBase, int oldVersion, int newVersion) {
             // 0n upgrade drop older tables
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTIST_LIST);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALBUM_LIST);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MD5_KEYS);
+            dataBase.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTIST_LIST);
+            dataBase.execSQL("DROP TABLE IF EXISTS " + TABLE_ALBUM_LIST);
+            dataBase.execSQL("DROP TABLE IF EXISTS " + TABLE_MD5_KEYS);
             // Create new tables
-            onCreate(db);
+            onCreate(dataBase);
         }
     }
 
@@ -122,7 +130,6 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         int dbVersion = dbVersionFlag + dbPresentVersion;
         DataBaseHelperDIBuilder dataBaseHelperDIBuilder = (DataBaseHelperDIBuilder) mDataBaseHelperDIBuilder;
         mDataBaseHelper = dataBaseHelperDIBuilder
-//                .dataBaseHelper(mContext, DATABASE_NAME, null, dbVersion)
                 .build(mContext, DATABASE_NAME, null, dbVersion);
 
         DataBaseHelper dataBaseHelper = (DataBaseHelper)mDataBaseHelper;
@@ -144,7 +151,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return this;
     }
 
-    public synchronized long createArtistListRecords(String artistId, String genres, String artistPictureUrl,
+    public long createArtistListRecords(String artistId, String genres, String artistPictureUrl,
                                         byte[] artistPicture, String name, String description) {
 
         ContentValues values = new ContentValues();
@@ -158,7 +165,7 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return mDataBase.insert(TABLE_ARTIST_LIST, null, values);
     }
 
-    public synchronized long createAlbumListRecords(String artistId, String albumId, String albumTitle,
+    public long createAlbumListRecords(String artistId, String albumId, String albumTitle,
                                        String type, String albumPictureUrl, byte[] albumPicture) {
 
         ContentValues values = (ContentValues)mContentValues;

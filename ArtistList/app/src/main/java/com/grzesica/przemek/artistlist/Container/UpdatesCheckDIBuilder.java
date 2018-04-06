@@ -2,6 +2,7 @@ package com.grzesica.przemek.artistlist.Container;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
@@ -22,7 +23,7 @@ public class UpdatesCheckDIBuilder implements IUpdatesCheckDIBuilder {
     }
 
     public UpdatesCheckDIBuilder handler(){
-        mHandler= new Handler();
+        mHandler= new Handler(Looper.getMainLooper());
         return this;
     }
 

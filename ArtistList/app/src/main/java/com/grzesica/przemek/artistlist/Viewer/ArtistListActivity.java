@@ -1,5 +1,6 @@
 package com.grzesica.przemek.artistlist.Viewer;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -24,18 +25,10 @@ import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 public class ArtistListActivity extends AppCompatActivity {
 
-    private IDataBaseAdapter mDataBaseAdapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
-
-        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = new DataBaseAdapterDIBuilder();
-        mDataBaseAdapter = dataBaseAdapterDIBuilder
-                .contentValues()
-                .dataBaseHelperDIBuilder()
-                .build(getApplicationContext());
 
         final SwipeRefreshLayout swipeRefLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeRefLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -73,11 +66,12 @@ public class ArtistListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
+        Context context = getApplicationContext();
         UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
         UpdatesCheck updatesCheck = updatesCheckDIBuilder
                 .dataBaseAdapterDIBUilder()
                 .handler()
-                .build(getApplicationContext());
+                .build(context);
 
         updatesCheck.execute();
         return super.onOptionsItemSelected(item);
@@ -90,10 +84,14 @@ public class ArtistListActivity extends AppCompatActivity {
     }
 
     private void fillListViewData(ListView artistListView) {
-
+        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = new DataBaseAdapterDIBuilder();
+        IDataBaseAdapter dataBaseAdapter = dataBaseAdapterDIBuilder
+                .contentValues()
+                .dataBaseHelperDIBuilder()
+                .build(getApplicationContext());
         //Open existing database flag = 0
-        mDataBaseAdapter.open(0, false);
-        Cursor cursor = getAllEntriesFromDb(((DataBaseAdapter)mDataBaseAdapter), 1);
+        dataBaseAdapter.open(0, false);
+        Cursor cursor = getAllEntriesFromDb(((DataBaseAdapter)dataBaseAdapter), 1);
         if (cursor.moveToFirst() == false) {
             Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
             intent.putExtra(DataFetchingService.STR_MESSAGE, "Please wait for data...");

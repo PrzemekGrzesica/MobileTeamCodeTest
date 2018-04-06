@@ -15,11 +15,11 @@ import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 
 public class DataBaseAdapterDIBuilder implements IDataBaseAdapterDIBuilder {
 
-    public IDataBaseHelperDIBuilder mDataBaseHelper;
+    public IDataBaseHelperDIBuilder mDataBaseHelperDIBuilder;
     public Parcelable mContentValues;
 
     public DataBaseAdapterDIBuilder dataBaseHelperDIBuilder(){
-        mDataBaseHelper = new DataBaseHelperDIBuilder();
+        mDataBaseHelperDIBuilder = new DataBaseHelperDIBuilder();
         return this;
     }
 
@@ -30,7 +30,6 @@ public class DataBaseAdapterDIBuilder implements IDataBaseAdapterDIBuilder {
 
     @Override
     public DataBaseAdapter build(Context context) {
-        return new DataBaseAdapter (this, context);
+        return DataBaseAdapter.newInstance(this, context);
     }
 }
-//Context context, String dbName, SQLiteDatabase.CursorFactory factory, int dbVersion

@@ -44,7 +44,7 @@ public class DataFetchingService extends IntentService {
         DataFetcher dataFetcher = depInjBuilder
                 .httpHandlerDIBuilder()
                 .dataBaseAdapter()
-                .handler()
+                .handler(mContext)
                 .build(mContext);
         dataFetcher.getData();
     }

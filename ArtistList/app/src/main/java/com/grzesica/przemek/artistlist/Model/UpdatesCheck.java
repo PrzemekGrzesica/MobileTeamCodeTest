@@ -34,20 +34,21 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
     public UpdatesCheck(UpdatesCheckDIBuilder builder, Context context) {
         this.mContext = context;
 //        this.mHandler = new Handler(mContext.getMainLooper());
-        this.mHandler = ((UpdatesCheckDIBuilder)builder).mHandler;
-//        this.mBoolean = ((UpdatesCheckDIBuilder)builder).mBoolean;
+        this.mHandler = ((UpdatesCheckDIBuilder) builder).mHandler;
         this.mDataBaseAdapterDIBuilder = ((UpdatesCheckDIBuilder) builder).mDataBaseAdapterDIBuilder;
     }
 
     @Override
     protected void onPostExecute(String strBoolean) {
         super.onPostExecute(strBoolean);
-        boolean updatesAvailability = Boolean.getBoolean(strBoolean);
-        if (updatesAvailability){
-            Intent intent = new Intent(mContext, SettingsActivity.class);
-            mContext.startActivity(intent);
-        }else{
-            Toast.makeText(mContext, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
+        if (strBoolean != null) {
+            boolean updatesAvailability = Boolean.parseBoolean(strBoolean);
+            if (updatesAvailability) {
+                Intent intent = new Intent(mContext, SettingsActivity.class);
+                mContext.startActivity(intent);
+            } else {
+                Toast.makeText(mContext, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -57,11 +58,11 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         String oldMD5Key;
         HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
         HttpHandler httpHandler = depInjBuilder
-                                    .byteArrayOutputStream()
-                                    .strBuilder()
-                                    .extendedUrl()
-                                    .extendedBufferedReader()
-                                    .build();
+                .byteArrayOutputStream()
+                .strBuilder()
+                .extendedUrl()
+                .extendedBufferedReader()
+                .build();
 
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
@@ -73,31 +74,32 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
         //Open existing database - flag = 0
         mDataBaseAdapter.open(0, false);
-        Cursor cursor = ((DataBaseAdapter)mDataBaseAdapter).getMd5Key();
+        Cursor cursor = ((DataBaseAdapter) mDataBaseAdapter).getMd5Key();
         cursor.moveToFirst();
-        try{
+        try {
             oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
-        }catch(Exception e){
+        } catch (Exception e) {
             oldMD5Key = "EmptyOld";
         }
         mDataBaseAdapter.close();
+        String updatesAvailability = null;
+
         if (jsonStr != null) {
+            updatesAvailability = "false";
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
-        }else{
+            if (newMD5Key.equals(oldMD5Key) != true) {
+                updatesAvailability = "True";
+            }
+        } else {
             newMD5Key = "EmptyNew";
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(mContext,
-                            "Couldn't get server. Check your internet connection!!!",
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "Couldn't get server. Check your internet connection!!!", Toast.LENGTH_LONG).show();
                 }
             });
         }
-        String updatesAvailability = "false";
-        if (newMD5Key.equals(oldMD5Key) == false) {
-            updatesAvailability = "true";
-        }
+
         return updatesAvailability;
     }
 

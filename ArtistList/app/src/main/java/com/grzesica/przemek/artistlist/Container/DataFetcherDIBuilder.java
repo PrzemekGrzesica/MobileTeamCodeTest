@@ -26,8 +26,8 @@ public class DataFetcherDIBuilder implements IDataFetcherDIBuilder {
         return this;
     }
 
-    public DataFetcherDIBuilder handler(){
-        mHandler= new Handler();
+    public DataFetcherDIBuilder handler(Context context){
+        mHandler = new Handler(context.getMainLooper());
         return this;
     }
 

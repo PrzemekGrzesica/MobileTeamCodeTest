@@ -1,5 +1,6 @@
 package com.grzesica.przemek.artistlist.Viewer;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,14 +28,11 @@ public class AlbumsListActivity extends AppCompatActivity {
 
     public static final String STR_ARTIST_DATA_ID = "artistDataId";
 
-    private Cursor mCursor;
-    private IDataBaseAdapter mDataBaseAdapter;
     private ListView mLvAlbums;
     private TextView mTvName;
     private TextView mTvGenres;
     private TextView mTvDescription;
     private ImageView mIvArtist;
-    private IUpdatesCheckDIBuilder mUpdatesCheckDIBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,27 +44,25 @@ public class AlbumsListActivity extends AppCompatActivity {
         long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
 
         DataBaseAdapterDIBuilder depInjBuilder = new DataBaseAdapterDIBuilder();
-
-        mDataBaseAdapter = depInjBuilder
+        IDataBaseAdapter dataBaseAdapter = depInjBuilder
                 .contentValues()
                 .dataBaseHelperDIBuilder()
                 .build(getApplicationContext());
         //Open existing database - VersionFlag = 0
-        mDataBaseAdapter.open(0, false);
+        dataBaseAdapter.open(0, false);
 
-        getArtistTable((int) artistDataId);
+        Cursor cursor = getArtistTable((int) artistDataId, dataBaseAdapter);
 
-        String strName = mCursor.getString(mCursor.getColumnIndex("name"));
-        String strGenres = mCursor.getString(mCursor.getColumnIndex("genres"));
-        String strDescription = mCursor.getString(mCursor.getColumnIndex("description"));
-        String strArtistId = mCursor.getString(mCursor.getColumnIndex("artistId"));
+        String strName = cursor.getString(cursor.getColumnIndex("name"));
+        String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
+        String strDescription = cursor.getString(cursor.getColumnIndex("description"));
+        String strArtistId = cursor.getString(cursor.getColumnIndex("artistId"));
         String artistDataArray[] = {strName, strGenres, strDescription};
-        byte[] imageByteArray = mCursor.getBlob(mCursor.getColumnIndex("artistPictureBlob"));
+        byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex("artistPictureBlob"));
 
         initUiElements();
         fillUiElements(artistDataArray, imageByteArray);
-
-        fillListView(strArtistId);
+        fillListView(strArtistId, dataBaseAdapter);
     }
 
     @Override
@@ -77,25 +73,25 @@ public class AlbumsListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        Context context = getApplicationContext();
         UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
         UpdatesCheck updatesCheck = updatesCheckDIBuilder
                 .dataBaseAdapterDIBUilder()
                 .handler()
-                .build(getApplicationContext());
+                .build(context);
 
         updatesCheck.execute();
         int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
 
-    private Cursor getArtistTable(int position) {
-        mCursor =((DataBaseAdapter)mDataBaseAdapter).getArtistListItems();
-        if (mCursor != null) {
-            startManagingCursor(mCursor);
-            mCursor.moveToPosition(--position);
+    private Cursor getArtistTable(int position, IDataBaseAdapter dataBaseAdapter) {
+        Cursor cursor = ((DataBaseAdapter)dataBaseAdapter).getArtistListItems();
+        if (cursor != null) {
+            startManagingCursor(cursor);
+            cursor.moveToPosition(--position);
         }
-        return mCursor;
+        return cursor;
     }
 
     private void initUiElements() {
@@ -117,20 +113,20 @@ public class AlbumsListActivity extends AppCompatActivity {
         }
     }
 
-    private void fillListView(String artistId) {
+    private void fillListView(String artistId, IDataBaseAdapter dataBaseAdapter) {
 
-        mCursor = getAlbumTable(artistId);
-        AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), mCursor, 0);
+        Cursor cursor = getAlbumTable(artistId, dataBaseAdapter);
+        AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), cursor, 0);
         mLvAlbums.setAdapter(albumsListAdapter);
     }
 
-    private Cursor getAlbumTable(String position) {
+    private Cursor getAlbumTable(String position, IDataBaseAdapter dataBaseAdapter) {
 //        DataBaseAdapter dataBaseAdapter = mDataBaseAdapter;
-        mCursor = ((DataBaseAdapter)mDataBaseAdapter).getAlbumsListItems(position);
-        if (mCursor != null) {
-            startManagingCursor(mCursor);
-            mCursor.moveToFirst();
+        Cursor cursor = ((DataBaseAdapter)dataBaseAdapter).getAlbumsListItems(position);
+        if (cursor != null) {
+            startManagingCursor(cursor);
+            cursor.moveToFirst();
         }
-        return mCursor;
+        return cursor;
     }
 }
