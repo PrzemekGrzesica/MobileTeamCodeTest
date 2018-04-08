@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataFetcher;
-import com.grzesica.przemek.artistlist.Viewer.ArtistListActivity;
 
 /**
  * Created by przemek on 05.03.18.

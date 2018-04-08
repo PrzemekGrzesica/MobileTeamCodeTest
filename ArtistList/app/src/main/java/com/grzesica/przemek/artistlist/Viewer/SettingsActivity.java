@@ -22,7 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
         Intent intent = new Intent(context, DataFetchingService.class);
         intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for database refreshing...");
         context.startService(intent);
-        ArtistListActivity.threadPoolSize = 1;
+        ArtistListActivity.serviceFlag = true;
         finish();
     }
 

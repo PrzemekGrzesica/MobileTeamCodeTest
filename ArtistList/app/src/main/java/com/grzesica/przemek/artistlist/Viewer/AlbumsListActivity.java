@@ -74,7 +74,7 @@ public class AlbumsListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
-        if (ArtistListActivity.threadPoolSize == 0) {
+        if (ArtistListActivity.serviceFlag == false) {
             UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
             UpdatesCheck updatesCheck = updatesCheckDIBuilder
                     .dataBaseAdapterDIBUilder()

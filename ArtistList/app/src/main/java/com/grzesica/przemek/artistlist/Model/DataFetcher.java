@@ -160,7 +160,13 @@ public class DataFetcher implements IDataFetcher {
                 String name = mArtistJsonObj.getString("name");
                 String description = mArtistJsonObj.getString("description");
                 ((DataBaseAdapter) mDataBaseAdapter).createArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
-                ArtistListActivity.threadPoolSize = ((ThreadPoolExecutor) mThreadPoolExecutor).getPoolSize();
+                long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
+                long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
+                if (taskCount > completedTaskCount + 1){
+                    ArtistListActivity.serviceFlag = true;
+                }else{
+                    ArtistListActivity.serviceFlag = false;
+                }
             }catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -198,7 +204,13 @@ public class DataFetcher implements IDataFetcher {
                     i++;
                 }
                 ((DataBaseAdapter)mDataBaseAdapter).createAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
-                ArtistListActivity.threadPoolSize = ((ThreadPoolExecutor) mThreadPoolExecutor).getPoolSize();
+                long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
+                long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
+                if (taskCount > completedTaskCount + 1){
+                    ArtistListActivity.serviceFlag = true;
+                }else{
+                    ArtistListActivity.serviceFlag = false;
+                }
             }catch (JSONException e) {
                 e.printStackTrace();
             }
