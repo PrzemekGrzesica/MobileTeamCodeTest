@@ -26,14 +26,15 @@ import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 public class ArtistListActivity extends AppCompatActivity {
 
-    public static int threadPoolSize = 0;
+    public static boolean serviceFlag = false;
+    public static boolean activityServiceFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
 
-        if (threadPoolSize > 0){
+        if (serviceFlag || activityServiceFlag){
             initUiElements();
         }
 
@@ -61,7 +62,7 @@ public class ArtistListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (threadPoolSize > 0){
+        if (serviceFlag || activityServiceFlag){
             initUiElements();
         }
     }
@@ -75,7 +76,7 @@ public class ArtistListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
-        if (threadPoolSize == 0) {
+        if (serviceFlag == false) {
             UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
             UpdatesCheck updatesCheck = updatesCheckDIBuilder
                     .dataBaseAdapterDIBUilder()
@@ -106,7 +107,7 @@ public class ArtistListActivity extends AppCompatActivity {
         Cursor cursor = getAllEntriesFromDb(((DataBaseAdapter)dataBaseAdapter), 1);
         if (cursor.moveToFirst() == false) {
             Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
-            intent.putExtra(DataFetchingService.STR_MESSAGE, "Please wait for data fetching ...");
+            intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for data fetching ...");
             getApplicationContext().startService(intent);
         }
         ArtistListAdapter artistListAdapter = new ArtistListAdapter(getApplicationContext(), cursor, 0);
@@ -132,6 +133,11 @@ public class ArtistListActivity extends AppCompatActivity {
                         Intent intent = new Intent(ArtistListActivity.this,
                                 AlbumsListActivity.class);
                         intent.putExtra(AlbumsListActivity.STR_ARTIST_DATA_ID, id);
+                        if (serviceFlag == true){
+                            activityServiceFlag = true;
+                        }else{
+                            activityServiceFlag = false;
+                        }
                         startActivity(intent);
                     }
                 };
