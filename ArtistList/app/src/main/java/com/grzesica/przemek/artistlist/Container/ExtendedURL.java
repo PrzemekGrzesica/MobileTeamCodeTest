@@ -8,6 +8,7 @@ import java.net.URL;
  */
 
 public class ExtendedURL implements IExtendedUrl {
+
     URL mUrl;
 
     public ExtendedURL() {

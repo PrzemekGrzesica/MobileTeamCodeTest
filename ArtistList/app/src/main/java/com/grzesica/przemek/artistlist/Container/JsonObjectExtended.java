@@ -8,6 +8,7 @@ import org.json.JSONObject;
  */
 
 public class JsonObjectExtended implements IJsonObjectExtended {
+
     @Override
     public JSONObject setJsonObject(String jsonString) {
         try {

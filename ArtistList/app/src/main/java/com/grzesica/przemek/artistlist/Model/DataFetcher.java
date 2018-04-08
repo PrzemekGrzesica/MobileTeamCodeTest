@@ -77,7 +77,6 @@ public class DataFetcher implements IDataFetcher {
                 JSONObject jsonObj = (JSONObject) mJsonObjectExtended.setJsonObject(jsonStr);
                 // Getting JSON Array node
                 JSONArray artistJsonArray = jsonObj.getJSONArray("artists");
-
                 ((DataBaseAdapter)dataBaseAdapter).open(1, true);
 
                 ((ThreadPoolExecutor) mThreadPoolExecutor).setCorePoolSize(NUMBER_OF_CORES + 1);

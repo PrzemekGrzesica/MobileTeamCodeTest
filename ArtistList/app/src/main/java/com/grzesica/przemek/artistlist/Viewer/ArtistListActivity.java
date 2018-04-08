@@ -48,9 +48,7 @@ public class ArtistListActivity extends AppCompatActivity {
                         swipeRefLayout.setRefreshing(false);
                     }
                 }, 2000);
-
             }
-
         });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.artistToolbar);

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
-import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 
 /**
