@@ -9,7 +9,6 @@ import android.view.View;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 import com.grzesica.przemek.artistlist.R;
 
-
 public class SettingsActivity extends AppCompatActivity {
 
     @Override
@@ -23,6 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
         Intent intent = new Intent(context, DataFetchingService.class);
         intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for database refreshing...");
         context.startService(intent);
+        ArtistListActivity.threadPoolSize = 1;
         finish();
     }
 

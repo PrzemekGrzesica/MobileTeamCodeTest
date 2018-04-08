@@ -12,15 +12,15 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
 import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
-import com.grzesica.przemek.artistlist.Container.IUpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
-import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
+import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
 
@@ -74,14 +74,17 @@ public class AlbumsListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
-        UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
-        UpdatesCheck updatesCheck = updatesCheckDIBuilder
-                .dataBaseAdapterDIBUilder()
-                .handler()
-                .build(context);
-
-        updatesCheck.execute();
-        int id = item.getItemId();
+        if (ArtistListActivity.threadPoolSize == 0) {
+            UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
+            UpdatesCheck updatesCheck = updatesCheckDIBuilder
+                    .dataBaseAdapterDIBUilder()
+                    .handler()
+                    .build(context);
+            updatesCheck.execute();
+        }else{
+            String text = "Database upgrade is undergoing...";
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -114,14 +117,12 @@ public class AlbumsListActivity extends AppCompatActivity {
     }
 
     private void fillListView(String artistId, IDataBaseAdapter dataBaseAdapter) {
-
         Cursor cursor = getAlbumTable(artistId, dataBaseAdapter);
         AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), cursor, 0);
         mLvAlbums.setAdapter(albumsListAdapter);
     }
 
     private Cursor getAlbumTable(String position, IDataBaseAdapter dataBaseAdapter) {
-//        DataBaseAdapter dataBaseAdapter = mDataBaseAdapter;
         Cursor cursor = ((DataBaseAdapter)dataBaseAdapter).getAlbumsListItems(position);
         if (cursor != null) {
             startManagingCursor(cursor);

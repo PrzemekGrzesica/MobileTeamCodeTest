@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
-import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IDataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
@@ -19,21 +18,19 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by przemek on 13.02.18.
- * todo DI
+ *
  */
 
 public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
 
     private Context mContext;
-    private Comparable mBoolean;
     private Handler mHandler;
     private IDataBaseAdapter mDataBaseAdapter;
     private IDataBaseAdapterDIBuilder mDataBaseAdapterDIBuilder;
 
     public UpdatesCheck(UpdatesCheckDIBuilder builder, Context context) {
         this.mContext = context;
-//        this.mHandler = new Handler(mContext.getMainLooper());
         this.mHandler = ((UpdatesCheckDIBuilder) builder).mHandler;
         this.mDataBaseAdapterDIBuilder = ((UpdatesCheckDIBuilder) builder).mDataBaseAdapterDIBuilder;
     }
@@ -83,7 +80,6 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         }
         mDataBaseAdapter.close();
         String updatesAvailability = null;
-
         if (jsonStr != null) {
             updatesAvailability = "false";
             newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
@@ -99,7 +95,6 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
                 }
             });
         }
-
         return updatesAvailability;
     }
 

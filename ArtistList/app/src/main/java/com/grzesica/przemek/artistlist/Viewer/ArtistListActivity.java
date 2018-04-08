@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
 import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
@@ -25,10 +26,16 @@ import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 public class ArtistListActivity extends AppCompatActivity {
 
+    public static int threadPoolSize = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
+
+        if (threadPoolSize > 0){
+            initUiElements();
+        }
 
         final SwipeRefreshLayout swipeRefLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeRefLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -46,15 +53,17 @@ public class ArtistListActivity extends AppCompatActivity {
         });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.artistToolbar);
-
         setSupportActionBar(toolbar);
+
         initUiElements();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        initUiElements();
+        if (threadPoolSize > 0){
+            initUiElements();
+        }
     }
 
     @Override
@@ -65,15 +74,18 @@ public class ArtistListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         Context context = getApplicationContext();
-        UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
-        UpdatesCheck updatesCheck = updatesCheckDIBuilder
-                .dataBaseAdapterDIBUilder()
-                .handler()
-                .build(context);
-
-        updatesCheck.execute();
+        if (threadPoolSize == 0) {
+            UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
+            UpdatesCheck updatesCheck = updatesCheckDIBuilder
+                    .dataBaseAdapterDIBUilder()
+                    .handler()
+                    .build(context);
+            updatesCheck.execute();
+        }else{
+            String text = "Database upgrade is undergoing...";
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -94,7 +106,7 @@ public class ArtistListActivity extends AppCompatActivity {
         Cursor cursor = getAllEntriesFromDb(((DataBaseAdapter)dataBaseAdapter), 1);
         if (cursor.moveToFirst() == false) {
             Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
-            intent.putExtra(DataFetchingService.STR_MESSAGE, "Please wait for data...");
+            intent.putExtra(DataFetchingService.STR_MESSAGE, "Please wait for data fetching ...");
             getApplicationContext().startService(intent);
         }
         ArtistListAdapter artistListAdapter = new ArtistListAdapter(getApplicationContext(), cursor, 0);

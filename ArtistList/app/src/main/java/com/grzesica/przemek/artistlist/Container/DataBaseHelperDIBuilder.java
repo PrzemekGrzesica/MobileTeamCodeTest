@@ -12,8 +12,6 @@ import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 
 public class DataBaseHelperDIBuilder implements IDataBaseHelperDIBuilder{
 
-    public SQLiteOpenHelper mDataBaseHelper;
-
     @Override
     public DataBaseAdapter.DataBaseHelper build(Context context, String dbName, SQLiteDatabase.CursorFactory factory, int dbVersion) {
         return new DataBaseAdapter.DataBaseHelper(this, context, dbName, factory, dbVersion);

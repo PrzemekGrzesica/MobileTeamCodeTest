@@ -51,8 +51,6 @@ public class HttpHandler implements IHttpHandler {
 
         } catch (Exception e) {
             Log.e("MYAPP", "exception: " + e);
-        } finally {
-//            mHttpConnection.disconnect();
         }
         return response;
     }
