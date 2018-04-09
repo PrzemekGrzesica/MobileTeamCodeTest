@@ -10,8 +10,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Parcelable;
 
 import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
-import com.grzesica.przemek.artistlist.Container.DataBaseHelperDIBuilder;
-import com.grzesica.przemek.artistlist.Container.IDataBaseHelperDIBuilder;
 
 /**
  * Created by przemek on 22.11.17.
@@ -91,7 +89,19 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return uniqueInstance;
     }
 
-    public static class DataBaseHelper extends SQLiteOpenHelper {
+    public interface IDataBaseHelperDIBuilder{
+        DataBaseAdapter.DataBaseHelper build(Context context, String dbName, SQLiteDatabase.CursorFactory factory, int dbVersion);
+    }
+
+    public static class DataBaseHelperDIBuilder implements IDataBaseHelperDIBuilder{
+
+        @Override
+        public DataBaseAdapter.DataBaseHelper build(Context context, String dbName, SQLiteDatabase.CursorFactory factory, int dbVersion) {
+            return new DataBaseAdapter.DataBaseHelper(this, context, dbName, factory, dbVersion);
+        }
+    }
+
+    private static class DataBaseHelper extends SQLiteOpenHelper {
 
         public DataBaseHelper(IDataBaseHelperDIBuilder builder, Context context, String dbName, CursorFactory factory, int dbVersion) {
             super(context, dbName, factory, dbVersion);
@@ -200,3 +210,10 @@ public class DataBaseAdapter implements IDataBaseAdapter {
         return mDataBase.query(TABLE_MD5_KEYS, columns, null, null, null, null, null);
     }
 }
+
+
+
+/**
+ * Created by przemek on 28.03.18.
+ */
+
