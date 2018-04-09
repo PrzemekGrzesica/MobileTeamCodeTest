@@ -12,11 +12,11 @@ import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 
 public class DataBaseAdapterDIBuilder implements IDataBaseAdapterDIBuilder {
 
-    public IDataBaseHelperDIBuilder mDataBaseHelperDIBuilder;
+    public DataBaseAdapter.IDataBaseHelperDIBuilder mDataBaseHelperDIBuilder;
     public Parcelable mContentValues;
 
     public DataBaseAdapterDIBuilder dataBaseHelperDIBuilder(){
-        mDataBaseHelperDIBuilder = new DataBaseHelperDIBuilder();
+        mDataBaseHelperDIBuilder = new DataBaseAdapter.DataBaseHelperDIBuilder();
         return this;
     }
 

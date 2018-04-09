@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IDataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IUpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
 
@@ -29,7 +30,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
     private IDataBaseAdapter mDataBaseAdapter;
     private IDataBaseAdapterDIBuilder mDataBaseAdapterDIBuilder;
 
-    public UpdatesCheck(UpdatesCheckDIBuilder builder, Context context) {
+    public UpdatesCheck(IUpdatesCheckDIBuilder builder, Context context) {
         this.mContext = context;
         this.mHandler = ((UpdatesCheckDIBuilder) builder).mHandler;
         this.mDataBaseAdapterDIBuilder = ((UpdatesCheckDIBuilder) builder).mDataBaseAdapterDIBuilder;
