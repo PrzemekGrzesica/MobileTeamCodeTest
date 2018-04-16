@@ -48,6 +48,6 @@ public class DataFetcherDIBuilder implements IDataFetcherDIBuilder {
     }
     @Override
     public DataFetcher build(Context context) {
-        return new DataFetcher (this, context);
+        return null;//new DataFetcher (this, context);
     }
 }

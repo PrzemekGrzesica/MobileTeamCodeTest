@@ -40,14 +40,14 @@ public class DataFetchingService extends IntentService {
         String text = intent.getStringExtra(STR_MESSAGE);
         mContext = getApplicationContext();
         showText(text);
-        DataFetcherDIBuilder depInjBuilder = new DataFetcherDIBuilder();
-        DataFetcher dataFetcher = depInjBuilder
-                .httpHandlerDIBuilder()
-                .dataBaseAdapter()
-                .handler(mContext)
-                .threadPoolExecutor()
-                .jsonObjectExtended()
-                .build(mContext);
+        DataFetcher dataFetcher = new DataFetcher(mContext);
+//        DataFetcher dataFetcher = depInjBuilder
+//                .httpHandlerDIBuilder()
+//                .dataBaseAdapter()
+//                .handler(mContext)
+//                .threadPoolExecutor()
+//                .jsonObjectExtended()
+//                .build(mContext);
         dataFetcher.getData();
     }
 

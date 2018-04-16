@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.grzesica.przemek.artistlist.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
@@ -19,24 +20,30 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URLConnection;
 
+import javax.inject.Inject;
+
 /**
  * Created by przemek on 26.11.17.
  * Methods for download json file and images.
  */
 public class HttpHandler implements IHttpHandler {
 
-    private Appendable mStrBuilder;
-    private OutputStream mOutputStream;
-    private IExtendedUrl mExtendedUrl;
-    private IExtendedBufferReader mExtendedBufferReader;
+    @Inject Appendable mStrBuilder;
+    @Inject OutputStream mOutputStream;
+    @Inject IExtendedUrl mExtendedUrl;
+    @Inject IExtendedBufferReader mExtendedBufferReader;
     private HttpURLConnection mHttpConnection;
 
-    public HttpHandler(IHttpHandlerDIBuilder builder) {
-        this.mStrBuilder = ((HttpHandlerDIBuilder)builder).mStrBuilder;
-        this.mOutputStream = ((HttpHandlerDIBuilder)builder).mByteArrayOutputStream;
-        this.mExtendedUrl = ((HttpHandlerDIBuilder)builder).mExtendedUrl;
-        this.mExtendedBufferReader = ((HttpHandlerDIBuilder)builder).mExtendedBufferedReader;
+    public HttpHandler(){
+        ArtistListApplication.getHttpHandlerComponent().inject(this);
     }
+
+//    public HttpHandler(IHttpHandlerDIBuilder builder) {
+//        this.mStrBuilder = ((HttpHandlerDIBuilder)builder).mStrBuilder;
+//        this.mOutputStream = ((HttpHandlerDIBuilder)builder).mByteArrayOutputStream;
+//        this.mExtendedUrl = ((HttpHandlerDIBuilder)builder).mExtendedUrl;
+//        this.mExtendedBufferReader = ((HttpHandlerDIBuilder)builder).mExtendedBufferedReader;
+//    }
 
     @Override
     public String jsonServiceCall(String requestUrl) {

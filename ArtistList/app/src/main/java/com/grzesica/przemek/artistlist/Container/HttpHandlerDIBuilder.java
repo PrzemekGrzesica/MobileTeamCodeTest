@@ -37,7 +37,7 @@ public class HttpHandlerDIBuilder implements IHttpHandlerDIBuilder {
 
     @Override
     public HttpHandler build() {
-        return new HttpHandler(this);
+        return new HttpHandler();
     }
 }
 

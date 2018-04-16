@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.grzesica.przemek.artistlist.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
@@ -22,6 +23,8 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import static android.content.ContentValues.TAG;
 
 /**
@@ -30,12 +33,12 @@ import static android.content.ContentValues.TAG;
 
 public class DataFetcher implements IDataFetcher {
 
-    private AbstractExecutorService mThreadPoolExecutor;
+    @Inject AbstractExecutorService mThreadPoolExecutor;
     private Context mContext;
     private IDataBaseAdapterDIBuilder mDataBaseAdapterDIBuilder;
-    private IHttpHandlerDIBuilder mHttpHandlerDIBuilder;
+    @Inject IHttpHandler mHttpHandler;
     private IJsonObjectExtended mJsonObjectExtended;
-    private final Handler mHandler;
+//    private final Handler mHandler;
 
     // Gets the number of available cores
     private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
@@ -46,23 +49,29 @@ public class DataFetcher implements IDataFetcher {
 
     public static final String JSON_URL = "http://i.img.co/data/data.json";
 
-    public DataFetcher(IDataFetcherDIBuilder builder, Context context){
+    public DataFetcher(Context context){
         this.mContext = context;
-        this.mDataBaseAdapterDIBuilder = ((DataFetcherDIBuilder)builder).mDataBaseAdapterDIBuilder;
-        this.mJsonObjectExtended = ((DataFetcherDIBuilder)builder).mJsonObjectExtended;
-        this.mHttpHandlerDIBuilder = ((DataFetcherDIBuilder)builder).mHttpHandlerDIBuilder;
-        this.mHandler = ((DataFetcherDIBuilder)builder).mHandler;
-        this.mThreadPoolExecutor = ((DataFetcherDIBuilder)builder).mThreadPoolExecutor;
+        ArtistListApplication.getDataFetcherComponent().inject(this);
     }
+//    public DataFetcher(IDataFetcherDIBuilder builder, Context context){
+//        this.mContext = context;
+//        this.mDataBaseAdapterDIBuilder = ((DataFetcherDIBuilder)builder).mDataBaseAdapterDIBuilder;
+//        this.mJsonObjectExtended = ((DataFetcherDIBuilder)builder).mJsonObjectExtended;
+////        this.mHttpHandlerDIBuilder = ((DataFetcherDIBuilder)builder).mHttpHandlerDIBuilder;
+//
+////        this.mThreadPoolExecutor = ((DataFetcherDIBuilder)builder).mThreadPoolExecutor;
+//    }
 
     @Override
     public void getData(){
-        IHttpHandler httpHandler = ((HttpHandlerDIBuilder)mHttpHandlerDIBuilder)
-                .byteArrayOutputStream()
-                .strBuilder()
-                .extendedUrl()
-                .extendedBufferedReader()
-                .build();
+//        IHttpHandler httpHandler = ((HttpHandlerDIBuilder)mHttpHandlerDIBuilder)
+//                .byteArrayOutputStream()
+//                .strBuilder()
+//                .extendedUrl()
+//                .extendedBufferedReader()
+//                .build();
+
+//        mHandler = new Handler(mContext.getMainLooper());
 
         DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = (DataBaseAdapterDIBuilder) mDataBaseAdapterDIBuilder;
         IDataBaseAdapter dataBaseAdapter = dataBaseAdapterDIBuilder
@@ -70,6 +79,7 @@ public class DataFetcher implements IDataFetcher {
                 .dataBaseHelperDIBuilder()
                 .build(mContext);
 
+        IHttpHandler httpHandler = mHttpHandler;
         String jsonStr = httpHandler.jsonServiceCall(JSON_URL);
 
         if (jsonStr != null) {
@@ -125,7 +135,7 @@ public class DataFetcher implements IDataFetcher {
     }
 
     private void runOnUiThread(Runnable r) {
-        mHandler.post(r);
+//        mHandler.post(r);
     }
 
     private class ArtistFetchingRunnable implements Runnable {
@@ -141,12 +151,7 @@ public class DataFetcher implements IDataFetcher {
         @Override
         public void run() {
             try {
-                IHttpHandler httpHandler = ((HttpHandlerDIBuilder)mHttpHandlerDIBuilder)
-                        .byteArrayOutputStream()
-                        .strBuilder()
-                        .extendedUrl()
-                        .extendedBufferedReader()
-                        .build();
+                IHttpHandler httpHandler = mHttpHandler;
                 String artistId = mArtistJsonObj.getString("id");
                 String genres = mArtistJsonObj.getString("genres");
                 String artistPictureUrl = mArtistJsonObj.getString("picture");
@@ -185,12 +190,7 @@ public class DataFetcher implements IDataFetcher {
         @Override
         public void run() {
             try {
-                IHttpHandler httpHandler = ((HttpHandlerDIBuilder)mHttpHandlerDIBuilder)
-                        .byteArrayOutputStream()
-                        .strBuilder()
-                        .extendedUrl()
-                        .extendedBufferedReader()
-                        .build();
+                IHttpHandler httpHandler = mHttpHandler;
                 String albumId = mAlbumJsonObj.getString("id");
                 String artistId = mAlbumJsonObj.getString("artistId");
                 String title = mAlbumJsonObj.getString("title");
