@@ -3,6 +3,7 @@ package com.grzesica.przemek.artistlist.Viewer;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,23 +17,30 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
-import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
+import com.grzesica.przemek.artistlist.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
-import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
-import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
+import com.grzesica.przemek.artistlist.Model.DataBaseHelper;
+import com.grzesica.przemek.artistlist.Model.DataBaseManager;
+import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
+
+import javax.inject.Inject;
 
 public class ArtistListActivity extends AppCompatActivity {
 
     public static boolean serviceFlag = false;
     public static boolean activityServiceFlag = false;
+    @Inject
+    IDataBaseManager mDataBaseManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
+
+        ArtistListApplication.getArtistListActivityComponent().inject(this);
 
         if (serviceFlag || activityServiceFlag){
             initUiElements();
@@ -95,14 +103,10 @@ public class ArtistListActivity extends AppCompatActivity {
     }
 
     private void fillListViewData(ListView artistListView) {
-        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = new DataBaseAdapterDIBuilder();
-        IDataBaseAdapter dataBaseAdapter = dataBaseAdapterDIBuilder
-                .contentValues()
-                .dataBaseHelperDIBuilder()
-                .build(getApplicationContext());
+        DataBaseManager dataBaseManager = (DataBaseManager) mDataBaseManager;
         //Open existing database flag = 0
-        dataBaseAdapter.open(0, false);
-        Cursor cursor = getAllEntriesFromDb(((DataBaseAdapter)dataBaseAdapter), 1);
+        dataBaseManager.open();
+        Cursor cursor = getAllEntriesFromDb(dataBaseManager, 1);
         if (cursor.moveToFirst() == false) {
             Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
             intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for data fetching ...");
@@ -112,8 +116,8 @@ public class ArtistListActivity extends AppCompatActivity {
         artistListView.setAdapter(artistListAdapter);
     }
 
-    private Cursor getAllEntriesFromDb(DataBaseAdapter dataBaseAdapter, int position) {
-        Cursor cursor = dataBaseAdapter.getArtistListItems();
+    private Cursor getAllEntriesFromDb(DataBaseManager dataBaseManager, int position) {
+        Cursor cursor = dataBaseManager.getArtistListRecords();
         if (cursor != null) {
             startManagingCursor(cursor);
             cursor.moveToPosition(--position);

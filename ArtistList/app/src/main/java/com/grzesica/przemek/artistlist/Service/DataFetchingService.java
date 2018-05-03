@@ -38,9 +38,8 @@ public class DataFetchingService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         String text = intent.getStringExtra(STR_MESSAGE);
-        mContext = getApplicationContext();
         showText(text);
-        DataFetcher dataFetcher = new DataFetcher(mContext);
+        DataFetcher dataFetcher = new DataFetcher(getApplicationContext());
 //        DataFetcher dataFetcher = depInjBuilder
 //                .httpHandlerDIBuilder()
 //                .dataBaseAdapter()
@@ -55,7 +54,7 @@ public class DataFetchingService extends IntentService {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
             }
         });
     }

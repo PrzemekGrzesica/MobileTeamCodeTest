@@ -1,7 +1,9 @@
 package com.grzesica.przemek.artistlist.Module;
 
+import com.grzesica.przemek.artistlist.Container.BitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.ExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.ExtendedURL;
+import com.grzesica.przemek.artistlist.Container.IBitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
 
@@ -28,6 +30,10 @@ public class HttpHandlerModule {
     @Provides
     public IExtendedUrl provideExtendedUrl(){
         return new ExtendedURL();
+    }
+    @Provides
+    public IBitmapFactoryOptions provideBitmapFactoryOptions(){
+        return new BitmapFactoryOptions();
     }
     @Provides
     public IExtendedBufferReader provideExtendedBufferReader(){

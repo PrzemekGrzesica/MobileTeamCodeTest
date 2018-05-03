@@ -17,18 +17,9 @@ public class ExtendedBufferReader implements IExtendedBufferReader {
 
     BufferedReader mBufferReader;
 
-    public ExtendedBufferReader(){
-        this.mBufferReader = null;
-    }
-
     @Override
     public BufferedReader setInputStream(InputStream inputStream) {
         mBufferReader = new BufferedReader(new InputStreamReader(inputStream));
         return mBufferReader;
-    }
-
-    @Override
-    public int read(@NonNull CharBuffer cb) throws IOException {
-        return 0;
     }
 }

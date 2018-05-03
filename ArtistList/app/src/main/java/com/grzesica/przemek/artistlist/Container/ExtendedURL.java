@@ -1,5 +1,6 @@
 package com.grzesica.przemek.artistlist.Container;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -15,8 +16,7 @@ public class ExtendedURL implements IExtendedUrl {
         this.mUrl = null;
     }
 
-    @Override
-    public URL setUrl(String strUrl) {
+    public URL getUrlConn(String strUrl) {
         try {
             mUrl = new URL(strUrl);
         } catch (MalformedURLException e) {

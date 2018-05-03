@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IDataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.IUpdatesCheckDIBuilder;
@@ -55,19 +54,19 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         String newMD5Key;
         String oldMD5Key;
         HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
-        HttpHandler httpHandler = depInjBuilder
-                .byteArrayOutputStream()
-                .strBuilder()
-                .extendedUrl()
-                .extendedBufferedReader()
-                .build();
+        HttpHandler httpHandler = new HttpHandler();
+//                .byteArrayOutputStream()
+//                .strBuilder()
+//                .extendedUrl()
+//                .extendedBufferedReader()
+//                .build();
 
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
         DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = (DataBaseAdapterDIBuilder) mDataBaseAdapterDIBuilder;
         mDataBaseAdapter = dataBaseAdapterDIBuilder
                 .contentValues()
-                .dataBaseHelperDIBuilder()
+
                 .build(mContext);
 
         //Open existing database - flag = 0

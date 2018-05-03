@@ -8,5 +8,6 @@ import java.net.URL;
  */
 
 public interface IExtendedUrl extends Serializable{
-    URL setUrl(String strUrl);
+    URL getUrlConn(String strUrl);
 }
+

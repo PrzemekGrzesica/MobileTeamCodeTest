@@ -5,10 +5,9 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.grzesica.przemek.artistlist.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
+import com.grzesica.przemek.artistlist.Container.IBitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
-import com.grzesica.przemek.artistlist.Container.IHttpHandlerDIBuilder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +28,7 @@ import javax.inject.Inject;
 public class HttpHandler implements IHttpHandler {
 
     @Inject Appendable mStrBuilder;
+    @Inject IBitmapFactoryOptions mBitmapFactoryOptions;
     @Inject OutputStream mOutputStream;
     @Inject IExtendedUrl mExtendedUrl;
     @Inject IExtendedBufferReader mExtendedBufferReader;
@@ -37,13 +37,6 @@ public class HttpHandler implements IHttpHandler {
     public HttpHandler(){
         ArtistListApplication.getHttpHandlerComponent().inject(this);
     }
-
-//    public HttpHandler(IHttpHandlerDIBuilder builder) {
-//        this.mStrBuilder = ((HttpHandlerDIBuilder)builder).mStrBuilder;
-//        this.mOutputStream = ((HttpHandlerDIBuilder)builder).mByteArrayOutputStream;
-//        this.mExtendedUrl = ((HttpHandlerDIBuilder)builder).mExtendedUrl;
-//        this.mExtendedBufferReader = ((HttpHandlerDIBuilder)builder).mExtendedBufferedReader;
-//    }
 
     @Override
     public String jsonServiceCall(String requestUrl) {
@@ -100,7 +93,7 @@ public class HttpHandler implements IHttpHandler {
     }
 
     private HttpURLConnection getHttpUrlConn(String strUrl) throws Exception {
-        URLConnection connection = mExtendedUrl.setUrl(strUrl).openConnection();
+        URLConnection connection = mExtendedUrl.getUrlConn(strUrl).openConnection();
         HttpURLConnection httpConnection = (HttpURLConnection) connection;
         httpConnection.setRequestMethod("GET");
         httpConnection.connect();
@@ -111,7 +104,7 @@ public class HttpHandler implements IHttpHandler {
     public Bitmap downloadImage(String url) {
         Bitmap bitmap = null;
         InputStream stream;
-        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        BitmapFactory.Options bitmapOptions = (BitmapFactory.Options)mBitmapFactoryOptions;
         bitmapOptions.inSampleSize = 1;
 
         try {

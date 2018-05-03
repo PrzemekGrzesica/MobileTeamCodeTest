@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
-import com.grzesica.przemek.artistlist.Container.DataBaseAdapterDIBuilder;
 import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
 import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
@@ -46,7 +45,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         DataBaseAdapterDIBuilder depInjBuilder = new DataBaseAdapterDIBuilder();
         IDataBaseAdapter dataBaseAdapter = depInjBuilder
                 .contentValues()
-                .dataBaseHelperDIBuilder()
+
                 .build(getApplicationContext());
         //Open existing database - VersionFlag = 0
         dataBaseAdapter.open(0, false);
