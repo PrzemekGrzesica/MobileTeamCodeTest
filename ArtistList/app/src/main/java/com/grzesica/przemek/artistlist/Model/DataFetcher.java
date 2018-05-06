@@ -26,12 +26,16 @@ import static android.content.ContentValues.TAG;
 
 public class DataFetcher implements IDataFetcher {
 
-    @Inject AbstractExecutorService mThreadPoolExecutor;
-    private Context mContext;
+    @Inject
+    AbstractExecutorService mThreadPoolExecutor;
+    @Inject
+    Context mContext;
     @Inject
     IDataBaseManager mDataBaseManager;
-    @Inject IHttpHandler mHttpHandler;
-    @Inject IJsonObjectExtended mJsonObjectExtended;
+    @Inject
+    IHttpHandler mHttpHandler;
+    @Inject
+    IJsonObjectExtended mJsonObjectExtended;
 //    private final Handler mHandler;
 
     // Gets the number of available cores
@@ -44,18 +48,9 @@ public class DataFetcher implements IDataFetcher {
     public static final String JSON_URL = "https://drive.google.com/file/d/11LW8Xv1UQQgrbwU0Cj5LaEtubUYvj5EE/view?usp=sharing";//"http://i.img.co/data/data.json";
 
 
-    public DataFetcher(Context context){
-        this.mContext = context;
-        ArtistListApplication.getDataFetcherComponent().inject(this);
+    public DataFetcher(){
+        ArtistListApplication.getApplicationComponent().inject(this);
     }
-//    public DataFetcher(IDataFetcherDIBuilder builder, Context context){
-//        this.mContext = context;
-//        this.mDataBaseAdapterDIBuilder = ((DataFetcherDIBuilder)builder).mDataBaseAdapterDIBuilder;
-//        this.mJsonObjectExtended = ((DataFetcherDIBuilder)builder).mJsonObjectExtended;
-////        this.mHttpHandlerDIBuilder = ((DataFetcherDIBuilder)builder).mHttpHandlerDIBuilder;
-//
-////        this.mThreadPoolExecutor = ((DataFetcherDIBuilder)builder).mThreadPoolExecutor;
-//    }
 
     @Override
     public void getData(){

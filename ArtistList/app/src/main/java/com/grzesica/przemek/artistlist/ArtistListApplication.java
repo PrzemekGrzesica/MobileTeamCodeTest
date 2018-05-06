@@ -2,18 +2,10 @@ package com.grzesica.przemek.artistlist;
 
 import android.app.Application;
 
-import com.grzesica.przemek.artistlist.Module.ArtistListActivityComponent;
-import com.grzesica.przemek.artistlist.Module.ArtistListActivityModule;
-import com.grzesica.przemek.artistlist.Module.DaggerArtistListActivityComponent;
-import com.grzesica.przemek.artistlist.Module.DaggerDataBaseAdapterComponent;
-import com.grzesica.przemek.artistlist.Module.DaggerDataFetcherComponent;
-import com.grzesica.przemek.artistlist.Module.DaggerHttpHandlerComponent;
-import com.grzesica.przemek.artistlist.Module.DataBaseHelperComponent;
-import com.grzesica.przemek.artistlist.Module.DataBaseHelperModule;
-import com.grzesica.przemek.artistlist.Module.DataFetcherComponent;
-import com.grzesica.przemek.artistlist.Module.DataFetcherModule;
-import com.grzesica.przemek.artistlist.Module.HttpHandlerComponent;
-import com.grzesica.przemek.artistlist.Module.HttpHandlerModule;
+import com.grzesica.przemek.artistlist.Module.ApplicationComponent;
+import com.grzesica.przemek.artistlist.Module.ApplicationModule;
+import com.grzesica.przemek.artistlist.Module.ContextModule;
+import com.grzesica.przemek.artistlist.Module.DaggerApplicationComponent;
 
 /**
  * Created by przemek on 16.04.18.
@@ -21,54 +13,32 @@ import com.grzesica.przemek.artistlist.Module.HttpHandlerModule;
 
 public class ArtistListApplication extends Application {
 
-    private static ArtistListActivityComponent artistListActivityComponent;
-    private static DataBaseHelperComponent dataBaseHelperComponent;
-    private static DataFetcherComponent dataFetcherComponent;
-    private static HttpHandlerComponent httpHandlerComponent;
+//    private static AlbumsListActivityComponent albumsListActivityComponent;
+    private static ApplicationComponent applicationComponent;
 
-    public static ArtistListActivityComponent getArtistListActivityComponent(){
-        return artistListActivityComponent;
-    }
-    public static DataBaseHelperComponent getDataBaseHelperComponent(){
-        return dataBaseHelperComponent;
-    }
-    public static DataFetcherComponent getDataFetcherComponent(){
-        return dataFetcherComponent;
-    }
-    public static HttpHandlerComponent getHttpHandlerComponent(){
-        return httpHandlerComponent;
+    public static ApplicationComponent getApplicationComponent(){
+        return applicationComponent;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        artistListActivityComponent = buildArtistListActivityComponent();
-        dataBaseHelperComponent = buildDataBaseHelperComponent();
-        dataFetcherComponent = buildDataFetcherComponent();
-        httpHandlerComponent = buildHttpHandlerComponent();
+        applicationComponent = buildApplicationComponent();
     }
-    public DataFetcherComponent buildDataFetcherComponent(){
-        return DaggerDataFetcherComponent.builder()
-                .dataFetcherModule(new DataFetcherModule(getApplicationContext()))
+
+    public ApplicationComponent buildApplicationComponent(){
+        return DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule())
+                .contextModule(new ContextModule(this))
                 .build();
     }
 
-    public HttpHandlerComponent buildHttpHandlerComponent() {
-        return DaggerHttpHandlerComponent.builder()
-                .httpHandlerModule(new HttpHandlerModule())
-                .build();
-    }
+//    public UpdatesCheckComponent buildUpdatesCheckComponent(){
+//        return DaggerUpdatesCheckComponent.builder()
+//                .updatesCheckModule(new UpdatesCheckModule())
+//                .contextModule(new ContextModule(this))
+//                .build();
+//    }
 
-    public DataBaseHelperComponent buildDataBaseHelperComponent(){
-        return DaggerDataBaseAdapterComponent.builder()
-                .dataBaseHelperModule(new DataBaseHelperModule(getApplicationContext()))
-                .build();
-    }
-
-    public ArtistListActivityComponent buildArtistListActivityComponent(){
-        return DaggerArtistListActivityComponent.builder()
-                .artistListActivityModule(new ArtistListActivityModule(getApplicationContext()))
-                .build();
-    }
 
 }

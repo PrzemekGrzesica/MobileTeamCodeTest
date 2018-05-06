@@ -7,14 +7,13 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.HttpHandlerDIBuilder;
-import com.grzesica.przemek.artistlist.Container.IDataBaseAdapterDIBuilder;
-import com.grzesica.przemek.artistlist.Container.IUpdatesCheckDIBuilder;
-import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
+import com.grzesica.przemek.artistlist.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.inject.Inject;
 
 /**
  * Created by przemek on 13.02.18.
@@ -23,16 +22,14 @@ import java.security.NoSuchAlgorithmException;
 
 public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
-
-    private Context mContext;
+    @Inject
+    Context mContext;
+    @Inject IHttpHandler mHttpHandler;
     private Handler mHandler;
-    private IDataBaseAdapter mDataBaseAdapter;
-    private IDataBaseAdapterDIBuilder mDataBaseAdapterDIBuilder;
+    @Inject IDataBaseManager mDataBaseManager;
 
-    public UpdatesCheck(IUpdatesCheckDIBuilder builder, Context context) {
-        this.mContext = context;
-        this.mHandler = ((UpdatesCheckDIBuilder) builder).mHandler;
-        this.mDataBaseAdapterDIBuilder = ((UpdatesCheckDIBuilder) builder).mDataBaseAdapterDIBuilder;
+    public UpdatesCheck() {
+        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     @Override
@@ -53,32 +50,23 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
     protected String doInBackground(Integer... voids) {
         String newMD5Key;
         String oldMD5Key;
-        HttpHandlerDIBuilder depInjBuilder = new HttpHandlerDIBuilder();
-        HttpHandler httpHandler = new HttpHandler();
-//                .byteArrayOutputStream()
-//                .strBuilder()
-//                .extendedUrl()
-//                .extendedBufferedReader()
-//                .build();
+
+//        ArtistListApplication.getUpdatesCheckComponent().inject(this);
+
+        HttpHandler httpHandler = (HttpHandler) mHttpHandler;
 
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
-        DataBaseAdapterDIBuilder dataBaseAdapterDIBuilder = (DataBaseAdapterDIBuilder) mDataBaseAdapterDIBuilder;
-        mDataBaseAdapter = dataBaseAdapterDIBuilder
-                .contentValues()
-
-                .build(mContext);
-
         //Open existing database - flag = 0
-        mDataBaseAdapter.open(0, false);
-        Cursor cursor = ((DataBaseAdapter) mDataBaseAdapter).getMd5Key();
+        mDataBaseManager.open();
+        Cursor cursor = ((DataBaseManager) mDataBaseManager).getMd5KeyRecord();
         cursor.moveToFirst();
         try {
             oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
         } catch (Exception e) {
             oldMD5Key = "EmptyOld";
         }
-        mDataBaseAdapter.close();
+        mDataBaseManager.close();
         String updatesAvailability = null;
         if (jsonStr != null) {
             updatesAvailability = "false";

@@ -1,17 +1,10 @@
 package com.grzesica.przemek.artistlist.Model;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Parcelable;
-
-import com.grzesica.przemek.artistlist.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Module.Annotations.ApplicationContext;
-import com.grzesica.przemek.artistlist.Module.Annotations.DatabaseInfo;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,7 +16,7 @@ import javax.inject.Singleton;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     // Database Name
-    static final String DATABASE_NAME = "artistDb.db";
+    public static final String DATABASE_NAME = "artistDb.db";
 
     // Table Names
     static final String TABLE_ARTIST_LIST = "artist";
@@ -72,14 +65,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private Context mContext;
     @Inject
     Parcelable mContentValues;
-//    @Inject
-//    SQLiteOpenHelper mDataBase;
 
-    @Inject
-    public DataBaseHelper(@ApplicationContext Context context, @DatabaseInfo String dbName
-            , CursorFactory factory, @DatabaseInfo int dbVersion) {
-        super(context, dbName, factory, dbVersion);
-        ArtistListApplication.getDataBaseHelperComponent().inject(this);
+    public DataBaseHelper(Context context, int dbVersion) {
+        super(context, DATABASE_NAME, null, dbVersion);
+        this.mContext = context;
     }
 
     @Override
@@ -89,8 +78,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             dataBase.execSQL(CREATE_TABLE_ARTIST_LIST);
             dataBase.execSQL(CREATE_TABLE_ALBUM_LIST);
             dataBase.execSQL(CREATE_TABLE_MD5_KEYS);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase database){
+        if (database == null){
+            onCreate(database);
         }
     }
 

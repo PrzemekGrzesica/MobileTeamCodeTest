@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Container.DataFetcherDIBuilder;
 import com.grzesica.przemek.artistlist.Model.DataFetcher;
 
 /**
@@ -39,7 +38,7 @@ public class DataFetchingService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         String text = intent.getStringExtra(STR_MESSAGE);
         showText(text);
-        DataFetcher dataFetcher = new DataFetcher(getApplicationContext());
+        DataFetcher dataFetcher = new DataFetcher();
 //        DataFetcher dataFetcher = depInjBuilder
 //                .httpHandlerDIBuilder()
 //                .dataBaseAdapter()

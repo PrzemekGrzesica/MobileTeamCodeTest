@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,13 +16,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
-import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
-import com.grzesica.przemek.artistlist.Model.DataBaseAdapter;
-import com.grzesica.przemek.artistlist.Model.IDataBaseAdapter;
+import com.grzesica.przemek.artistlist.ArtistListApplication;
+import com.grzesica.przemek.artistlist.Model.DataBaseManager;
+import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
+
+import javax.inject.Inject;
+
+import static com.grzesica.przemek.artistlist.Viewer.ArtistListActivity.serviceFlag;
 
 public class AlbumsListActivity extends AppCompatActivity {
 
@@ -32,6 +37,10 @@ public class AlbumsListActivity extends AppCompatActivity {
     private TextView mTvGenres;
     private TextView mTvDescription;
     private ImageView mIvArtist;
+    @Inject
+    IDataBaseManager mDataBaseManager;
+    @Inject
+    AsyncTask mUpdatesCheck;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +49,15 @@ public class AlbumsListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.albumsToolbar);
         setSupportActionBar(toolbar);
 
+        ArtistListApplication.getApplicationComponent().inject(this);
+
         long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
 
-        DataBaseAdapterDIBuilder depInjBuilder = new DataBaseAdapterDIBuilder();
-        IDataBaseAdapter dataBaseAdapter = depInjBuilder
-                .contentValues()
-
-                .build(getApplicationContext());
+        DataBaseManager dataBaseManager = (DataBaseManager) mDataBaseManager;
         //Open existing database - VersionFlag = 0
-        dataBaseAdapter.open(0, false);
+        dataBaseManager.open();
 
-        Cursor cursor = getArtistTable((int) artistDataId, dataBaseAdapter);
+        Cursor cursor = getArtistTable((int) artistDataId, dataBaseManager);
 
         String strName = cursor.getString(cursor.getColumnIndex("name"));
         String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
@@ -61,7 +68,7 @@ public class AlbumsListActivity extends AppCompatActivity {
 
         initUiElements();
         fillUiElements(artistDataArray, imageByteArray);
-        fillListView(strArtistId, dataBaseAdapter);
+        fillListView(strArtistId, dataBaseManager);
     }
 
     @Override
@@ -73,12 +80,8 @@ public class AlbumsListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
-        if (ArtistListActivity.serviceFlag == false) {
-            UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
-            UpdatesCheck updatesCheck = updatesCheckDIBuilder
-                    .dataBaseAdapterDIBUilder()
-                    .handler()
-                    .build(context);
+        if (serviceFlag == false) {
+            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck;
             updatesCheck.execute();
         }else{
             String text = "Database upgrade is undergoing...";
@@ -87,8 +90,8 @@ public class AlbumsListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private Cursor getArtistTable(int position, IDataBaseAdapter dataBaseAdapter) {
-        Cursor cursor = ((DataBaseAdapter)dataBaseAdapter).getArtistListItems();
+    private Cursor getArtistTable(int position, IDataBaseManager dataBaseManager) {
+        Cursor cursor = ((DataBaseManager)dataBaseManager).getArtistListRecords();
         if (cursor != null) {
             startManagingCursor(cursor);
             cursor.moveToPosition(--position);
@@ -115,14 +118,14 @@ public class AlbumsListActivity extends AppCompatActivity {
         }
     }
 
-    private void fillListView(String artistId, IDataBaseAdapter dataBaseAdapter) {
-        Cursor cursor = getAlbumTable(artistId, dataBaseAdapter);
+    private void fillListView(String artistId, IDataBaseManager dataBaseManager) {
+        Cursor cursor = getAlbumTable(artistId, dataBaseManager);
         AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), cursor, 0);
         mLvAlbums.setAdapter(albumsListAdapter);
     }
 
-    private Cursor getAlbumTable(String position, IDataBaseAdapter dataBaseAdapter) {
-        Cursor cursor = ((DataBaseAdapter)dataBaseAdapter).getAlbumsListItems(position);
+    private Cursor getAlbumTable(String position, IDataBaseManager dataBasedataBaseManager) {
+        Cursor cursor = ((DataBaseManager)dataBasedataBaseManager).getAlbumsListRecords(position);
         if (cursor != null) {
             startManagingCursor(cursor);
             cursor.moveToFirst();

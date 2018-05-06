@@ -3,9 +3,10 @@ package com.grzesica.przemek.artistlist.Viewer;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,8 +19,6 @@ import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
 import com.grzesica.przemek.artistlist.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Container.UpdatesCheckDIBuilder;
-import com.grzesica.przemek.artistlist.Model.DataBaseHelper;
 import com.grzesica.przemek.artistlist.Model.DataBaseManager;
 import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
@@ -27,20 +26,26 @@ import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class ArtistListActivity extends AppCompatActivity {
 
     public static boolean serviceFlag = false;
     public static boolean activityServiceFlag = false;
     @Inject
+    AsyncTask mUpdatesCheck;
+    @Inject
     IDataBaseManager mDataBaseManager;
+    @Inject
+    @Named("intent")
+    Parcelable mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.artist_list_activity);
 
-        ArtistListApplication.getArtistListActivityComponent().inject(this);
+        ArtistListApplication.getApplicationComponent().inject(this);
 
         if (serviceFlag || activityServiceFlag){
             initUiElements();
@@ -83,11 +88,7 @@ public class ArtistListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
         if (serviceFlag == false) {
-            UpdatesCheckDIBuilder updatesCheckDIBuilder = new UpdatesCheckDIBuilder();
-            UpdatesCheck updatesCheck = updatesCheckDIBuilder
-                    .dataBaseAdapterDIBUilder()
-                    .handler()
-                    .build(context);
+            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck;
             updatesCheck.execute();
         }else{
             String text = "Database upgrade is undergoing...";
@@ -132,8 +133,7 @@ public class ArtistListActivity extends AppCompatActivity {
                                             View v,
                                             int position,
                                             long id) {
-                        Intent intent = new Intent(ArtistListActivity.this,
-                                AlbumsListActivity.class);
+                        Intent intent = (Intent)mIntent;
                         intent.putExtra(AlbumsListActivity.STR_ARTIST_DATA_ID, id);
                         if (serviceFlag == true){
                             activityServiceFlag = true;

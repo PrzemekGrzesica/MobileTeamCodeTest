@@ -35,7 +35,7 @@ public class HttpHandler implements IHttpHandler {
     private HttpURLConnection mHttpConnection;
 
     public HttpHandler(){
-        ArtistListApplication.getHttpHandlerComponent().inject(this);
+        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     @Override

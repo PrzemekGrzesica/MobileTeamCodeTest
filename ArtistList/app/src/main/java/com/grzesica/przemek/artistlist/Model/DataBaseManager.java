@@ -2,15 +2,15 @@ package com.grzesica.przemek.artistlist.Model;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Parcelable;
 
-import com.grzesica.przemek.artistlist.Module.Annotations.ApplicationContext;
+import com.grzesica.przemek.artistlist.ArtistListApplication;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import static com.grzesica.przemek.artistlist.Model.DataBaseHelper.KEY_ALBUM_ID;
@@ -36,22 +36,18 @@ import static com.grzesica.przemek.artistlist.Model.DataBaseHelper._id;
 @Singleton
 public class DataBaseManager implements IDataBaseManager{
 
-    private Context mContext;
     private SQLiteDatabase mDatabase;
-    @Inject
-    Parcelable mContentValues;
-    @Inject
-    SQLiteOpenHelper mDataBaseHelper;
-    @Inject
-    SharedPreferencesHelper mSharedPreferencesHelper;
 
     @Inject
-    public DataBaseManager(@ApplicationContext Context context,
-                       DataBaseHelper dataBaseHelper,
-                       SharedPreferencesHelper sharedPreferencesHelper) {
-        this.mContext = context;
-        this.mDataBaseHelper = dataBaseHelper;
-        this.mSharedPreferencesHelper = sharedPreferencesHelper;
+    @Named("contentValues")
+    Parcelable mContentValues;
+
+    @Inject
+    SQLiteOpenHelper mDataBaseHelper;
+
+    @Inject
+    public DataBaseManager() {
+        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
 
