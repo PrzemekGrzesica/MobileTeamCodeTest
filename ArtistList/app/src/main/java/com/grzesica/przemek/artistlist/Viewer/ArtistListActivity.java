@@ -14,12 +14,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
-import com.grzesica.przemek.artistlist.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Model.DataBaseManager;
+import com.grzesica.przemek.artistlist.Adapter.ICursorManager;
+import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
@@ -37,8 +37,15 @@ public class ArtistListActivity extends AppCompatActivity {
     @Inject
     IDataBaseManager mDataBaseManager;
     @Inject
-    @Named("intent")
-    Parcelable mIntent;
+    @Named("albumsListActivity")
+    Parcelable mIntentAlbumsListActivity;
+    @Inject
+    @Named("dataFetchingService")
+    Parcelable mIntentDataFetchingService;
+    @Inject
+    ICursorManager mCursorManager;
+    @Inject
+    CursorAdapter mArtistListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,31 +106,19 @@ public class ArtistListActivity extends AppCompatActivity {
 
     protected void initUiElements() {
         ListView artistListView = (ListView) findViewById(R.id.artistListView);
-        fillListViewData(artistListView);
+        fillListView(artistListView);
         initListViewOnItemClick(artistListView);
     }
 
-    private void fillListViewData(ListView artistListView) {
-        DataBaseManager dataBaseManager = (DataBaseManager) mDataBaseManager;
-        //Open existing database flag = 0
-        dataBaseManager.open();
-        Cursor cursor = getAllEntriesFromDb(dataBaseManager, 1);
-        if (cursor.moveToFirst() == false) {
-            Intent intent = new Intent(getApplicationContext(), DataFetchingService.class);
+    private void fillListView(ListView artistListView) {
+        Cursor cursor = mCursorManager.getCursor();
+        if(cursor==null) {
+            Intent intent = (Intent) mIntentDataFetchingService;
             intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for data fetching ...");
             getApplicationContext().startService(intent);
+        }else {
+            artistListView.setAdapter(mArtistListAdapter);
         }
-        ArtistListAdapter artistListAdapter = new ArtistListAdapter(getApplicationContext(), cursor, 0);
-        artistListView.setAdapter(artistListAdapter);
-    }
-
-    private Cursor getAllEntriesFromDb(DataBaseManager dataBaseManager, int position) {
-        Cursor cursor = dataBaseManager.getArtistListRecords();
-        if (cursor != null) {
-            startManagingCursor(cursor);
-            cursor.moveToPosition(--position);
-        }
-        return cursor;
     }
 
     private void initListViewOnItemClick(ListView artistListView) {
@@ -133,7 +128,7 @@ public class ArtistListActivity extends AppCompatActivity {
                                             View v,
                                             int position,
                                             long id) {
-                        Intent intent = (Intent)mIntent;
+                        Intent intent = (Intent)mIntentAlbumsListActivity;
                         intent.putExtra(AlbumsListActivity.STR_ARTIST_DATA_ID, id);
                         if (serviceFlag == true){
                             activityServiceFlag = true;

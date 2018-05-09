@@ -5,15 +5,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Created by przemek on 13.02.18.
@@ -22,14 +20,23 @@ import javax.inject.Inject;
 
 public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
-    @Inject
-    Context mContext;
-    @Inject IHttpHandler mHttpHandler;
-    private Handler mHandler;
-    @Inject IDataBaseManager mDataBaseManager;
+    private IMD5checkSum mMD5checkSum;
+    private Context mContext;
+    private IDataBaseManager mDataBaseManager;
+    private IExtendedHandler mExtendedHandler;
+    private IHttpHandler mHttpHandler;
+    private Parcelable mIntentSettingsActivity;
 
-    public UpdatesCheck() {
-        ArtistListApplication.getApplicationComponent().inject(this);
+    @Inject
+    public UpdatesCheck(IMD5checkSum md5checkSum, Context context, IDataBaseManager dataBaseManager,
+                        IExtendedHandler extendedHandler,IHttpHandler httpHandler,
+                        @Named("settingsActivity") Parcelable intentSettingsActivity) {
+        this.mMD5checkSum = md5checkSum;
+        this.mContext = context;
+        this.mDataBaseManager = dataBaseManager;
+        this.mExtendedHandler = extendedHandler;
+        this.mHttpHandler = httpHandler;
+        this.mIntentSettingsActivity = intentSettingsActivity;
     }
 
     @Override
@@ -38,7 +45,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         if (strBoolean != null) {
             boolean updatesAvailability = Boolean.parseBoolean(strBoolean);
             if (updatesAvailability) {
-                Intent intent = new Intent(mContext, SettingsActivity.class);
+                Intent intent = (Intent)mIntentSettingsActivity;
                 mContext.startActivity(intent);
             } else {
                 Toast.makeText(mContext, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
@@ -48,16 +55,13 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
     @Override
     protected String doInBackground(Integer... voids) {
+
         String newMD5Key;
         String oldMD5Key;
 
-//        ArtistListApplication.getUpdatesCheckComponent().inject(this);
-
         HttpHandler httpHandler = (HttpHandler) mHttpHandler;
-
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
-        //Open existing database - flag = 0
         mDataBaseManager.open();
         Cursor cursor = ((DataBaseManager) mDataBaseManager).getMd5KeyRecord();
         cursor.moveToFirst();
@@ -70,7 +74,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         String updatesAvailability = null;
         if (jsonStr != null) {
             updatesAvailability = "false";
-            newMD5Key = new MD5checkSum().stringToMD5(jsonStr);
+            newMD5Key = ((MD5checkSum)mMD5checkSum).stringToMD5(jsonStr);
             if (newMD5Key.equals(oldMD5Key) != true) {
                 updatesAvailability = "True";
             }
@@ -87,27 +91,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
     }
 
     private void runOnUiThread(Runnable r) {
-        mHandler.post(r);
+        ((Handler)mExtendedHandler).post(r);
     }
 }
 
-class MD5checkSum {
-    public String stringToMD5(String jsonString) {
-        try {
-            // Create MD5 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-            digest.update(jsonString.getBytes());
-            byte messageDigest[] = digest.digest();
-
-            // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            for (int i = 0; i < messageDigest.length; i++)
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
-            return hexString.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-}

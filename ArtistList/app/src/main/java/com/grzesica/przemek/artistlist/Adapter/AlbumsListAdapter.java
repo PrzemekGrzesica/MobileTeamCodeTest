@@ -11,6 +11,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
@@ -24,6 +25,7 @@ public class AlbumsListAdapter extends CursorAdapter {
 
     public AlbumsListAdapter(Context context, Cursor cursor, int flag){
         super(context, cursor, 0);
+        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     public void bindView(View view, Context context, Cursor cursor){

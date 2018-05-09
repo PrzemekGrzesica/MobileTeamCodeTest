@@ -1,13 +1,12 @@
 package com.grzesica.przemek.artistlist.Model;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Parcelable;
 
-import com.grzesica.przemek.artistlist.ArtistListApplication;
+import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,16 +37,15 @@ public class DataBaseManager implements IDataBaseManager{
 
     private SQLiteDatabase mDatabase;
 
-    @Inject
-    @Named("contentValues")
+    private @Named("contentValues")
     Parcelable mContentValues;
 
-    @Inject
-    SQLiteOpenHelper mDataBaseHelper;
+    private SQLiteOpenHelper mDataBaseHelper;
 
     @Inject
-    public DataBaseManager() {
-        ArtistListApplication.getApplicationComponent().inject(this);
+    public DataBaseManager(@Named("contentValues") Parcelable contentValues, SQLiteOpenHelper dataBaseHelper) {
+        this.mContentValues = contentValues;
+        this.mDataBaseHelper = dataBaseHelper;
     }
 
 

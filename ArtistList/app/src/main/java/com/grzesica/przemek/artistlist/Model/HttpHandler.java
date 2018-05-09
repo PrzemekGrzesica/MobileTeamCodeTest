@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.grzesica.przemek.artistlist.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Container.IBitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
@@ -20,6 +19,7 @@ import java.net.ProtocolException;
 import java.net.URLConnection;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Created by przemek on 26.11.17.
@@ -27,15 +27,21 @@ import javax.inject.Inject;
  */
 public class HttpHandler implements IHttpHandler {
 
-    @Inject Appendable mStrBuilder;
-    @Inject IBitmapFactoryOptions mBitmapFactoryOptions;
-    @Inject OutputStream mOutputStream;
-    @Inject IExtendedUrl mExtendedUrl;
-    @Inject IExtendedBufferReader mExtendedBufferReader;
+    private Appendable mStrBuilder;
+    private IBitmapFactoryOptions mBitmapFactoryOptions;
+    private OutputStream mOutputStream;
+    private IExtendedUrl mExtendedUrl;
+    private IExtendedBufferReader mExtendedBufferReader;
     private HttpURLConnection mHttpConnection;
 
-    public HttpHandler(){
-        ArtistListApplication.getApplicationComponent().inject(this);
+    @Inject
+    public HttpHandler(@Named("stringBuilder") Appendable strBuilder, IBitmapFactoryOptions bitmapFactoryOptions, OutputStream outputStream,
+                       IExtendedUrl extendedUrl, IExtendedBufferReader extendedBufferReader){
+        this.mStrBuilder = strBuilder;
+        this.mBitmapFactoryOptions = bitmapFactoryOptions;
+        this.mOutputStream = outputStream;
+        this.mExtendedUrl = extendedUrl;
+        this.mExtendedBufferReader = extendedBufferReader;
     }
 
     @Override

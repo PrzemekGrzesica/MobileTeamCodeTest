@@ -1,13 +1,17 @@
 package com.grzesica.przemek.artistlist.Service;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
+import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
 import com.grzesica.przemek.artistlist.Model.DataFetcher;
+import com.grzesica.przemek.artistlist.Model.IDataFetcher;
+
+import javax.inject.Inject;
 
 /**
  * Created by przemek on 05.03.18.
@@ -15,12 +19,14 @@ import com.grzesica.przemek.artistlist.Model.DataFetcher;
 
 public class DataFetchingService extends IntentService {
 
-    private Context mContext;
-    private Handler mHandler;
+    @Inject IDataFetcher mDataFetcher;
+    @Inject IExtendedHandler mExtendedHandler;
     public static final String STR_MESSAGE = "message";
 
+    @Inject
     public DataFetchingService() {
         super("Data fetching service");
+        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     @Override
@@ -30,7 +36,6 @@ public class DataFetchingService extends IntentService {
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
-        mHandler = new Handler();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -38,19 +43,12 @@ public class DataFetchingService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         String text = intent.getStringExtra(STR_MESSAGE);
         showText(text);
-        DataFetcher dataFetcher = new DataFetcher();
-//        DataFetcher dataFetcher = depInjBuilder
-//                .httpHandlerDIBuilder()
-//                .dataBaseAdapter()
-//                .handler(mContext)
-//                .threadPoolExecutor()
-//                .jsonObjectExtended()
-//                .build(mContext);
+        DataFetcher dataFetcher = (DataFetcher) mDataFetcher;
         dataFetcher.getData();
     }
 
     private void showText(final String text) {
-        mHandler.post(new Runnable() {
+        ((Handler)mExtendedHandler).post(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();

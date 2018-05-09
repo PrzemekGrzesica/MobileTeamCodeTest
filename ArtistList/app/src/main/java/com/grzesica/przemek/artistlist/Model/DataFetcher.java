@@ -1,10 +1,11 @@
 package com.grzesica.przemek.artistlist.Model;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.ArtistListApplication;
+import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
 import com.grzesica.przemek.artistlist.Container.IJsonObjectExtended;
 import com.grzesica.przemek.artistlist.Viewer.ArtistListActivity;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import static android.content.ContentValues.TAG;
 
@@ -26,17 +28,14 @@ import static android.content.ContentValues.TAG;
 
 public class DataFetcher implements IDataFetcher {
 
-    @Inject
-    AbstractExecutorService mThreadPoolExecutor;
-    @Inject
-    Context mContext;
-    @Inject
-    IDataBaseManager mDataBaseManager;
-    @Inject
-    IHttpHandler mHttpHandler;
-    @Inject
-    IJsonObjectExtended mJsonObjectExtended;
-//    private final Handler mHandler;
+    private AbstractExecutorService mThreadPoolExecutor;
+    private Context mContext;
+    private IDataBaseManager mDataBaseManager;
+    private IExtendedHandler mExtendedHandler;
+    private IHttpHandler mHttpHandler;
+    private IJsonObjectExtended mJsonObjectExtended;
+    private Runnable mArtistFetching;
+    private Runnable mAlbumsFetching;
 
     // Gets the number of available cores
     private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
@@ -47,16 +46,23 @@ public class DataFetcher implements IDataFetcher {
 
     public static final String JSON_URL = "https://drive.google.com/file/d/11LW8Xv1UQQgrbwU0Cj5LaEtubUYvj5EE/view?usp=sharing";//"http://i.img.co/data/data.json";
 
-
-    public DataFetcher(){
-        ArtistListApplication.getApplicationComponent().inject(this);
+    @Inject
+    public DataFetcher(AbstractExecutorService threadPoolExecutor, Context context, IDataBaseManager dataBaseManager,
+                       IHttpHandler httpHandler, IJsonObjectExtended jsonObjectExtended, IExtendedHandler extendedHandler,
+                       @Named("ArtistFetching") Runnable artistFetching, @Named("AlbumsFetching") Runnable albumsFetching){
+        this.mThreadPoolExecutor = threadPoolExecutor;
+        this.mContext = context;
+        this.mDataBaseManager = dataBaseManager;
+        this.mHttpHandler = httpHandler;
+        this.mJsonObjectExtended = jsonObjectExtended;
+        this.mExtendedHandler = extendedHandler;
+        this.mArtistFetching = artistFetching;
+        this.mAlbumsFetching = albumsFetching;
     }
 
     @Override
     public void getData(){
 
-//        mHandler = new Handler(mContext.getMainLooper());
-//        mContext = getA
         DataBaseManager dataBaseManager = (DataBaseManager) mDataBaseManager;
 
         HttpHandler httpHandler = (HttpHandler) mHttpHandler;
@@ -76,16 +82,16 @@ public class DataFetcher implements IDataFetcher {
                 // Looping through All Artist
                 for (int i = 0; i < artistJsonArray.length(); i++) {
                     JSONObject artistJsonObj = artistJsonArray.getJSONObject(i);
-                    Runnable artistFetchingRunnable = new ArtistFetchingRunnable(artistJsonObj, dataBaseManager);
-                    ((ThreadPoolExecutor) mThreadPoolExecutor).execute(artistFetchingRunnable);
+//                    Runnable artistFetchingRunnable = new ArtistFetchingRunnable(artistJsonObj, dataBaseManager);
+                    ((ThreadPoolExecutor) mThreadPoolExecutor).execute(mArtistFetching);
                 }
                 // Getting JSON Array node
                 JSONArray albumJsonArray = jsonObj.getJSONArray("albums");
                 // Looping through all Albums
                 for (int i = 0; i < albumJsonArray.length(); i++) {
                     JSONObject albumJsonObj = albumJsonArray.getJSONObject(i);
-                    Runnable albumFetchingRunnable = new AlbumFetchingRunnable(albumJsonObj, dataBaseManager);
-                    ((ThreadPoolExecutor) mThreadPoolExecutor).execute(albumFetchingRunnable);
+//                    Runnable albumFetchingRunnable = new AlbumFetchingRunnable(albumJsonObj, dataBaseManager);
+                    ((ThreadPoolExecutor) mThreadPoolExecutor).execute(mAlbumsFetching);
                 }
 //              Line commented on purpose, please don't hesitate to ask.
 //              Todo uncomment line below.
@@ -115,84 +121,87 @@ public class DataFetcher implements IDataFetcher {
     }
 
     private void runOnUiThread(Runnable r) {
-//        mHandler.post(r);
+        ((Handler)mExtendedHandler).post(r);
     }
 
-    private class ArtistFetchingRunnable implements Runnable {
-
-        private JSONObject mArtistJsonObj;
-        private IDataBaseManager mDataBaseMenager;
-
-        private ArtistFetchingRunnable(JSONObject artistJsonObj, IDataBaseManager dataBaseManager){
-            this.mArtistJsonObj = artistJsonObj;
-            this.mDataBaseMenager = dataBaseManager;
-        }
-
-        @Override
-        public void run() {
-            try {
-                IHttpHandler httpHandler = mHttpHandler;
-                String artistId = mArtistJsonObj.getString("id");
-                String genres = mArtistJsonObj.getString("genres");
-                String artistPictureUrl = mArtistJsonObj.getString("picture");
-                byte[] artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
-                int i = 0;
-                while (artistPicture == null && i < 6){
-                    artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
-                    i++;
-                }
-                String name = mArtistJsonObj.getString("name");
-                String description = mArtistJsonObj.getString("description");
-                ((DataBaseManager) mDataBaseMenager).putArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
-                long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
-                long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
-                if (taskCount > completedTaskCount + 1){
-                    ArtistListActivity.serviceFlag = true;
-                }else{
-                    ArtistListActivity.serviceFlag = false;
-                }
-            }catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private class AlbumFetchingRunnable implements Runnable {
-
-        private JSONObject mAlbumJsonObj;
-        private IDataBaseManager mDataBaseManager;
-
-        private AlbumFetchingRunnable(JSONObject albumJsonObj, IDataBaseManager dataBaseManager){
-            this.mAlbumJsonObj = albumJsonObj;
-            this.mDataBaseManager = dataBaseManager;
-        }
-
-        @Override
-        public void run() {
-            try {
-                IHttpHandler httpHandler = mHttpHandler;
-                String albumId = mAlbumJsonObj.getString("id");
-                String artistId = mAlbumJsonObj.getString("artistId");
-                String title = mAlbumJsonObj.getString("title");
-                String type = mAlbumJsonObj.getString("type");
-                String albumPictureUrl = mAlbumJsonObj.getString("picture");
-                byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
-                int i = 0;
-                while (albumPicture==null && i < 6){
-                    albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
-                    i++;
-                }
-                ((DataBaseManager)mDataBaseManager).putAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
-                long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
-                long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
-                if (taskCount > completedTaskCount + 1){
-                    ArtistListActivity.serviceFlag = true;
-                }else{
-                    ArtistListActivity.serviceFlag = false;
-                }
-            }catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private class ArtistFetchingRunnable implements Runnable {
+//
+//        private IJsonObjectExtended mArtistJsonObj;
+//        private IDataBaseManager mDataBaseManager;
+//
+//        @Inject
+//        private ArtistFetchingRunnable(IJsonObjectExtended artistJsonObj, IDataBaseManager dataBaseManager){
+//            this.mArtistJsonObj = artistJsonObj;
+//            this.mDataBaseManager = dataBaseManager;
+//        }
+//
+//        @Override
+//        public void run() {
+//            try {
+//                HttpHandler httpHandler = (HttpHandler) mHttpHandler;
+//                JSONObject jsonObject = (JSONObject)mArtistJsonObj;
+//                String artistId = jsonObject.getString("id");
+//                String genres = jsonObject.getString("genres");
+//                String artistPictureUrl = jsonObject.getString("picture");
+//                byte[] artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
+//                int i = 0;
+//                while (artistPicture == null && i < 6){
+//                    artistPicture = httpHandler.getBlob(httpHandler.downloadImage(artistPictureUrl));
+//                    i++;
+//                }
+//                String name = jsonObject.getString("name");
+//                String description = jsonObject.getString("description");
+//                ((DataBaseManager) mDataBaseManager).putArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
+//                long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
+//                long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
+//                if (taskCount > completedTaskCount + 1){
+//                    ArtistListActivity.serviceFlag = true;
+//                }else{
+//                    ArtistListActivity.serviceFlag = false;
+//                }
+//            }catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
+//    private class AlbumFetchingRunnable implements Runnable {
+//
+//        private IJsonObjectExtended mAlbumJsonObj;
+//        private IDataBaseManager mDataBaseManager;
+//
+//        private AlbumFetchingRunnable(IJsonObjectExtended albumJsonObj, IDataBaseManager dataBaseManager){
+//            this.mAlbumJsonObj = albumJsonObj;
+//            this.mDataBaseManager = dataBaseManager;
+//        }
+//
+//        @Override
+//        public void run() {
+//            try {
+//                HttpHandler httpHandler = (HttpHandler) mHttpHandler;
+//                JSONObject jsonObject = (JSONObject) mAlbumJsonObj;
+//                String albumId = jsonObject.getString("id");
+//                String artistId = jsonObject.getString("artistId");
+//                String title = jsonObject.getString("title");
+//                String type = jsonObject.getString("type");
+//                String albumPictureUrl = jsonObject.getString("picture");
+//                byte[] albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
+//                int i = 0;
+//                while (albumPicture==null && i < 6){
+//                    albumPicture = httpHandler.getBlob(httpHandler.downloadImage(albumPictureUrl));
+//                    i++;
+//                }
+//                ((DataBaseManager)mDataBaseManager).putAlbumListRecords(artistId, albumId, title, type, albumPictureUrl, albumPicture);
+//                long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
+//                long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
+//                if (taskCount > completedTaskCount + 1){
+//                    ArtistListActivity.serviceFlag = true;
+//                }else{
+//                    ArtistListActivity.serviceFlag = false;
+//                }
+//            }catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 }

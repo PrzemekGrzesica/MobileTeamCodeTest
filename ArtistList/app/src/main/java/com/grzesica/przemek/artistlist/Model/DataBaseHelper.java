@@ -4,9 +4,7 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Parcelable;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -61,14 +59,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             + TABLE_MD5_KEYS + "(" + _id + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_MD5_KEYS
             + " TEXT" + ")";
 
-    private SQLiteDatabase mDataBase;
-    private Context mContext;
-    @Inject
-    Parcelable mContentValues;
-
     public DataBaseHelper(Context context, int dbVersion) {
         super(context, DATABASE_NAME, null, dbVersion);
-        this.mContext = context;
     }
 
     @Override

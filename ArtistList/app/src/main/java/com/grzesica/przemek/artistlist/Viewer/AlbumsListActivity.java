@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
-import com.grzesica.przemek.artistlist.ArtistListApplication;
+import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Model.DataBaseManager;
 import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
@@ -54,7 +54,6 @@ public class AlbumsListActivity extends AppCompatActivity {
         long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
 
         DataBaseManager dataBaseManager = (DataBaseManager) mDataBaseManager;
-        //Open existing database - VersionFlag = 0
         dataBaseManager.open();
 
         Cursor cursor = getArtistTable((int) artistDataId, dataBaseManager);
@@ -124,8 +123,8 @@ public class AlbumsListActivity extends AppCompatActivity {
         mLvAlbums.setAdapter(albumsListAdapter);
     }
 
-    private Cursor getAlbumTable(String position, IDataBaseManager dataBasedataBaseManager) {
-        Cursor cursor = ((DataBaseManager)dataBasedataBaseManager).getAlbumsListRecords(position);
+    private Cursor getAlbumTable(String position, IDataBaseManager dataBaseManager) {
+        Cursor cursor = ((DataBaseManager)dataBaseManager).getAlbumsListRecords(position);
         if (cursor != null) {
             startManagingCursor(cursor);
             cursor.moveToFirst();

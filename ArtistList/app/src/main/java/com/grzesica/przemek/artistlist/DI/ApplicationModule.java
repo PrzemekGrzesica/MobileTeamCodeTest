@@ -1,13 +1,18 @@
-package com.grzesica.przemek.artistlist.Module;
+package com.grzesica.przemek.artistlist.DI;
 
+import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.widget.CursorAdapter;
 
+import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
+import com.grzesica.przemek.artistlist.Adapter.CursorManager;
+import com.grzesica.przemek.artistlist.Adapter.ICursorManager;
 import com.grzesica.przemek.artistlist.Container.BitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.ExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.ExtendedURL;
@@ -16,16 +21,16 @@ import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
 import com.grzesica.przemek.artistlist.Container.IJsonObjectExtended;
 import com.grzesica.przemek.artistlist.Container.JsonObjectExtended;
+import com.grzesica.przemek.artistlist.Model.ArtistFetchingRunnable;
 import com.grzesica.przemek.artistlist.Model.DataBaseHelper;
-import com.grzesica.przemek.artistlist.Model.DataBaseManager;
-import com.grzesica.przemek.artistlist.Model.HttpHandler;
 import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
-import com.grzesica.przemek.artistlist.Model.IHttpHandler;
-import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
+import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 import com.grzesica.przemek.artistlist.Viewer.AlbumsListActivity;
+import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -44,26 +49,51 @@ import static com.grzesica.przemek.artistlist.Model.DataBaseHelper.DATABASE_NAME
 @Module
 public class ApplicationModule {
 
+
+
     @Provides
-    public IDataBaseManager provideDataBaseManager() {
-        return new DataBaseManager();
+    public CursorAdapter provideArtistListAdapter(Context context){
+        Cursor cursor = new CursorManager().getCursor();
+        if (cursor!=null) {
+            return new ArtistListAdapter(context, cursor);
+        }else{
+            return null;
+        }
     }
 
     @Provides
-    public AsyncTask provideUpdatesCheck(){
-        return new UpdatesCheck();
+    public ICursorManager provideCursorManager(){
+        return new CursorManager();
     }
 
     @Provides
-    @Named("intent")
-    public Parcelable provideIntent(Context context){
+    public IntentService provideDataFetchingService() {
+        return new DataFetchingService();
+    }
+
+    @Provides
+    @Named("albumsListActivity")
+    public Parcelable provideIntentAlbAct(Context context){
         return new Intent(context, AlbumsListActivity.class);
     }
+
+    @Provides
+    @Named("dataFetchingService")
+    public Parcelable provideIntentDFS(Context context){
+        return new Intent(context, DataFetchingService.class);
+    }
+
 
     @Provides
     @Named("contentValues")
     public Parcelable provideContentValues(){
         return new ContentValues();
+    }
+
+    @Provides
+    @Named("settingsActivity")
+    public Parcelable providesIntentSettingsActivity(Context context){
+        return new Intent(context, SettingsActivity.class);
     }
 
     @Provides
@@ -80,18 +110,20 @@ public class ApplicationModule {
     }
 
     @Provides
-    public IHttpHandler provideHttpHandler() {
-        return new HttpHandler();
-    }
-
-    @Provides
     public IJsonObjectExtended provideJsonObjectExtended() {
         return new JsonObjectExtended();
     }
 
     @Provides
+    @Named("stringBuilder")
     public Appendable provideStringBuilder(){
         return new StringBuilder();
+    }
+
+    @Provides
+    @Named("stringBuffer")
+    public Appendable provideStringBuffer(){
+        return new StringBuffer();
     }
 
     @Provides
@@ -113,4 +145,6 @@ public class ApplicationModule {
     public IExtendedBufferReader provideExtendedBufferReader(){
         return new ExtendedBufferReader();
     }
+
+
 }

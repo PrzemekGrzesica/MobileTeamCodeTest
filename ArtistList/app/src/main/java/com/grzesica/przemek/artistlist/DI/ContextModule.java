@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist.Module;
+package com.grzesica.przemek.artistlist.DI;
 
 import android.content.Context;
 
@@ -18,4 +18,6 @@ public class ContextModule {
     public Context provideContext(){
         return mContext;
     }
+
+
 }
