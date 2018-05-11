@@ -44,7 +44,7 @@ public class DataFetcher implements IDataFetcher {
     // Sets the Time Unit to Milliseconds
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.MILLISECONDS;
 
-    public static final String JSON_URL = "https://drive.google.com/file/d/11LW8Xv1UQQgrbwU0Cj5LaEtubUYvj5EE/view?usp=sharing";//"http://i.img.co/data/data.json";
+    public static final String JSON_URL = "https://drive.google.com/open?id=11LW8Xv1UQQgrbwU0Cj5LaEtubUYvj5EE";//"http://i.img.co/data/data.json";
 
     @Inject
     public DataFetcher(AbstractExecutorService threadPoolExecutor, Context context, IDataBaseManager dataBaseManager,
