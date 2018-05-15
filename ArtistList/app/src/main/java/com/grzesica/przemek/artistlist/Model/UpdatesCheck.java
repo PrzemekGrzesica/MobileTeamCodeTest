@@ -9,32 +9,37 @@ import android.os.Parcelable;
 import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
+import com.grzesica.przemek.artistlist.Viewer.GuiContainer;
+import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Created by przemek on 13.02.18.
  *
  */
-
+@Singleton
 public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
-    private IMD5checkSum mMD5checkSum;
     private Context mContext;
     private IDataBaseManager mDataBaseManager;
     private IExtendedHandler mExtendedHandler;
+    private IGuiContainer mGuiContainer;
     private IHttpHandler mHttpHandler;
+    private IMD5checkSum mMD5checkSum;
     private Parcelable mIntentSettingsActivity;
 
     @Inject
     public UpdatesCheck(IMD5checkSum md5checkSum, Context context, IDataBaseManager dataBaseManager,
                         IExtendedHandler extendedHandler,IHttpHandler httpHandler,
-                        @Named("settingsActivity") Parcelable intentSettingsActivity) {
+                        @Named("settingsActivity") Parcelable intentSettingsActivity, IGuiContainer guiContainer) {
         this.mMD5checkSum = md5checkSum;
         this.mContext = context;
         this.mDataBaseManager = dataBaseManager;
         this.mExtendedHandler = extendedHandler;
+        this.mGuiContainer = guiContainer;
         this.mHttpHandler = httpHandler;
         this.mIntentSettingsActivity = intentSettingsActivity;
     }
@@ -49,6 +54,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
                 mContext.startActivity(intent);
             } else {
                 Toast.makeText(mContext, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
+                ((GuiContainer)mGuiContainer).setServiceFlag(false);
             }
         }
     }
@@ -62,7 +68,7 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         HttpHandler httpHandler = (HttpHandler) mHttpHandler;
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
-        mDataBaseManager.open();
+        mDataBaseManager.openPresent();
         Cursor cursor = ((DataBaseManager) mDataBaseManager).getMd5KeyRecord();
         cursor.moveToFirst();
         try {

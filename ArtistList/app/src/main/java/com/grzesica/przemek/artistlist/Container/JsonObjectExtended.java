@@ -7,7 +7,7 @@ import org.json.JSONObject;
  * Created by przemek on 06.04.18.
  */
 
-public class JsonObjectExtended implements IJsonObjectExtended {
+public class JsonObjectExtended extends  JSONObject implements IJsonObjectExtended {
 
     @Override
     public JSONObject setJsonObject(String jsonString) {

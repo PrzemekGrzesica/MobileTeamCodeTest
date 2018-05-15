@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
  */
 
 public interface IDataBaseManager {
-    SQLiteDatabase open();
+    SQLiteDatabase openPresent();
+    void openNew();
     DataBaseManager close();
 }

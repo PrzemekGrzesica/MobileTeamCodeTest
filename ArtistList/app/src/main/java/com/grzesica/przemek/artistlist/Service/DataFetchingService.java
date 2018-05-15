@@ -12,16 +12,19 @@ import com.grzesica.przemek.artistlist.Model.DataFetcher;
 import com.grzesica.przemek.artistlist.Model.IDataFetcher;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
 /**
  * Created by przemek on 05.03.18.
  */
-
+//@Singleton
 public class DataFetchingService extends IntentService {
 
-    @Inject IDataFetcher mDataFetcher;
+    @Inject
+    Provider<IDataFetcher> mDataFetcher;
     @Inject IExtendedHandler mExtendedHandler;
-    public static final String STR_MESSAGE = "message";
+    public static String STR_MESSAGE = "message";
 
     @Inject
     public DataFetchingService() {
@@ -43,7 +46,7 @@ public class DataFetchingService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         String text = intent.getStringExtra(STR_MESSAGE);
         showText(text);
-        DataFetcher dataFetcher = (DataFetcher) mDataFetcher;
+        DataFetcher dataFetcher = (DataFetcher)mDataFetcher.get();
         dataFetcher.getData();
     }
 

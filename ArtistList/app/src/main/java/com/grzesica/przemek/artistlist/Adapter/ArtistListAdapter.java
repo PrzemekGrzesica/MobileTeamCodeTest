@@ -11,17 +11,19 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 public class ArtistListAdapter extends CursorAdapter{
 
 
-    public ArtistListAdapter(Context context, Cursor cursor){
+    @Inject
+    public ArtistListAdapter(Context context, @Named("ArtistListCursor") Cursor cursor){
         super(context, cursor, 0);
-        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     public void bindView(View view, Context context, Cursor cursor){

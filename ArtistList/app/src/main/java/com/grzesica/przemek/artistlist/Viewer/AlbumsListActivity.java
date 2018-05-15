@@ -10,23 +10,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.grzesica.przemek.artistlist.Adapter.AlbumsListAdapter;
+import com.grzesica.przemek.artistlist.Adapter.ICursorManager;
 import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Model.DataBaseManager;
-import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 
 import javax.inject.Inject;
-
-import static com.grzesica.przemek.artistlist.Viewer.ArtistListActivity.serviceFlag;
+import javax.inject.Named;
+import javax.inject.Provider;
 
 public class AlbumsListActivity extends AppCompatActivity {
 
@@ -38,9 +39,19 @@ public class AlbumsListActivity extends AppCompatActivity {
     private TextView mTvDescription;
     private ImageView mIvArtist;
     @Inject
-    IDataBaseManager mDataBaseManager;
+    Provider<AsyncTask> mUpdatesCheck;
     @Inject
-    AsyncTask mUpdatesCheck;
+    Provider<Closeable> mByteArrayInputStream;
+    @Inject
+    ICursorManager mCursorManager;
+    @Inject
+    Provider<IGuiContainer> mSingletonGuiCont;
+    @Inject
+    @Named("AlbumsAdapter")
+    Provider<CursorAdapter> mAlbumsListAdapter;
+    @Inject
+    IGuiContainer mGuiContainer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,23 +62,7 @@ public class AlbumsListActivity extends AppCompatActivity {
 
         ArtistListApplication.getApplicationComponent().inject(this);
 
-        long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
-
-        DataBaseManager dataBaseManager = (DataBaseManager) mDataBaseManager;
-        dataBaseManager.open();
-
-        Cursor cursor = getArtistTable((int) artistDataId, dataBaseManager);
-
-        String strName = cursor.getString(cursor.getColumnIndex("name"));
-        String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
-        String strDescription = cursor.getString(cursor.getColumnIndex("description"));
-        String strArtistId = cursor.getString(cursor.getColumnIndex("artistId"));
-        String artistDataArray[] = {strName, strGenres, strDescription};
-        byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex("artistPictureBlob"));
-
         initUiElements();
-        fillUiElements(artistDataArray, imageByteArray);
-        fillListView(strArtistId, dataBaseManager);
     }
 
     @Override
@@ -79,8 +74,9 @@ public class AlbumsListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
+        boolean serviceFlag = ((GuiContainer)mGuiContainer).getServiceFlag();
         if (serviceFlag == false) {
-            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck;
+            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck.get();
             updatesCheck.execute();
         }else{
             String text = "Database upgrade is undergoing...";
@@ -89,21 +85,28 @@ public class AlbumsListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private Cursor getArtistTable(int position, IDataBaseManager dataBaseManager) {
-        Cursor cursor = ((DataBaseManager)dataBaseManager).getArtistListRecords();
-        if (cursor != null) {
-            startManagingCursor(cursor);
-            cursor.moveToPosition(--position);
-        }
-        return cursor;
-    }
-
     private void initUiElements() {
         mLvAlbums = (ListView) findViewById(R.id.albumsListView);
         mTvName = (TextView) findViewById(R.id.tvAlbumListName);
         mTvGenres = (TextView) findViewById(R.id.tvAlbumListGenres);
         mTvDescription = (TextView) findViewById(R.id.tvAlbumListDescription);
         mIvArtist = (ImageView) findViewById(R.id.albumListArtistImageView);
+
+        long artistDataId = (long) getIntent().getExtras().get(STR_ARTIST_DATA_ID);
+
+        Cursor cursor = mCursorManager.getArtistListCursor((int) artistDataId);
+
+        String strName = cursor.getString(cursor.getColumnIndex("name"));
+        String strGenres = cursor.getString(cursor.getColumnIndex("genres"));
+        String strDescription = cursor.getString(cursor.getColumnIndex("description"));
+        String strArtistId = cursor.getString(cursor.getColumnIndex("artistId"));
+        String artistDataArray[] = {strName, strGenres, strDescription};
+        byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex("artistPictureBlob"));
+        GuiContainer singletonGuiCont = (GuiContainer)mSingletonGuiCont.get();
+        singletonGuiCont.setImageByteArray(imageByteArray);
+
+        fillUiElements(artistDataArray, imageByteArray);
+        fillListView(strArtistId);
     }
 
     private void fillUiElements(String[] artistData, byte[] imageByteArray){
@@ -111,24 +114,18 @@ public class AlbumsListActivity extends AppCompatActivity {
         mTvGenres.setText("Genres: " + artistData[1]);
         mTvDescription.setText(artistData[2]);
         if (imageByteArray!=null) {
-            ByteArrayInputStream imageStream = new ByteArrayInputStream(imageByteArray);
+            ByteArrayInputStream imageStream = (ByteArrayInputStream)mByteArrayInputStream.get();
             Bitmap artistImage = BitmapFactory.decodeStream(imageStream);
             mIvArtist.setImageBitmap(artistImage);
         }
     }
 
-    private void fillListView(String artistId, IDataBaseManager dataBaseManager) {
-        Cursor cursor = getAlbumTable(artistId, dataBaseManager);
-        AlbumsListAdapter albumsListAdapter = new AlbumsListAdapter(getApplicationContext(), cursor, 0);
-        mLvAlbums.setAdapter(albumsListAdapter);
+    private void fillListView(String artistId) {
+        mCursorManager.getAlbumsListCursor(artistId);
+        mLvAlbums.setAdapter(mAlbumsListAdapter.get());
     }
 
-    private Cursor getAlbumTable(String position, IDataBaseManager dataBaseManager) {
-        Cursor cursor = ((DataBaseManager)dataBaseManager).getAlbumsListRecords(position);
-        if (cursor != null) {
-            startManagingCursor(cursor);
-            cursor.moveToFirst();
-        }
-        return cursor;
+    public void onClickCancel(View view){
+        finish();
     }
 }

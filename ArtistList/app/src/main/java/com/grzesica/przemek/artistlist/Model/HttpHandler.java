@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.grzesica.przemek.artistlist.Container.BitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.IBitmapFactoryOptions;
 import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
 import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
@@ -32,7 +33,6 @@ public class HttpHandler implements IHttpHandler {
     private OutputStream mOutputStream;
     private IExtendedUrl mExtendedUrl;
     private IExtendedBufferReader mExtendedBufferReader;
-    private HttpURLConnection mHttpConnection;
 
     @Inject
     public HttpHandler(@Named("stringBuilder") Appendable strBuilder, IBitmapFactoryOptions bitmapFactoryOptions, OutputStream outputStream,
@@ -84,12 +84,12 @@ public class HttpHandler implements IHttpHandler {
     public InputStream getInputStream(String strUrl) throws IOException {
         InputStream stream = null;
         try {
-            mHttpConnection = getHttpUrlConn(strUrl);
+            HttpURLConnection httpURLConnection = getHttpUrlConn(strUrl);
             //Checking and solving redirection.
-            if (mHttpConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                stream = mHttpConnection.getInputStream();
-            } else if (mHttpConnection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM) {
-                String newUrl = mHttpConnection.getHeaderField("Location");
+            if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                stream = httpURLConnection.getInputStream();
+            } else if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM) {
+                String newUrl = httpURLConnection.getHeaderField("Location");
                 stream = getHttpUrlConn(newUrl).getInputStream();
             }
         } catch (Exception ex) {
@@ -110,7 +110,8 @@ public class HttpHandler implements IHttpHandler {
     public Bitmap downloadImage(String url) {
         Bitmap bitmap = null;
         InputStream stream;
-        BitmapFactory.Options bitmapOptions = (BitmapFactory.Options)mBitmapFactoryOptions;
+        BitmapFactoryOptions bitmapFactoryOptions = (BitmapFactoryOptions)mBitmapFactoryOptions;
+        BitmapFactory.Options bitmapOptions = bitmapFactoryOptions.setBitmapFactoryOptions();
         bitmapOptions.inSampleSize = 1;
 
         try {
@@ -126,7 +127,7 @@ public class HttpHandler implements IHttpHandler {
     public byte[] getBlob(Bitmap bitmap) {
         ((ByteArrayOutputStream)mOutputStream).reset();
         if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, mOutputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 10, mOutputStream);
             return ((ByteArrayOutputStream) mOutputStream).toByteArray();
         }
         return null;

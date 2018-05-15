@@ -4,33 +4,16 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Parcelable;
-import android.widget.CursorAdapter;
 
-import com.grzesica.przemek.artistlist.Adapter.ArtistListAdapter;
-import com.grzesica.przemek.artistlist.Adapter.CursorManager;
-import com.grzesica.przemek.artistlist.Adapter.ICursorManager;
-import com.grzesica.przemek.artistlist.Container.BitmapFactoryOptions;
-import com.grzesica.przemek.artistlist.Container.ExtendedBufferReader;
-import com.grzesica.przemek.artistlist.Container.ExtendedURL;
-import com.grzesica.przemek.artistlist.Container.IBitmapFactoryOptions;
-import com.grzesica.przemek.artistlist.Container.IExtendedBufferReader;
-import com.grzesica.przemek.artistlist.Container.IExtendedUrl;
-import com.grzesica.przemek.artistlist.Container.IJsonObjectExtended;
-import com.grzesica.przemek.artistlist.Container.JsonObjectExtended;
-import com.grzesica.przemek.artistlist.Model.ArtistFetchingRunnable;
-import com.grzesica.przemek.artistlist.Model.DataBaseHelper;
-import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 import com.grzesica.przemek.artistlist.Viewer.AlbumsListActivity;
+import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 import com.grzesica.przemek.artistlist.Viewer.SettingsActivity;
+import com.grzesica.przemek.artistlist.Viewer.GuiContainer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
+import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -41,8 +24,6 @@ import javax.inject.Named;
 import dagger.Module;
 import dagger.Provides;
 
-import static com.grzesica.przemek.artistlist.Model.DataBaseHelper.DATABASE_NAME;
-
 /**
  * Created by przemek on 28.04.18.
  */
@@ -50,20 +31,10 @@ import static com.grzesica.przemek.artistlist.Model.DataBaseHelper.DATABASE_NAME
 public class ApplicationModule {
 
 
-
     @Provides
-    public CursorAdapter provideArtistListAdapter(Context context){
-        Cursor cursor = new CursorManager().getCursor();
-        if (cursor!=null) {
-            return new ArtistListAdapter(context, cursor);
-        }else{
-            return null;
-        }
-    }
-
-    @Provides
-    public ICursorManager provideCursorManager(){
-        return new CursorManager();
+    public Closeable provideByteArrayInputStream(IGuiContainer singletonGuiCont){
+        GuiContainer sgc = (GuiContainer)singletonGuiCont;
+        return new ByteArrayInputStream(sgc.getImageByteArray());
     }
 
     @Provides
@@ -85,8 +56,20 @@ public class ApplicationModule {
 
 
     @Provides
-    @Named("contentValues")
-    public Parcelable provideContentValues(){
+    @Named("ArtistContentValues")
+    public Parcelable provideArtistContentValues(){
+        return new ContentValues();
+    }
+
+    @Provides
+    @Named("AlbumsContentValues")
+    public Parcelable provideAlbumsContentValues(){
+        return new ContentValues();
+    }
+
+    @Provides
+    @Named("MD5ContentValues")
+    public Parcelable provideMD5ContentValues(){
         return new ContentValues();
     }
 
@@ -96,12 +79,7 @@ public class ApplicationModule {
         return new Intent(context, SettingsActivity.class);
     }
 
-    @Provides
-    public SQLiteOpenHelper provideDataBaseHelper(Context context) {
-        String strDbPath = context.getDatabasePath(DATABASE_NAME).toString();
-        int dbVersion  = SQLiteDatabase.openDatabase(strDbPath, null, 0).getVersion();
-        return new DataBaseHelper(context, dbVersion);
-    }
+
 
     @Provides
     public AbstractExecutorService provideThreadPoolExecutor() {
@@ -109,42 +87,11 @@ public class ApplicationModule {
                 TimeUnit.MILLISECONDS, new LinkedBlockingDeque<Runnable>());
     }
 
-    @Provides
-    public IJsonObjectExtended provideJsonObjectExtended() {
-        return new JsonObjectExtended();
-    }
 
-    @Provides
-    @Named("stringBuilder")
-    public Appendable provideStringBuilder(){
-        return new StringBuilder();
-    }
 
-    @Provides
-    @Named("stringBuffer")
-    public Appendable provideStringBuffer(){
-        return new StringBuffer();
-    }
 
-    @Provides
-    public OutputStream provideOutputStream(){
-        return new ByteArrayOutputStream();
-    }
 
-    @Provides
-    public IExtendedUrl provideExtendedUrl(){
-        return new ExtendedURL();
-    }
 
-    @Provides
-    public IBitmapFactoryOptions provideBitmapFactoryOptions(){
-        return new BitmapFactoryOptions();
-    }
-
-    @Provides
-    public IExtendedBufferReader provideExtendedBufferReader(){
-        return new ExtendedBufferReader();
-    }
 
 
 }

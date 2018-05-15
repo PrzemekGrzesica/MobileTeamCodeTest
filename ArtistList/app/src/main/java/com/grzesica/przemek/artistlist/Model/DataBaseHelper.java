@@ -5,6 +5,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -14,7 +15,7 @@ import javax.inject.Singleton;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     // Database Name
-    public static final String DATABASE_NAME = "artistDb.db";
+    public static final String DATABASE_NAME = "presentDb.db";
 
     // Table Names
     static final String TABLE_ARTIST_LIST = "artist";
@@ -59,8 +60,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             + TABLE_MD5_KEYS + "(" + _id + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_MD5_KEYS
             + " TEXT" + ")";
 
-    public DataBaseHelper(Context context, int dbVersion) {
-        super(context, DATABASE_NAME, null, dbVersion);
+    @Inject
+    public DataBaseHelper(Context context, String databaseName, int dbVersion) {
+        super(context, databaseName, null, dbVersion);
     }
 
     @Override
@@ -72,6 +74,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             dataBase.execSQL(CREATE_TABLE_MD5_KEYS);
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
         }
     }
 

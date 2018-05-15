@@ -19,6 +19,8 @@ public class SettingsActivity extends AppCompatActivity {
     @Inject
     @Named("dataFetchingService")
     Parcelable mIntent;
+    @Inject
+    IGuiContainer mGuiContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +33,14 @@ public class SettingsActivity extends AppCompatActivity {
     public void onClickUpdate(View view){
         Context context = this.getApplicationContext();
         Intent intent = (Intent)mIntent;
-        intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for database refreshing...");
+        intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait FOR database refreshing...");
+        ((GuiContainer)mGuiContainer).setServiceFlag(true);
         context.startService(intent);
-        ArtistListActivity.serviceFlag = true;
         finish();
     }
 
     public void onClickCancel(View view){
+        ((GuiContainer)mGuiContainer).setServiceFlag(false);
         finish();
     }
 

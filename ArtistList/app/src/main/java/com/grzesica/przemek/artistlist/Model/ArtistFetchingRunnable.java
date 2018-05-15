@@ -1,7 +1,8 @@
 package com.grzesica.przemek.artistlist.Model;
 
-import com.grzesica.przemek.artistlist.Container.IJsonObjectExtended;
-import com.grzesica.przemek.artistlist.Viewer.ArtistListActivity;
+import com.grzesica.przemek.artistlist.Container.JsonObjectExtended;
+import com.grzesica.przemek.artistlist.Viewer.GuiContainer;
+import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,25 +14,27 @@ import javax.inject.Inject;
 
 public class ArtistFetchingRunnable implements Runnable {
 
-    private IJsonObjectExtended mArtistJsonObj;
-    private IDataBaseManager mDataBaseManager;
-    private IHttpHandler mHttpHandler;
-    private AbstractExecutorService mThreadPoolExecutor;
+    private JSONObject mArtistJsonObj;
+    private DataBaseManager mDataBaseManager;
+    private GuiContainer mGuiContainer;
+    private HttpHandler mHttpHandler;
+    private ThreadPoolExecutor mThreadPoolExecutor;
 
     @Inject
-    public ArtistFetchingRunnable(IJsonObjectExtended artistJsonObj, IDataBaseManager dataBaseManager,
-                                  IHttpHandler httpHandler, AbstractExecutorService threadPoolExecutor){
-        this.mArtistJsonObj = artistJsonObj;
-        this.mDataBaseManager = dataBaseManager;
-        this.mHttpHandler = httpHandler;
-        this.mThreadPoolExecutor = threadPoolExecutor;
+    public ArtistFetchingRunnable(IDataBaseManager dataBaseManager, JsonObjectExtended artistJsonObj,
+                                  IHttpHandler httpHandler, AbstractExecutorService threadPoolExecutor, IGuiContainer guiContainer){
+        this.mDataBaseManager = (DataBaseManager) dataBaseManager;
+        this.mHttpHandler = (HttpHandler) httpHandler;
+        this.mGuiContainer = (GuiContainer) guiContainer;
+        this.mThreadPoolExecutor = (ThreadPoolExecutor) threadPoolExecutor;
+        this.mArtistJsonObj = (JsonObjectExtended) artistJsonObj;
     }
 
     @Override
     public void run() {
         try {
-            HttpHandler httpHandler = (HttpHandler) mHttpHandler;
-            JSONObject jsonObject = (JSONObject)mArtistJsonObj;
+            HttpHandler httpHandler = mHttpHandler;
+            JSONObject jsonObject = mArtistJsonObj;
             String artistId = jsonObject.getString("id");
             String genres = jsonObject.getString("genres");
             String artistPictureUrl = jsonObject.getString("picture");
@@ -43,16 +46,20 @@ public class ArtistFetchingRunnable implements Runnable {
             }
             String name = jsonObject.getString("name");
             String description = jsonObject.getString("description");
-            ((DataBaseManager) mDataBaseManager).putArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
-            long taskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getTaskCount();
-            long completedTaskCount = ((ThreadPoolExecutor) mThreadPoolExecutor).getCompletedTaskCount();
+            mDataBaseManager.putArtistListRecords(artistId, genres, artistPictureUrl, artistPicture, name, description);
+            long taskCount = mThreadPoolExecutor.getTaskCount();
+            long completedTaskCount = mThreadPoolExecutor.getCompletedTaskCount();
             if (taskCount > completedTaskCount + 1){
-                ArtistListActivity.serviceFlag = true;
+                mGuiContainer.setServiceFlag(true);
             }else{
-                ArtistListActivity.serviceFlag = false;
+                mGuiContainer.setServiceFlag(false);
             }
         }catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setArtistJsonObj(JSONObject artistJsonObj){
+        this.mArtistJsonObj = artistJsonObj;
     }
 }

@@ -20,32 +20,31 @@ import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Adapter.ICursorManager;
 import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
-import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 
 public class ArtistListActivity extends AppCompatActivity {
 
-    public static boolean serviceFlag = false;
-    public static boolean activityServiceFlag = false;
     @Inject
-    AsyncTask mUpdatesCheck;
-    @Inject
-    IDataBaseManager mDataBaseManager;
+    Provider<AsyncTask> mUpdatesCheck;
     @Inject
     @Named("albumsListActivity")
     Parcelable mIntentAlbumsListActivity;
     @Inject
     @Named("dataFetchingService")
-    Parcelable mIntentDataFetchingService;
+    Provider<Parcelable> mIntentDataFetchingService;
     @Inject
     ICursorManager mCursorManager;
     @Inject
-    CursorAdapter mArtistListAdapter;
+    @Named("ArtistAdapter")
+    Provider<CursorAdapter> mArtistListAdapter;
+    @Inject
+    IGuiContainer mGuiContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +52,9 @@ public class ArtistListActivity extends AppCompatActivity {
         setContentView(R.layout.artist_list_activity);
 
         ArtistListApplication.getApplicationComponent().inject(this);
+
+        boolean serviceFlag = ((GuiContainer)mGuiContainer).getServiceFlag();
+        boolean activityServiceFlag = ((GuiContainer)mGuiContainer).getActivityServiceFlag();
 
         if (serviceFlag || activityServiceFlag){
             initUiElements();
@@ -80,6 +82,8 @@ public class ArtistListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        boolean serviceFlag = ((GuiContainer)mGuiContainer).getServiceFlag();
+        boolean activityServiceFlag = ((GuiContainer)mGuiContainer).getActivityServiceFlag();
         if (serviceFlag || activityServiceFlag){
             initUiElements();
         }
@@ -94,8 +98,10 @@ public class ArtistListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
+        boolean serviceFlag = ((GuiContainer)mGuiContainer).getServiceFlag();
         if (serviceFlag == false) {
-            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck;
+            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck.get();
+            ((GuiContainer)mGuiContainer).setServiceFlag(true);
             updatesCheck.execute();
         }else{
             String text = "Database upgrade is undergoing...";
@@ -111,13 +117,15 @@ public class ArtistListActivity extends AppCompatActivity {
     }
 
     private void fillListView(ListView artistListView) {
-        Cursor cursor = mCursorManager.getCursor();
+        int cursorPosition = 0;
+        Cursor cursor = mCursorManager.getArtistListCursor(cursorPosition);
+        artistListView.setAdapter(mArtistListAdapter.get());
         if(cursor==null) {
-            Intent intent = (Intent) mIntentDataFetchingService;
+            Intent intent = (Intent) mIntentDataFetchingService.get();
             intent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for data fetching ...");
             getApplicationContext().startService(intent);
         }else {
-            artistListView.setAdapter(mArtistListAdapter);
+            artistListView.setAdapter(mArtistListAdapter.get());
         }
     }
 
@@ -130,11 +138,17 @@ public class ArtistListActivity extends AppCompatActivity {
                                             long id) {
                         Intent intent = (Intent)mIntentAlbumsListActivity;
                         intent.putExtra(AlbumsListActivity.STR_ARTIST_DATA_ID, id);
+
+                        boolean serviceFlag = ((GuiContainer)mGuiContainer).getServiceFlag();
+                        boolean activityServiceFlag;
+
                         if (serviceFlag == true){
                             activityServiceFlag = true;
                         }else{
                             activityServiceFlag = false;
                         }
+                        ((GuiContainer)mGuiContainer).setActivityServiceFlag(activityServiceFlag);
+
                         startActivity(intent);
                     }
                 };

@@ -11,10 +11,12 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.R;
 
 import java.io.ByteArrayInputStream;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * Created by przemek on 02.02.18.
@@ -22,10 +24,9 @@ import java.io.ByteArrayInputStream;
 
 public class AlbumsListAdapter extends CursorAdapter {
 
-
-    public AlbumsListAdapter(Context context, Cursor cursor, int flag){
+    @Inject
+    public AlbumsListAdapter(Context context,  @Named("AlbumsListCursor") Cursor cursor){
         super(context, cursor, 0);
-        ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     public void bindView(View view, Context context, Cursor cursor){
