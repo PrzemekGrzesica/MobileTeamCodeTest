@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Parcelable;
 
-import com.grzesica.przemek.artistlist.Model.DataBaseHelper;
 import com.grzesica.przemek.artistlist.Model.DataBaseManager;
 import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Service.DataFetchingService;
@@ -15,7 +14,10 @@ import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class CursorManager implements ICursorManager{
+import static com.grzesica.przemek.artistlist.Model.DataBaseHelper.TABLE_ALBUM_LIST;
+import static com.grzesica.przemek.artistlist.Model.DataBaseHelper.TABLE_ARTIST_LIST;
+
+public class CursorManager implements ICursorManager {
 
     private Context mContext;
     private DataBaseManager mDataBaseManager;
@@ -25,7 +27,9 @@ public class CursorManager implements ICursorManager{
     private String mArtistId;
 
     @Inject
-    public CursorManager(IDataBaseManager dataBaseManager, Context context, @Named("dataFetchingService") Parcelable intent, IGuiContainer guiContainer){
+    public CursorManager(IDataBaseManager dataBaseManager, Context context,
+                         @Named("dataFetchingService") Parcelable intent,
+                         IGuiContainer guiContainer) {
         this.mDataBaseManager = (DataBaseManager) dataBaseManager;
         this.mGuiContainer = (GuiContainer) guiContainer;
         this.mContext = context;
@@ -33,47 +37,53 @@ public class CursorManager implements ICursorManager{
     }
 
     @Override
-    public Cursor getArtistListCursor(int cursorPosition){
+    public Cursor getArtistListCursor(int cursorPosition) {
         setCursorPosition(cursorPosition);
         mDataBaseManager.openPresent();
-        if (mDataBaseManager==null){
-            Intent intent = mIntent;
-            mIntent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for? database refreshing...");
-            mGuiContainer.setServiceFlag(true);
-            mContext.startService(intent);
-        }
         try {
-            Cursor cursor = mDataBaseManager.getArtistListRecords();
+            Cursor cursor = mDataBaseManager.getArtistListRecords(TABLE_ARTIST_LIST);
             cursor.moveToPosition(--cursorPosition);
             return cursor;
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
+        } finally {
+            getDataFetchingServiceIntent();
         }
     }
 
     @Override
     public Cursor getAlbumsListCursor(String artistId) {
         setArtistId(artistId);
-        DataBaseManager dataBaseManager = mDataBaseManager;
-        dataBaseManager.openPresent();
+        mDataBaseManager.openPresent();
         try {
-            Cursor cursor = dataBaseManager.getAlbumsListRecords(artistId);
+            Cursor cursor = mDataBaseManager.getAlbumsListRecords(TABLE_ALBUM_LIST, artistId);
             cursor.moveToFirst();
             return cursor;
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
+        } finally {
+            getDataFetchingServiceIntent();
         }
     }
 
-    public void setCursorPosition(int cursorPosition){
+    private void getDataFetchingServiceIntent() {
+        if (mDataBaseManager.isEmptyDatabase() && !mGuiContainer.getFetchingServiceFlag()) {
+            mIntent.putExtra(DataFetchingService.STR_MESSAGE, "Please, wait for data download...");
+            mGuiContainer.setAlbumsFetchingServiceFlag(true);
+            mGuiContainer.setArtistFetchingServiceFlag(true);
+            mContext.startService(mIntent);
+        }
+    }
+
+    public void setCursorPosition(int cursorPosition) {
         this.mCursorPosition = cursorPosition;
     }
 
-    public int getCursorPosition(){
+    public int getCursorPosition() {
         return mCursorPosition;
     }
 
-    public void setArtistId(String artistId){
+    public void setArtistId(String artistId) {
         this.mArtistId = artistId;
     }
 

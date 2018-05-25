@@ -19,10 +19,14 @@ import dagger.Provides;
 
 @Module
 public class HttpHandlerModule {
+
     @Provides
-    public IHttpHandler provideHttpHandler(@Named("stringBuilder")Appendable strBuilder, IBitmapFactoryOptions bitmapFactoryOptions, OutputStream outputStream,
-                                           IExtendedUrl extendedUrl, IExtendedBufferReader extendedBufferReader) {
-        return new HttpHandler(strBuilder, bitmapFactoryOptions, outputStream, extendedUrl, extendedBufferReader);
+    public IHttpHandler provideHttpHandler(@Named("stringBuilder")Appendable strBuilder,
+                                           IBitmapFactoryOptions bitmapFactoryOptions,
+                                           OutputStream outputStream, IExtendedUrl extendedUrl,
+                                           IExtendedBufferReader extendedBufferReader) {
+        return new HttpHandler(strBuilder, bitmapFactoryOptions, outputStream, extendedUrl,
+                               extendedBufferReader);
     }
 
     @Provides

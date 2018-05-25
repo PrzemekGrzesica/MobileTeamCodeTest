@@ -1,4 +1,4 @@
-package com.grzesica.przemek.artistlist.Viewer;
+package com.grzesica.przemek.artistlist.Viewer.AlbumsList;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -21,6 +21,8 @@ import com.grzesica.przemek.artistlist.Adapter.ICursorManager;
 import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Model.UpdatesCheck;
 import com.grzesica.przemek.artistlist.R;
+import com.grzesica.przemek.artistlist.Viewer.GuiContainer;
+import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -74,11 +76,11 @@ public class AlbumsListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Context context = getApplicationContext();
-        boolean serviceFlag = ((GuiContainer)mGuiContainer).getServiceFlag();
+        boolean serviceFlag = ((GuiContainer) mGuiContainer).getFetchingServiceFlag();
         if (serviceFlag == false) {
-            UpdatesCheck updatesCheck = (UpdatesCheck)mUpdatesCheck.get();
+            UpdatesCheck updatesCheck = (UpdatesCheck) mUpdatesCheck.get();
             updatesCheck.execute();
-        }else{
+        } else {
             String text = "Database upgrade is undergoing...";
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
         }
@@ -102,19 +104,19 @@ public class AlbumsListActivity extends AppCompatActivity {
         String strArtistId = cursor.getString(cursor.getColumnIndex("artistId"));
         String artistDataArray[] = {strName, strGenres, strDescription};
         byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex("artistPictureBlob"));
-        GuiContainer singletonGuiCont = (GuiContainer)mSingletonGuiCont.get();
+        GuiContainer singletonGuiCont = (GuiContainer) mSingletonGuiCont.get();
         singletonGuiCont.setImageByteArray(imageByteArray);
 
         fillUiElements(artistDataArray, imageByteArray);
         fillListView(strArtistId);
     }
 
-    private void fillUiElements(String[] artistData, byte[] imageByteArray){
+    private void fillUiElements(String[] artistData, byte[] imageByteArray) {
         mTvName.setText("Names: " + artistData[0]);
         mTvGenres.setText("Genres: " + artistData[1]);
         mTvDescription.setText(artistData[2]);
-        if (imageByteArray!=null) {
-            ByteArrayInputStream imageStream = (ByteArrayInputStream)mByteArrayInputStream.get();
+        if (imageByteArray != null) {
+            ByteArrayInputStream imageStream = (ByteArrayInputStream) mByteArrayInputStream.get();
             Bitmap artistImage = BitmapFactory.decodeStream(imageStream);
             mIvArtist.setImageBitmap(artistImage);
         }
@@ -125,7 +127,7 @@ public class AlbumsListActivity extends AppCompatActivity {
         mLvAlbums.setAdapter(mAlbumsListAdapter.get());
     }
 
-    public void onClickCancel(View view){
+    public void onClickCancel(View view) {
         finish();
     }
 }

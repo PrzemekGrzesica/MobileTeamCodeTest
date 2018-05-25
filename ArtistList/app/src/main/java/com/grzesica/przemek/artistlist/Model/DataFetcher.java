@@ -1,15 +1,16 @@
 package com.grzesica.przemek.artistlist.Model;
 
-import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
 import com.grzesica.przemek.artistlist.Container.ExtendedHandler;
 import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
 import com.grzesica.przemek.artistlist.Container.IJsonObjectExtended;
 import com.grzesica.przemek.artistlist.Container.JsonObjectExtended;
+import com.grzesica.przemek.artistlist.Model.Utilities.IToastRunnable;
+import com.grzesica.przemek.artistlist.Model.Utilities.ToastRunnable;
+import com.grzesica.przemek.artistlist.Viewer.GuiContainer;
+import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,26 +23,30 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import static android.content.ContentValues.TAG;
 
 /**
  * Created by przemek on 05.03.18.
  */
+@Singleton
 public class DataFetcher implements IDataFetcher {
 
-    private ThreadPoolExecutor mThreadPoolExecutor;
-    private Context mContext;
     private DataBaseManager mDataBaseManager;
     private ExtendedHandler mExtendedHandler;
+    private GuiContainer mGuiContainer;
     private HttpHandler mHttpHandler;
     private JsonObjectExtended mJsonObjectExtended;
+    private ThreadPoolExecutor mThreadPoolExecutor;
+    private ToastRunnable mToastRunnable;
     @Inject
     @Named("AlbumsFetching")
     Provider<Runnable> mAlbumsFetching;
     @Inject
     @Named("ArtistFetching")
     Provider<Runnable> mArtistFetching;
+
 
     // Gets the number of available cores
     private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
@@ -53,19 +58,22 @@ public class DataFetcher implements IDataFetcher {
     public static final String JSON_URL = "http://10.0.2.2:3000/db";
 
     @Inject
-    public DataFetcher(AbstractExecutorService threadPoolExecutor, Context context, IDataBaseManager dataBaseManager,
-                       IHttpHandler httpHandler, IJsonObjectExtended jsonObjectExtended, IExtendedHandler extendedHandler) {
+    public DataFetcher(AbstractExecutorService threadPoolExecutor, IDataBaseManager dataBaseManager,
+                       IToastRunnable toastRunnable, IHttpHandler httpHandler,
+                       IJsonObjectExtended jsonObjectExtended,
+                       IExtendedHandler extendedHandler, IGuiContainer guiContainer) {
         this.mThreadPoolExecutor = (ThreadPoolExecutor) threadPoolExecutor;
-        this.mContext = context;
         this.mDataBaseManager = (DataBaseManager) dataBaseManager;
         this.mHttpHandler = (HttpHandler) httpHandler;
+        this.mGuiContainer = (GuiContainer) guiContainer;
         this.mJsonObjectExtended = (JsonObjectExtended) jsonObjectExtended;
         this.mExtendedHandler = (ExtendedHandler) extendedHandler;
+        this.mToastRunnable = (ToastRunnable) toastRunnable;
         ArtistListApplication.getApplicationComponent().inject(this);
     }
 
     @Override
-    public void getData() {
+    public void getEndPointData() {
 
         mDataBaseManager.openNew();
 
@@ -85,7 +93,7 @@ public class DataFetcher implements IDataFetcher {
                 // Looping through All Artist
                 for (int i = 0; i < artistJsonArray.length(); i++) {
                     JSONObject artistJsonObj = artistJsonArray.getJSONObject(i);
-                    ArtistFetchingRunnable artistFetchingRunnable = (ArtistFetchingRunnable)mArtistFetching.get();
+                    ArtistFetchingRunnable artistFetchingRunnable = (ArtistFetchingRunnable) mArtistFetching.get();
                     artistFetchingRunnable.setArtistJsonObj(artistJsonObj);
                     mThreadPoolExecutor.execute(artistFetchingRunnable);
                 }
@@ -94,7 +102,7 @@ public class DataFetcher implements IDataFetcher {
                 // Looping through all Albums
                 for (int i = 0; i < albumJsonArray.length(); i++) {
                     JSONObject albumJsonObj = albumJsonArray.getJSONObject(i);
-                    AlbumsFetchingRunnable albumsFetchingRunnable = (AlbumsFetchingRunnable)mAlbumsFetching.get();
+                    AlbumsFetchingRunnable albumsFetchingRunnable = (AlbumsFetchingRunnable) mAlbumsFetching.get();
                     albumsFetchingRunnable.setAlbumsJsonObj(albumJsonObj);
                     mThreadPoolExecutor.execute(albumsFetchingRunnable);
                 }
@@ -104,24 +112,14 @@ public class DataFetcher implements IDataFetcher {
 
             } catch (final JSONException e) {
                 Log.e(TAG, "Json parsing error: " + e.getMessage());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(mContext, "Json parsing error: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
+                mToastRunnable.setToastText("Json parsing error: " + e.getMessage());
+                runOnUiThread(mToastRunnable);
             }
         } else {
-            Log.e(TAG, "Couldn't get json from server.");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mContext,
-                            "Couldn't get server. Check your internet connection!!!",
-                            Toast.LENGTH_LONG).show();
-                }
-            });
+            mGuiContainer.setArtistFetchingServiceFlag(false);
+            mGuiContainer.setAlbumsFetchingServiceFlag(false);
+            mToastRunnable.setToastText("Couldn't get server. Check your internet connection!!!");
+            runOnUiThread(mToastRunnable);
         }
     }
 

@@ -4,11 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.Parcelable;
-import android.widget.Toast;
 
+import com.grzesica.przemek.artistlist.Container.ExtendedHandler;
 import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
+import com.grzesica.przemek.artistlist.Model.Utilities.IToastRunnable;
+import com.grzesica.przemek.artistlist.Model.Utilities.ToastRunnable;
 import com.grzesica.przemek.artistlist.Viewer.GuiContainer;
 import com.grzesica.przemek.artistlist.Viewer.IGuiContainer;
 
@@ -24,24 +25,27 @@ import javax.inject.Singleton;
 public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
 
     private Context mContext;
-    private IDataBaseManager mDataBaseManager;
-    private IExtendedHandler mExtendedHandler;
-    private IGuiContainer mGuiContainer;
-    private IHttpHandler mHttpHandler;
-    private IMD5checkSum mMD5checkSum;
-    private Parcelable mIntentSettingsActivity;
+    private DataBaseManager mDataBaseManager;
+    private ExtendedHandler mExtendedHandler;
+    private GuiContainer mGuiContainer;
+    private HttpHandler mHttpHandler;
+    private Intent mIntentSettingsActivity;
+    private MD5checkSum mMD5checkSum;
+    private ToastRunnable mToastRunnable;
 
     @Inject
     public UpdatesCheck(IMD5checkSum md5checkSum, Context context, IDataBaseManager dataBaseManager,
-                        IExtendedHandler extendedHandler,IHttpHandler httpHandler,
-                        @Named("settingsActivity") Parcelable intentSettingsActivity, IGuiContainer guiContainer) {
-        this.mMD5checkSum = md5checkSum;
+                        IExtendedHandler extendedHandler, IHttpHandler httpHandler,
+                        @Named("settingsActivity") Parcelable intentSettingsActivity,
+                        IGuiContainer guiContainer, IToastRunnable toastRunnable) {
+        this.mMD5checkSum = (MD5checkSum) md5checkSum;
         this.mContext = context;
-        this.mDataBaseManager = dataBaseManager;
-        this.mExtendedHandler = extendedHandler;
-        this.mGuiContainer = guiContainer;
-        this.mHttpHandler = httpHandler;
-        this.mIntentSettingsActivity = intentSettingsActivity;
+        this.mDataBaseManager = (DataBaseManager) dataBaseManager;
+        this.mExtendedHandler = (ExtendedHandler) extendedHandler;
+        this.mGuiContainer = (GuiContainer) guiContainer;
+        this.mHttpHandler = (HttpHandler) httpHandler;
+        this.mIntentSettingsActivity = (Intent) intentSettingsActivity;
+        this.mToastRunnable = (ToastRunnable) toastRunnable;
     }
 
     @Override
@@ -50,11 +54,11 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         if (strBoolean != null) {
             boolean updatesAvailability = Boolean.parseBoolean(strBoolean);
             if (updatesAvailability) {
-                Intent intent = (Intent)mIntentSettingsActivity;
+                Intent intent = mIntentSettingsActivity;
                 mContext.startActivity(intent);
             } else {
-                Toast.makeText(mContext, "Your application database is up-to-date", Toast.LENGTH_LONG).show();
-                ((GuiContainer)mGuiContainer).setServiceFlag(false);
+                mToastRunnable.setToastText("Your application database is up-to-date");
+                runOnUiThread(mToastRunnable);
             }
         }
     }
@@ -65,11 +69,11 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
         String newMD5Key;
         String oldMD5Key;
 
-        HttpHandler httpHandler = (HttpHandler) mHttpHandler;
+        HttpHandler httpHandler = mHttpHandler;
         String jsonStr = httpHandler.jsonServiceCall(DataFetcher.JSON_URL);
 
         mDataBaseManager.openPresent();
-        Cursor cursor = ((DataBaseManager) mDataBaseManager).getMd5KeyRecord();
+        Cursor cursor = mDataBaseManager.getMd5KeyRecord();
         cursor.moveToFirst();
         try {
             oldMD5Key = cursor.getString(cursor.getColumnIndex("md5Key"));
@@ -86,18 +90,16 @@ public class UpdatesCheck extends AsyncTask<Integer, Void, String> {
             }
         } else {
             newMD5Key = "EmptyNew";
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mContext, "Couldn't get server. Check your internet connection!!!", Toast.LENGTH_LONG).show();
-                }
-            });
+            mGuiContainer.setArtistFetchingServiceFlag(false);
+            mGuiContainer.setAlbumsFetchingServiceFlag(false);
+            mToastRunnable.setToastText("Couldn't get server. Check your internet connection!!!");
+            runOnUiThread(mToastRunnable);
         }
         return updatesAvailability;
     }
 
     private void runOnUiThread(Runnable r) {
-        ((Handler)mExtendedHandler).post(r);
+        mExtendedHandler.post(r);
     }
 }
 

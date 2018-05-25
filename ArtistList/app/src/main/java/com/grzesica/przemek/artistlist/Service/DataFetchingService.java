@@ -2,29 +2,34 @@ package com.grzesica.przemek.artistlist.Service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import com.grzesica.przemek.artistlist.Application.ArtistListApplication;
+import com.grzesica.przemek.artistlist.Container.ExtendedHandler;
 import com.grzesica.przemek.artistlist.Container.IExtendedHandler;
 import com.grzesica.przemek.artistlist.Model.DataFetcher;
+import com.grzesica.przemek.artistlist.Model.IDataBaseManager;
 import com.grzesica.przemek.artistlist.Model.IDataFetcher;
+import com.grzesica.przemek.artistlist.Model.Utilities.IToastRunnable;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.inject.Singleton;
 
 /**
  * Created by przemek on 05.03.18.
  */
-//@Singleton
+
 public class DataFetchingService extends IntentService {
 
     @Inject
     Provider<IDataFetcher> mDataFetcher;
-    @Inject IExtendedHandler mExtendedHandler;
+    @Inject
+    Provider<IDataBaseManager> mDataBaseManager;
+    @Inject
+    IExtendedHandler mExtendedHandler;
     public static String STR_MESSAGE = "message";
+    @Inject
+    IToastRunnable mToastRunnable;
 
     @Inject
     public DataFetchingService() {
@@ -46,16 +51,16 @@ public class DataFetchingService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         String text = intent.getStringExtra(STR_MESSAGE);
         showText(text);
-        DataFetcher dataFetcher = (DataFetcher)mDataFetcher.get();
-        dataFetcher.getData();
+        DataFetcher dataFetcher = (DataFetcher) mDataFetcher.get();
+        dataFetcher.getEndPointData();
     }
 
     private void showText(final String text) {
-        ((Handler)mExtendedHandler).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
-            }
-        });
+        mToastRunnable.setToastText(text);
+        runOnUiThread(mToastRunnable);
+    }
+
+    private void runOnUiThread(Runnable r) {
+        ((ExtendedHandler)mExtendedHandler).post(r);
     }
 }

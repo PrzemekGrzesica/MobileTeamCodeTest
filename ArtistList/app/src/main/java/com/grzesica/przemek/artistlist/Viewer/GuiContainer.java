@@ -6,8 +6,9 @@ import javax.inject.Singleton;
 public class GuiContainer implements IGuiContainer {
 
     private byte[] mImageByteArray;
-    private boolean mActivityServiceFlag = false;
     private boolean mServiceFlag = false;
+    private boolean mAlbumsFetchingServiceFlag = false;
+    private boolean mArtistFetchingServiceFlag = false;
 
     @Override
     public void setImageByteArray(byte[] imageByteArray) {
@@ -19,19 +20,19 @@ public class GuiContainer implements IGuiContainer {
         return mImageByteArray;
     }
 
-    public void setServiceFlag(boolean serviceFlag){
-        this.mServiceFlag = serviceFlag;
+    @Override
+    public void setAlbumsFetchingServiceFlag(boolean serviceFlag) {
+        this.mAlbumsFetchingServiceFlag = serviceFlag;
     }
 
-    public boolean getServiceFlag(){
+    @Override
+    public void setArtistFetchingServiceFlag(boolean serviceFlag) {
+        this.mArtistFetchingServiceFlag = serviceFlag;
+    }
+
+    @Override
+    public boolean getFetchingServiceFlag() {
+        mServiceFlag = mArtistFetchingServiceFlag | mAlbumsFetchingServiceFlag;
         return mServiceFlag;
-    }
-
-    public void setActivityServiceFlag(boolean activityServiceFlag){
-        this.mActivityServiceFlag = activityServiceFlag;
-    }
-
-    public boolean getActivityServiceFlag(){
-        return mActivityServiceFlag;
     }
 }

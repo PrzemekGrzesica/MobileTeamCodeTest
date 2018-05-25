@@ -1,6 +1,5 @@
 package com.grzesica.przemek.artistlist.Container;
 
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
